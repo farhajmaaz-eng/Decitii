@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deciti — Contract &amp; Deadline Management for Corporate Teams</title>
+<meta name="description" content="deciti is a corporate contract and deadline management workspace: track contracts, renewals, notice periods, obligations and critical dates with built-in deadline intelligence.">
+<meta name="application-name" content="deciti">
+<meta name="theme-color" content="#22262c">
+<meta name="color-scheme" content="light">
+<link rel="canonical" href="https://app.deciti.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="deciti">
+<meta property="og:title" content="deciti — Contract &amp; Deadline Management">
+<meta property="og:description" content="A corporate workspace for contracts, renewals, notice periods, obligations and critical dates. Deadline intelligence built in.">
+<meta property="og:url" content="https://app.deciti.io/">
+<meta property="og:image" content="https://image.qwenlm.ai/public_source/0ee376f0-bb3a-4f42-9b06-313cc2e3d093/10e45cf43-f5e7-4a4e-a3bf-5cd79563c80a.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="deciti — Contract &amp; Deadline Management">
+<meta name="twitter:description" content="Track contracts, renewals, notice periods and obligations with deadline intelligence.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322262c'/%3E%3Crect x='15' y='17' width='34' height='4' rx='2' fill='%23778089'/%3E%3Crect x='15' y='29' width='22' height='4' rx='2' fill='%23778089'/%3E%3Ccircle cx='43' cy='43' r='9' fill='%232e6e4e'/%3E%3Ccircle cx='43' cy='43' r='3.5' fill='%23d7e5dc'/%3E%3C/svg%3E">
+<!--
+  Deployment notes (served alongside this app shell in production):
+  robots.txt:  User-agent: * / Disallow: /#/  (private workspace screens are not indexable)
+  sitemap.xml: single entry for the public shell https://app.deciti.io/
+-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/600.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-sans/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono/500.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"deciti","applicationCategory":"BusinessApplication","operatingSystem":"Any","description":"Corporate contract and deadline management workspace with deadline intelligence.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
+<style>
+:root{
+  --bg:#e2e4e7; --panel:#f6f7f8; --panel-2:#eef0f2; --inset:#e9ebed;
+  --border:#c2c7cd; --border-strong:#a6adb6; --hairline:#dcdfe3;
+  --ink:#1d232a; --ink-2:#3d454e; --muted:#66707b; --faint:#8d95a0;
+  --accent:#2e6e4e; --accent-ink:#245a40; --accent-soft:#e2ede6;
+  --amber:#8a6116; --amber-soft:#f4ebd6; --amber-line:#d9c48f;
+  --red:#9c3636; --red-soft:#f3e2e2; --red-line:#d8b2b2;
+  --slate:#3e5c76; --slate-soft:#e3eaf0; --slate-line:#b7c8d6;
+  --grey-soft:#eceef0; --grey-line:#c6ccd2; --grey-ink:#545d66;
+  --sidebar:#20242a; --sidebar-2:#262b32; --sidebar-ink:#a9b2bc;
+  --shadow-1:0 1px 2px rgba(23,28,34,.07); --shadow-2:0 2px 6px rgba(23,28,34,.10); --shadow-3:0 10px 30px rgba(15,18,22,.28);
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0}
+a{color:var(--accent-ink)}
+button{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:8px;top:-48px;z-index:100;background:var(--sidebar);color:#fff;padding:8px 14px;border-radius:0 0 6px 6px;text-decoration:none;font-weight:600}
+.skip:focus{top:0}
+.app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
+/* ---------- sidebar ---------- */
+.sidebar{background:var(--sidebar);color:var(--sidebar-ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:40}
+.brand{display:flex;align-items:center;gap:10px;padding:16px 16px 14px;border-bottom:1px solid #2d333b}
+.brand-mark{width:30px;height:30px;flex:none;border-radius:7px;background:#171a1f;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 1px 2px rgba(0,0,0,.4);display:grid;place-items:center}
+.brand-name{font-size:16px;font-weight:600;color:#e8ebee;letter-spacing:.01em}
+.brand-sub{font-size:10.5px;color:#7d8791;letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.nav{padding:10px 10px 14px;overflow-y:auto;flex:1}
+.nav-sec{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#6b7580;padding:12px 8px 6px}
+.nav a{display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:2px;border-radius:6px;color:var(--sidebar-ink);text-decoration:none;font-size:13px;font-weight:500;border:1px solid transparent}
+.nav a:hover{background:var(--sidebar-2);color:#e2e6ea}
+.nav a[aria-current="page"]{background:#2d333b;color:#fff;border-color:#3a414b;box-shadow:inset 2px 0 0 var(--accent),inset 0 1px 0 rgba(255,255,255,.04)}
+.nav .cnt{margin-left:auto;font-family:var(--mono);font-size:10.5px;background:#333a42;color:#c6cdd5;border-radius:8px;padding:1px 7px}
+.nav .cnt.hot{background:#5a2b2b;color:#f0d4d4}
+.sidebar-foot{padding:12px 16px;border-top:1px solid #2d333b;font-size:11.5px;color:#7d8791}
+.sidebar-foot .org{color:#c3cad2;font-weight:600;font-size:12px}
+/* ---------- workspace ---------- */
+.workspace{display:flex;flex-direction:column;min-width:0;min-height:100vh}
+.topbar{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--panel);border-bottom:1px solid var(--border);box-shadow:var(--shadow-1);position:sticky;top:0;z-index:30}
+.menu-btn{display:none}
+.gs-wrap{position:relative;flex:1;max-width:430px}
+.gs-wrap .ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+#gsearch{width:100%;padding-left:32px}
+.gs-pop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-3);z-index:70;max-height:340px;overflow:auto;display:none}
+.gs-pop.open{display:block}
+.gs-item{display:flex;gap:8px;align-items:center;padding:8px 12px;font-size:13px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hairline)}
+.gs-item:last-child{border-bottom:0}
+.gs-item:hover,.gs-item.active{background:var(--panel-2)}
+.gs-item .sub{color:var(--muted);font-size:12px;margin-left:auto;white-space:nowrap}
+.gs-head{padding:6px 12px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel-2);border-bottom:1px solid var(--hairline)}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.pop-wrap{position:relative}
+.bell-pop{position:absolute;right:0;top:calc(100% + 8px);width:340px;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-3);z-index:70;display:none}
+.bell-pop.open{display:block}
+.bell-h{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--hairline);background:var(--panel-2);border-radius:8px 8px 0 0}
+.bell-h h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.bell-list{max-height:320px;overflow:auto}
+.bell-item{display:flex;gap:9px;padding:10px 12px;border-bottom:1px solid var(--hairline);text-decoration:none;color:var(--ink);font-size:12.5px;align-items:flex-start}
+.bell-item:hover{background:var(--panel-2)}
+.bell-item .dot{margin-top:4px;width:8px;height:8px;border-radius:50%;flex:none}
+.bell-item .t{color:var(--muted);font-size:11.5px;margin-top:2px}
+.user-chip{display:flex;align-items:center;gap:9px;padding:4px 6px 4px 4px;border:1px solid var(--hairline);border-radius:7px;background:var(--panel-2);box-shadow:inset 0 1px 0 #fff}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--sidebar);color:#dfe3e8;display:grid;place-items:center;font-size:11px;font-weight:600;box-shadow:inset 0 -2px 4px rgba(0,0,0,.35)}
+.user-chip .nm{font-size:12px;font-weight:600;line-height:1.2}
+.user-chip .rl{font-size:10.5px;color:var(--muted);line-height:1.2}
+main{flex:1;padding:20px 22px 34px;outline:none}
+.statusbar{display:flex;justify-content:space-between;gap:12px;padding:5px 20px;background:var(--panel-2);border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted);box-shadow:inset 0 1px 2px rgba(23,28,34,.05)}
+/* ---------- panels & layout ---------- */
+.page{max-width:1280px;margin:0 auto}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.page-head h1{font-size:20px;font-weight:600;letter-spacing:-.01em}
+.head-sub{color:var(--muted);font-size:12.5px;margin-top:3px}
+.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-1),inset 0 1px 0 #fff}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--hairline)}
+.panel-h h2,.panel-h h3{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.panel-b{padding:14px}
+.inset{background:var(--inset);border:1px solid #cfd3d8;border-radius:6px;box-shadow:inset 0 1px 3px rgba(23,28,34,.08)}
+.grid{display:grid;gap:14px}
+.c-kpi{grid-template-columns:repeat(4,1fr)}
+.c-21{grid-template-columns:2fr 1fr}
+.c-11{grid-template-columns:1fr 1fr}
+.mt{margin-top:14px}
+/* ---------- KPIs ---------- */
+.kpi{padding:12px 14px 13px}
+.kpi .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .val{font-family:var(--mono);font-size:26px;font-weight:500;margin-top:4px;letter-spacing:-.02em}
+.kpi .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi .val.warn{color:var(--amber)} .kpi .val.bad{color:var(--red)} .kpi .val.good{color:var(--accent-ink)}
+/* ---------- badges & chips ---------- */
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:4px;border:1px solid;line-height:1.5;white-space:nowrap}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.t-green{background:var(--accent-soft);border-color:#b7d2c2;color:var(--accent-ink)}
+.t-amber{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
+.t-red{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
+.t-slate{background:var(--slate-soft);border-color:var(--slate-line);color:var(--slate)}
+.t-grey{background:var(--grey-soft);border-color:var(--grey-line);color:var(--grey-ink)}
+.t-dark{background:#3a4046;border-color:#2b3036;color:#e8ebee}
+.chip{display:inline-flex;align-items:center;font-family:var(--mono);font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;border:1px solid;line-height:1.5;white-space:nowrap}
+/* ---------- buttons & inputs ---------- */
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink-2);background:#eff1f3;border:1px solid #b6bcc4;border-bottom-color:#9aa2ac;border-radius:6px;padding:6px 12px;cursor:pointer;box-shadow:0 1px 1px rgba(20,24,28,.06),inset 0 1px 0 #fff;text-decoration:none}
+.btn:hover{background:#e6e9ec}
+.btn:active{transform:translateY(1px);box-shadow:inset 0 1px 3px rgba(20,24,28,.16)}
+.btn-primary{background:var(--accent);border-color:#275e43;border-bottom-color:#1c4a34;color:#fff;box-shadow:0 1px 1px rgba(20,24,28,.18),inset 0 1px 0 rgba(255,255,255,.16)}
+.btn-primary:hover{background:#2a654a}
+.btn-danger{background:var(--red);border-color:#832e2e;border-bottom-color:#6d2626;color:#fff;box-shadow:0 1px 1px rgba(20,24,28,.18),inset 0 1px 0 rgba(255,255,255,.14)}
+.btn-danger:hover{background:#8e3030}
+.btn-sm{padding:4px 9px;font-size:12px}
+.icon-btn{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:6px;border:1px solid #b6bcc4;border-bottom-color:#9aa2ac;background:#eff1f3;color:var(--ink-2);cursor:pointer;box-shadow:0 1px 1px rgba(20,24,28,.06),inset 0 1px 0 #fff;position:relative}
+.icon-btn:hover{background:#e6e9ec}
+.icon-btn:active{transform:translateY(1px);box-shadow:inset 0 1px 3px rgba(20,24,28,.16)}
+.icon-btn .nbadge{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-family:var(--mono);font-size:9.5px;min-width:15px;height:15px;border-radius:8px;display:grid;place-items:center;padding:0 3px;border:1px solid #fff0}
+.ic{width:16px;height:16px;flex:none}
+.input,select,textarea{font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #b6bcc4;border-radius:6px;padding:6px 9px;box-shadow:inset 0 1px 2px rgba(20,24,28,.07);max-width:100%}
+textarea{min-height:74px;resize:vertical}
+.input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:inset 0 1px 2px rgba(20,24,28,.07),0 0 0 2px rgba(46,110,78,.18)}
+select{background:#fff}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.field .hint{font-size:11px;color:var(--muted);margin-top:3px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.span2{grid-column:1 / -1}
+.form-err{margin-top:10px;border:1px solid var(--red-line);background:var(--red-soft);color:var(--red);border-radius:6px;padding:8px 12px;font-size:12.5px}
+.form-err ul{margin:4px 0 0;padding-left:16px}
+/* ---------- toolbar ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 12px;margin-bottom:14px}
+.toolbar .grow{flex:1;min-width:170px}
+.toolbar label.inline{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);font-weight:500}
+/* ---------- tables ---------- */
+.tbl-wrap{overflow:auto;border-radius:0 0 8px 8px}
+table.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:960px}
+.tbl caption{caption-side:top;text-align:left}
+.tbl th{position:sticky;top:0;z-index:2;background:#e9ebee;border-bottom:1px solid var(--border);text-align:left;padding:0;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);white-space:nowrap}
+.tbl th .th-pad{display:block;padding:8px 10px}
+.tbl th .th-btn{display:flex;align-items:center;gap:5px;width:100%;padding:8px 10px;background:none;border:0;color:var(--muted);font:inherit;font-size:11px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;text-align:left}
+.tbl th .th-btn:hover{color:var(--ink);background:#e2e5e8}
+.tbl th .arr{font-size:9px}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--hairline);vertical-align:middle}
+.tbl tbody tr:hover{background:#f0f2f4}
+.tbl tbody tr.archived td{opacity:.55}
+.tbl .num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .sub{display:block;color:var(--muted);font-size:11.5px}
+.tbl a.rowlink{color:var(--ink);font-weight:600;text-decoration:none}
+.tbl a.rowlink:hover{color:var(--accent-ink);text-decoration:underline}
+.row-actions{display:flex;gap:4px;justify-content:flex-end}
+.pager{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid var(--hairline);background:var(--panel-2);border-radius:0 0 8px 8px;font-size:12.5px;color:var(--muted)}
+.meta-line{font-size:12.5px;color:var(--muted);margin:0 2px 8px}
+/* ---------- lists ---------- */
+.list-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--hairline)}
+.list-row:last-child{border-bottom:0}
+.list-row .main{min-width:0;flex:1}
+.list-row .t{font-weight:600;font-size:13px}
+.list-row .t a{color:var(--ink);text-decoration:none}
+.list-row .t a:hover{color:var(--accent-ink);text-decoration:underline}
+.list-row .s{color:var(--muted);font-size:12px;margin-top:1px}
+.list-row.over{background:#faf1f1}
+.dblock{width:44px;flex:none;text-align:center;border:1px solid var(--hairline);border-radius:6px;background:#fff;box-shadow:var(--shadow-1);padding:3px 0}
+.dblock .d{font-family:var(--mono);font-size:15px;font-weight:500;line-height:1.1}
+.dblock .m{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* ---------- empty / error ---------- */
+.empty{padding:42px 20px;text-align:center;color:var(--muted)}
+.empty .icn{width:46px;height:46px;margin:0 auto 12px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.empty h3{font-size:14.5px;color:var(--ink-2);margin-bottom:4px}
+.empty p{margin:0 0 14px;font-size:13px}
+/* ---------- dialog ---------- */
+dialog{border:1px solid var(--border);border-radius:10px;padding:0;box-shadow:var(--shadow-3);width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 60px)}
+dialog::backdrop{background:rgba(22,26,31,.52)}
+dialog.small{width:min(460px,calc(100vw - 32px))}
+dialog[open]{display:block}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--hairline);background:var(--panel-2);border-radius:10px 10px 0 0}
+.dlg-h h2{font-size:15px;font-weight:600}
+.dlg-b{padding:16px;overflow:auto;max-height:calc(100vh - 210px)}
+.dlg-f{padding:12px 16px;border-top:1px solid var(--hairline);display:flex;justify-content:flex-end;gap:8px;background:var(--panel-2);border-radius:0 0 10px 10px}
+/* ---------- toasts ---------- */
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:90}
+.toast{background:#262b31;color:#e8ebee;border:1px solid #3a4149;border-left:3px solid var(--accent);padding:10px 14px;border-radius:6px;box-shadow:0 8px 22px rgba(15,18,22,.35);font-size:13px;max-width:340px;animation:tin .18s ease-out}
+.toast.warn{border-left-color:#c99a3a}
+.toast.err{border-left-color:#c05555}
+@keyframes tin{from{transform:translateY(6px);opacity:0}to{transform:none;opacity:1}}
+/* ---------- calendar ---------- */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow-1)}
+.cal .hd{background:#e9ebee;padding:6px 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:center;border-bottom:1px solid var(--border)}
+.cal .cell{min-height:96px;border-right:1px solid var(--hairline);border-bottom:1px solid var(--hairline);padding:5px 5px 6px;background:#fbfcfc;cursor:pointer;display:block;width:100%;text-align:left;border-top:0;border-left:0;font:inherit}
+.cal .cell:nth-child(7n){border-right:0}
+.cal .cell:hover{background:#f1f3f5}
+.cal .cell.dim{background:#f0f1f3}
+.cal .cell.dim .dnum{color:var(--faint)}
+.cal .cell.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.dnum{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);padding:1px 4px;border-radius:4px;margin-bottom:3px}
+.cell.today .dnum{background:var(--accent);color:#fff;font-weight:500}
+.evt{display:block;width:100%;font-size:10.5px;font-weight:500;padding:1.5px 5px;border-radius:3px;border:1px solid;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none}
+.evt.red{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
+.evt.green{background:var(--accent-soft);border-color:#b7d2c2;color:var(--accent-ink)}
+.evt.amber{background:var(--amber-soft);border-color:var(--amber-line);color:var(--amber)}
+.evt.slate{background:var(--slate-soft);border-color:var(--slate-line);color:var(--slate)}
+.more-ev{font-size:10.5px;color:var(--muted)}
+.cal-legend{display:flex;gap:8px;flex-wrap:wrap}
+.lg-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-2);background:#eff1f3;border:1px solid #b6bcc4;border-radius:6px;padding:4px 10px;cursor:pointer;box-shadow:inset 0 1px 0 #fff}
+.lg-btn[aria-pressed="false"]{opacity:.45;box-shadow:inset 0 1px 3px rgba(20,24,28,.12)}
+.lg-btn .dot{width:8px;height:8px;border-radius:50%}
+/* ---------- detail ---------- */
+.crumbs{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--accent-ink);text-decoration:underline}
+.head-badges{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px}
+.kv .k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kv .v{font-size:13px;margin-top:2px}
+.kv .v .mono{font-family:var(--mono)}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:flex;gap:10px;padding:8px 2px;border-bottom:1px dashed var(--hairline);align-items:flex-start}
+.tl li:last-child{border-bottom:0}
+.tl .dot{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:none;box-shadow:0 0 0 2px var(--panel)}
+.ob-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--hairline)}
+.ob-row:last-child{border-bottom:0}
+.ob-row.done .ob-t{text-decoration:line-through;color:var(--muted)}
+.ob-t{font-weight:600;font-size:13px}
+.ob-s{font-size:12px;color:var(--muted)}
+input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent)}
+.add-row{display:flex;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--panel-2);border-top:1px solid var(--hairline);border-radius:0 0 8px 8px}
+.add-row .input{flex:1;min-width:140px}
+.notes-pre{white-space:pre-wrap;font-size:13px;margin:0}
+/* ---------- reports ---------- */
+.fig{padding:12px 14px}
+.fig figcaption{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:10px}
+.hbar{display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;margin-bottom:7px;font-size:12.5px}
+.hbar .track{height:10px;border-radius:5px;background:var(--inset);box-shadow:inset 0 1px 2px rgba(23,28,34,.1);overflow:hidden}
+.hbar .fill{height:100%;border-radius:5px;background:var(--slate);display:block}
+.hbar .val{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;color:var(--ink-2)}
+.legend .li{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:10px;height:10px;border-radius:3px}
+/* ---------- skeleton ---------- */
+.sk{background:#d9dcdf;border-radius:4px;animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- responsive ---------- */
+@media (max-width:1060px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;transform:translateX(-102%);transition:transform .2s ease;box-shadow:var(--shadow-3)}
+  body.nav-open .sidebar{transform:none}
+  .menu-btn{display:inline-grid}
+  .c-kpi{grid-template-columns:repeat(2,1fr)}
+  .c-21,.c-11{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  main{padding:14px 12px 26px}
+  .c-kpi{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+  .user-chip .nm,.user-chip .rl{display:none}
+  .statusbar{display:none}
+  .cal .cell{min-height:64px}
+  .evt{font-size:9.5px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="app">
+  <aside class="sidebar" aria-label="Application sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 64 64" fill="none"><rect x="13" y="15" width="38" height="5" rx="2.5" fill="#778089"/><rect x="13" y="28" width="25" height="5" rx="2.5" fill="#778089"/><circle cx="45" cy="45" r="10" fill="#2e6e4e"/><circle cx="45" cy="45" r="4" fill="#d7e5dc"/></svg></span>
+      <span><span class="brand-name">deciti</span><br><span class="brand-sub">Contract Intelligence</span></span>
+    </div>
+    <nav class="nav" aria-label="Primary">
+      <div class="nav-sec">Workspace</div>
+      <a href="#/" data-nav="dashboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="#/contracts" data-nav="contracts"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>Contracts</a>
+      <a href="#/deadlines" data-nav="deadlines"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Deadlines<span class="cnt hot" id="cnt-deadlines" hidden></span></a>
+      <a href="#/calendar" data-nav="calendar"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>Calendar</a>
+      <a href="#/renewals" data-nav="renewals"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8A8 8 0 0 0 5.6 6.6L4 9"/><path d="M4 4v5h5"/><path d="M4 16a8 8 0 0 0 14.4 1.4L20 15"/><path d="M20 20v-5h-5"/></svg>Renewals<span class="cnt" id="cnt-renewals" hidden></span></a>
+      <div class="nav-sec">Directory</div>
+      <a href="#/companies" data-nav="companies"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18"/><path d="M3 21h18"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/><path d="M10 21v-3h4v3"/></svg>Companies</a>
+      <a href="#/reports" data-nav="reports"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20v-6M11 20V6M17 20v-9"/><path d="M3 20h18"/></svg>Reports</a>
+      <div class="nav-sec">System</div>
+      <a href="#/settings" data-nav="settings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21v-6M5 9V3M12 21v-9M12 6V3M19 21v-3M19 12V3"/><path d="M2 15h6M9 6h6M16 18h6"/></svg>Settings</a>
+    </nav>
+    <div class="sidebar-foot"><div class="org" id="org-name">—</div><div>deciti workspace · v1.1</div></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" data-action="menu-toggle" aria-label="Toggle navigation menu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div class="gs-wrap">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <label class="sr-only" for="gsearch">Search contracts, companies and deadlines</label>
+        <input class="input" id="gsearch" type="search" placeholder="Search contracts, companies, deadlines…  ( / )" autocomplete="off" aria-describedby="gs-hint">
+        <span id="gs-hint" class="sr-only">Results appear as you type. Use arrow keys and Enter to navigate.</span>
+        <div class="gs-pop" id="gs-pop" role="listbox" aria-label="Search results"></div>
+      </div>
+      <div class="top-actions">
+        <div class="pop-wrap">
+          <button class="icon-btn" id="bell-btn" data-action="bell-toggle" aria-label="Notifications" aria-haspopup="true">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 6.5-2.5 8-2.5 8h17S18 15.5 18 9"/><path d="M13.7 20.5a2 2 0 0 1-3.4 0"/></svg>
+            <span class="nbadge" id="bell-badge" hidden></span>
+          </button>
+          <div class="bell-pop" id="bell-pop" role="region" aria-label="Notifications panel"></div>
+        </div>
+        <div class="user-chip" title="Signed in as Alex Morgan">
+          <span class="avatar" aria-hidden="true">AM</span>
+          <span><span class="nm">Alex Morgan</span><br><span class="rl">Contract Operations</span></span>
+        </div>
+      </div>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="statusbar"><span>Local workspace · <span id="saved-at">not saved yet</span></span><span id="today-line"></span></footer>
+  </div>
+</div>
+<div id="toasts" role="status" aria-live="polite"></div>
+<div id="modal-root"></div>
+<noscript><p style="padding:20px">deciti requires JavaScript to run. Please enable JavaScript in your browser.</p></noscript>
+
+<script>
+'use strict';
+/* ================= utilities ================= */
+var DAY=86400000;
+function $(s,r){r=r||document;return r.querySelector(s);}
+function $$(s,r){r=r||document;return Array.prototype.slice.call(r.querySelectorAll(s));}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(){return 'x'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4);}
+function todayISO(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function pISO(s){if(!s)return NaN;var p=s.split('-');return Date.UTC(+p[0],+p[1]-1,+p[2]);}
+function daysUntil(s){return Math.round((pISO(s)-pISO(todayISO()))/DAY);}
+function addDaysISO(s,n){return new Date(pISO(s)+n*DAY).toISOString().slice(0,10);}
+function addMonthsISO(s,n){var d=new Date(pISO(s));var t=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+n,1));var dim=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();t.setUTCDate(Math.min(d.getUTCDate(),dim));return t.toISOString().slice(0,10);}
+function fmtDate(s){if(!s)return '—';var d=new Date(pISO(s));return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtDateLong(s){var d=new Date(pISO(s));return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});}
+function fmtMonth(y,m){return new Date(Date.UTC(y,m,1)).toLocaleDateString('en-US',{month:'long',year:'numeric'});}
+function relTime(ts){var s=Math.floor((Date.now()-ts)/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' h ago';if(s<172800)return 'yesterday';if(s<604800)return Math.floor(s/86400)+' days ago';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function money(v){if(!v)return '—';try{return new Intl.NumberFormat('en-US',{style:'currency',currency:S().currency,maximumFractionDigits:0}).format(v);}catch(e){return '$'+Number(v).toLocaleString();}}
+function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function download(name,text,type){try{var b=new Blob([text],{type:type||'application/octet-stream'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},500);}catch(e){toast('Download is not available in this environment.','err');}}
+
+/* ================= constants ================= */
+var TYPES=['SaaS Subscription','Licensing','Professional Services','Vendor / Supply','Lease','NDA','Employment','Insurance','Partnership','Other'];
+var DEPTS=['Legal','Procurement','Finance','IT','Operations','HR','Sales','Executive'];
+var STATUSES=['Draft','Active','Pending renewal','Renewed','Expired','Terminated'];
+var STATUS_TONE={'Draft':'grey','Active':'green','Pending renewal':'amber','Renewed':'slate','Expired':'red','Terminated':'dark'};
+var PRIORITIES=['Low','Medium','High','Critical'];
+var PRIORITY_TONE={'Low':'grey','Medium':'slate','High':'amber','Critical':'red'};
+var KIND_META={expiry:{label:'Expiration',tone:'red'},renewal:{label:'Renewal',tone:'green'},notice:{label:'Notice',tone:'amber'},obligation:{label:'Obligation',tone:'slate'}};
+var ATT_KINDS=['PDF','DOCX','XLSX','Link','Email','Other'];
+var CURRENCIES=['USD','EUR','GBP','CHF','SGD','AUD','CAD','JPY'];
+var DEFAULT_SETTINGS={org:'Meridian Holdings',currency:'USD',expiryWarn:60,renewalWarn:60,defaultNotice:60};
+var LS_KEY='deciti.workspace.v1';
+
+/* ================= safe storage (localStorage with in-memory fallback for sandboxed contexts) ================= */
+var safeStorage=(function(){
+  try{var ls=window.localStorage;ls.setItem('__deciti_t','1');ls.removeItem('__deciti_t');return ls;}
+  catch(e){
+    var mem={};
+    return {getItem:function(k){return Object.prototype.hasOwnProperty.call(mem,k)?mem[k]:null;},
+            setItem:function(k,v){mem[k]=String(v);},
+            removeItem:function(k){delete mem[k];}};
+  }
+})();
+
+/* ================= persistence layer (swap for a real backend later) ================= */
+var DataService={
+  load:function(){return delay(260).then(function(){var raw=safeStorage.getItem(LS_KEY);if(!raw)return null;return JSON.parse(raw);});},
+  save:function(data){return delay(60).then(function(){safeStorage.setItem(LS_KEY,JSON.stringify(data));});},
+  clear:function(){safeStorage.removeItem(LS_KEY);}
+};
+
+/* ================= state ================= */
+var db={contracts:[],activity:[],readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};
+function S(){return db.settings;}
+var cs={q:'',status:'all',priority:'all',type:'all',company:'',window:'any',from:'',to:'',showArchived:false,sortKey:'expiry',sortDir:'asc',page:1};
+var dls={time:'all',kinds:{expiry:true,renewal:true,notice:true,obligation:true}};
+var cal={y:new Date().getFullYear(),m:new Date().getMonth(),selected:null,kinds:{expiry:true,renewal:true,notice:true,obligation:true}};
+var comps={q:''};
+var PAGE_SIZE=12;
+
+/* ================= intelligence ================= */
+function byId(id){for(var i=0;i<db.contracts.length;i++)if(db.contracts[i].id===id)return db.contracts[i];return null;}
+function noticeDateOf(c){var base=c.renewalDate||c.expiryDate;if(!base||!(c.noticePeriodDays>0))return null;return addDaysISO(base,-c.noticePeriodDays);}
+function metrics(c){var m={expiryDays:c.expiryDate?daysUntil(c.expiryDate):null,renewalDays:c.renewalDate?daysUntil(c.renewalDate):null};m.noticeDate=noticeDateOf(c);m.noticeDays=m.noticeDate?daysUntil(m.noticeDate):null;return m;}
+function isActive(c){return !c.archived&&(c.status==='Active'||c.status==='Pending renewal');}
+function isLive(c){return !c.archived&&c.status!=='Terminated';}
+function urgencyTone(days){if(days==null)return 'grey';if(days<0)return 'red';if(days<=21)return 'red';if(days<=S().expiryWarn)return 'amber';if(days<=120)return 'slate';return 'grey';}
+function daysChip(days){if(days==null)return '';var tone=urgencyTone(days);var label=days<0?(-days)+'d over':days+'d';return '<span class="chip t-'+tone+'" title="'+(days<0?('Overdue by '+(-days)+' days'):('In '+days+' days'))+'">'+label+'</span>';}
+function allDeadlines(){var rows=[];db.contracts.forEach(function(c){if(!isLive(c))return;var m=metrics(c);
+  if(c.expiryDate)rows.push({c:c,date:c.expiryDate,days:m.expiryDays,kind:'expiry',label:'Contract expires',done:false});
+  if(c.renewalDate)rows.push({c:c,date:c.renewalDate,days:m.renewalDays,kind:'renewal',label:'Renewal date',done:false});
+  if(m.noticeDate)rows.push({c:c,date:m.noticeDate,days:m.noticeDays,kind:'notice',label:'Notice deadline ('+c.noticePeriodDays+'d)',done:false});
+  (c.obligations||[]).forEach(function(o){rows.push({c:c,date:o.date,days:daysUntil(o.date),kind:'obligation',label:o.title,done:!!o.done,oid:o.id});});
+});return rows;}
+function computeAlerts(){var out=[];db.contracts.forEach(function(c){if(!isLive(c))return;var m=metrics(c);
+  if(m.expiryDays!=null&&m.expiryDays<0&&c.status!=='Expired')out.push({id:'exp:'+c.id+':'+c.expiryDate,tone:'red',text:c.title+' expired '+(-m.expiryDays)+' day'+(m.expiryDays===-1?'':'s')+' ago',sub:c.company+' · action required',cid:c.id,date:c.expiryDate});
+  else if(m.expiryDays!=null&&m.expiryDays<=S().expiryWarn&&isActive(c))out.push({id:'expw:'+c.id+':'+c.expiryDate,tone:m.expiryDays<=21?'red':'amber',text:c.title+' expires in '+m.expiryDays+' days',sub:c.company+' · '+fmtDate(c.expiryDate),cid:c.id,date:c.expiryDate});
+  if(m.noticeDays!=null&&m.noticeDays<=S().renewalWarn&&(m.renewalDays==null||m.renewalDays>=0))out.push({id:'not:'+c.id+':'+m.noticeDate,tone:m.noticeDays<0?'red':'amber',text:m.noticeDays<0?('Notice window open for '+c.title+' (deadline passed '+(-m.noticeDays)+'d ago)'):('Notice for '+c.title+' due in '+m.noticeDays+' days'),sub:c.company+' · notice period '+c.noticePeriodDays+'d',cid:c.id,date:m.noticeDate});
+  (c.obligations||[]).forEach(function(o){if(o.done)return;var d=daysUntil(o.date);if(d<=14)out.push({id:'ob:'+c.id+':'+o.id,tone:d<0?'red':'amber',text:(d<0?'Overdue: ':'Due in '+d+'d: ')+o.title,sub:c.title,cid:c.id,date:o.date});});
+});out.sort(function(a,b){return pISO(a.date)-pISO(b.date);});return out;}
+function unreadAlerts(){var ids=db.readAlerts||[];return computeAlerts().filter(function(a){return ids.indexOf(a.id)<0;});}
+
+/* ================= icons ================= */
+var ICONS={file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',renew:'<path d="M20 8A8 8 0 0 0 5.6 6.6L4 9"/><path d="M4 4v5h5"/><path d="M4 16a8 8 0 0 0 14.4 1.4L20 15"/><path d="M20 20v-5h-5"/>',pencil:'<path d="M17 3.5a2.6 2.6 0 0 1 3.7 3.7L8 20 3.5 20.5 4 16z"/>',archive:'<rect x="2.5" y="4" width="19" height="4.5" rx="1"/><path d="M4.5 8.5V19a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V8.5"/><path d="M10 12.5h4"/>',trash:'<path d="M3.5 6.5h17"/><path d="M8.5 6.5v-2h7v2"/><path d="M18.5 6.5l-.9 13a1.5 1.5 0 0 1-1.5 1.4H7.9a1.5 1.5 0 0 1-1.5-1.4l-.9-13"/><path d="M10 10.5v6M14 10.5v6"/>',chevR:'<path d="M9 6l6 6-6 6"/>',chevL:'<path d="M15 6l-6 6 6 6"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',check:'<path d="M4.5 12.5l5 5L20 6.5"/>',alert:'<path d="M12 3.5L22 20.5H2z"/><path d="M12 10v4.5M12 17.5v.01"/>',download:'<path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4.5 20.5h15"/>',upload:'<path d="M12 14V3M7.5 7.5L12 3l4.5 4.5"/><path d="M4.5 20.5h15"/>',plus:'<path d="M12 5v14M5 12h14"/>',inbox:'<path d="M3 13.5h5l1.5 2.5h5L16 13.5h5"/><path d="M5 4.5h14L21 13.5V19a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19v-5.5z"/>',external:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 13.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5.5"/>'};
+function ic(n){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[n]+'</svg>';}
+
+/* ================= small components ================= */
+function badge(tone,text){return '<span class="badge t-'+tone+'"><span class="dot" aria-hidden="true"></span>'+esc(text)+'</span>';}
+function statusBadge(s){return badge(STATUS_TONE[s]||'grey',s);}
+function prioBadge(p){return badge(PRIORITY_TONE[p]||'grey',p+' priority');}
+function emptyState(icon,title,msg,actionHtml){return '<div class="empty"><div class="icn inset">'+ic(icon)+'</div><h3>'+esc(title)+'</h3><p>'+esc(msg)+'</p>'+(actionHtml||'')+'</div>';}
+function panelHead(title,right){return '<div class="panel-h"><h2>'+esc(title)+'</h2>'+(right||'')+'</div>';}
+
+/* ================= routing (in-memory router; hash synced best-effort) ================= */
+var currentPath='/';
+function parsePath(p){var i=p.indexOf('?');var path=i<0?p:p.slice(0,i);var query=new URLSearchParams(i<0?'':p.slice(i+1));var segs=path.split('/').filter(Boolean);return{segs:segs,query:query};}
+function normPath(p){if(!p)return '/';if(p.charAt(0)==='#')p=p.slice(1);if(!p)p='/';if(p.charAt(0)!=='/')p='/'+p;return p;}
+function go(p){p=normPath(p);currentPath=p;
+  try{if(window.history&&history.pushState){history.pushState({p:p},'','#'+p);}else{location.hash='#'+p;}}catch(e){/* sandboxed environments: keep in-memory route only */}
+  renderRoute();}
+function setMeta(m){document.title=m.t;var el=document.querySelector('meta[name="description"]');if(el)el.setAttribute('content',m.d);}
+
+var META={
+  dashboard:{t:'Dashboard · deciti',d:'Overview of contracts expiring soon, upcoming and overdue deadlines, renewals and high-priority items.'},
+  contracts:{t:'Contracts · deciti',d:'Search, filter, sort and manage every contract, its owners, dates, values and obligations.'},
+  deadlines:{t:'Deadlines · deciti',d:'A consolidated, prioritized view of expirations, renewals, notice deadlines and obligations.'},
+  calendar:{t:'Calendar · deciti',d:'Month calendar of contract expirations, renewals, notice deadlines and obligations.'},
+  renewals:{t:'Renewals · deciti',d:'Renewal pipeline with notice windows, upcoming renewals and renewal values.'},
+  companies:{t:'Companies · deciti',d:'Counterparties and vendors with contract counts, values and next expirations.'},
+  reports:{t:'Reports · deciti',d:'Analytics on contract status, types, expirations, renewal pipeline and value by owner.'},
+  settings:{t:'Settings · deciti',d:'Organization preferences, alert thresholds, and workspace data management.'},
+  notfound:{t:'Page not found · deciti',d:'The page you requested does not exist in this workspace.'}
+};
+
+/* ================= seed data ================= */
+function seedData(){var t=todayISO();function off(n){return addDaysISO(t,n);}var now=Date.now();
+function C(o){var base={id:uid(),archived:false,notes:'',attachments:[],obligations:[],noticePeriodDays:S().defaultNotice,createdAt:now-40*DAY,updatedAt:now-2*DAY};return Object.assign(base,o);}
+var csd=[
+C({title:'Corvus Cloud — Enterprise Platform Subscription',company:'Corvus Cloud',type:'SaaS Subscription',owner:'Dana Whitfield',department:'IT',startDate:off(-780),expiryDate:off(12),renewalDate:off(12),noticePeriodDays:60,value:240000,status:'Active',priority:'Critical',notes:'Auto-renews unless written notice is given 60 days prior. Negotiated 8% uplift cap at last renewal.',obligations:[{id:uid(),title:'Migration checkpoint review',date:off(6),done:false}],attachments:[{id:uid(),name:'Executed MSA + Order Form',kind:'PDF',ref:'DMS #CT-2214'}]}),
+C({title:'Sterling & Vance — Outside Counsel Retainer',company:'Sterling & Vance LLP',type:'Professional Services',owner:'Priya Raman',department:'Legal',startDate:off(-430),expiryDate:off(75),renewalDate:off(75),noticePeriodDays:30,value:180000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Quarterly retainer reconciliation',date:off(-3),done:false}],attachments:[{id:uid(),name:'Engagement letter 2024',kind:'PDF',ref:'DMS #CT-1987'}]}),
+C({title:'Apex Facilities — HQ Facilities Management',company:'Apex Facilities Group',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-1000),expiryDate:off(160),renewalDate:off(160),noticePeriodDays:90,value:520000,status:'Active',priority:'Medium',obligations:[{id:uid(),title:'Annual site safety audit',date:off(40),done:false}]}),
+C({title:'Kestrel Manufacturing — Raw Materials Supply',company:'Kestrel Manufacturing',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-600),expiryDate:off(-9),renewalDate:'',noticePeriodDays:45,value:310000,status:'Active',priority:'High',notes:'Term lapsed — renewal terms under negotiation with procurement.',obligations:[{id:uid(),title:'Final delivery reconciliation',date:off(-3),done:false}]}),
+C({title:'OrionPay — Payment Processing Agreement',company:'OrionPay',type:'Professional Services',owner:'Elena Vasquez',department:'Finance',startDate:off(-300),expiryDate:off(34),renewalDate:off(34),noticePeriodDays:30,value:145000,status:'Active',priority:'High',obligations:[{id:uid(),title:'PCI compliance attestation',date:off(9),done:false}]}),
+C({title:'Northwind Logistics — 3PL & Freight Agreement',company:'Northwind Logistics',type:'Vendor / Supply',owner:'Marcus Bell',department:'Operations',startDate:off(-500),expiryDate:off(210),renewalDate:off(210),noticePeriodDays:60,value:460000,status:'Active',priority:'Medium'}),
+C({title:'Halcyon Systems — ERP Licensing & Support',company:'Halcyon Systems',type:'Licensing',owner:'Dana Whitfield',department:'IT',startDate:off(-800),expiryDate:off(300),renewalDate:off(250),noticePeriodDays:90,value:610000,status:'Active',priority:'Medium',obligations:[{id:uid(),title:'Annual license true-up',date:off(18),done:false},{id:uid(),title:'Support plan review',date:off(44),done:true}]}),
+C({title:'Vanta Insurance — Cyber Liability Policy',company:'Vanta Insurance Group',type:'Insurance',owner:'Priya Raman',department:'Legal',startDate:off(-325),expiryDate:off(41),renewalDate:off(41),noticePeriodDays:30,value:96000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Renewal risk questionnaire',date:off(8),done:false}]}),
+C({title:'Brightwave Media — Brand Campaign Services',company:'Brightwave Media',type:'Professional Services',owner:'Tomas Meyer',department:'Sales',startDate:off(-60),expiryDate:off(95),renewalDate:'',noticePeriodDays:14,value:85000,status:'Active',priority:'Low'}),
+C({title:'Ironwood Realty — Warehouse Lease (Dock 7)',company:'Ironwood Realty',type:'Lease',owner:'Sofia Grant',department:'Operations',startDate:off(-1100),expiryDate:off(190),renewalDate:off(190),noticePeriodDays:180,value:288000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Estoppel certificate delivery',date:off(22),done:false}]}),
+C({title:'TalentCore — Contractor Staffing MSA',company:'TalentCore',type:'Professional Services',owner:'Sofia Grant',department:'HR',startDate:off(30),expiryDate:off(400),renewalDate:off(400),noticePeriodDays:30,value:120000,status:'Draft',priority:'Medium',notes:'Awaiting final redlines from HR and rate-card exhibit.'}),
+C({title:'Meridian Datacenter — Colocation Agreement',company:'Meridian Datacenter',type:'Vendor / Supply',owner:'Dana Whitfield',department:'IT',startDate:off(-700),expiryDate:off(500),renewalDate:off(500),noticePeriodDays:90,value:150000,status:'Active',priority:'Medium',archived:true}),
+C({title:'LegalEdge — Contract Lifecycle Software',company:'LegalEdge',type:'SaaS Subscription',owner:'Priya Raman',department:'Legal',startDate:off(-320),expiryDate:off(140),renewalDate:off(25),noticePeriodDays:30,value:42000,status:'Pending renewal',priority:'High',notes:'Notice window missed — confirm holdover terms before renewal date.'}),
+C({title:'Atlas Travel — Corporate Travel Agreement',company:'Atlas Travel',type:'Other',owner:'Elena Vasquez',department:'Operations',startDate:off(-900),expiryDate:off(-120),renewalDate:'',noticePeriodDays:30,value:30000,status:'Terminated',priority:'Low'}),
+C({title:'Greenfield Partners — Mutual NDA',company:'Greenfield Partners',type:'NDA',owner:'Tomas Meyer',department:'Legal',startDate:off(-200),expiryDate:off(720),renewalDate:'',noticePeriodDays:0,value:0,status:'Active',priority:'Low'})
+];
+var act=[
+{id:uid(),ts:now-2*3600e3,kind:'update',msg:'Notice period updated on OrionPay — Payment Processing Agreement',cid:csd[4].id},
+{id:uid(),ts:now-7*3600e3,kind:'obligation',msg:'Obligation completed: Support plan review (Halcyon Systems)',cid:csd[6].id},
+{id:uid(),ts:now-26*3600e3,kind:'status',msg:'Status changed to Pending renewal on LegalEdge — Contract Lifecycle Software',cid:csd[12].id},
+{id:uid(),ts:now-2*DAY,kind:'create',msg:'Contract created: TalentCore — Contractor Staffing MSA',cid:csd[10].id},
+{id:uid(),ts:now-3*DAY,kind:'renew',msg:'Renewal terms requested from Vanta Insurance Group',cid:csd[7].id},
+{id:uid(),ts:now-5*DAY,kind:'archive',msg:'Archived: Meridian Datacenter — Colocation Agreement',cid:csd[11].id}
+];
+return {contracts:csd,activity:act,readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};}
+
+/* ================= activity log & persistence ================= */
+function log(kind,msg,cid){db.activity.unshift({id:uid(),ts:Date.now(),kind:kind,msg:msg,cid:cid||null});if(db.activity.length>120)db.activity.length=120;}
+function persist(){DataService.save(db).then(function(){var el=$('#saved-at');if(el)el.textContent='saved '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}).catch(function(){toast('Could not save — storage unavailable.','err');});}
+function toast(msg,kind){var el=document.createElement('div');el.className='toast'+(kind?' '+kind:'');el.textContent=msg;$('#toasts').appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove();},320);},3600);}
+
+/* ================= dialogs ================= */
+var activeDialog=null;
+function openDialog(html,small){closeDialog();var d=document.createElement('dialog');d.className=small?'small':'';d.innerHTML=html;$('#modal-root').appendChild(d);
+if(typeof d.showModal==='function'){d.showModal();}else{d.setAttribute('open','');}
+d.addEventListener('close',function(){d.remove();if(activeDialog===d)activeDialog=null;});activeDialog=d;return d;}
+function closeDialog(){if(activeDialog){try{if(typeof activeDialog.close==='function')activeDialog.close();else activeDialog.removeAttribute('open');}catch(e){activeDialog.remove();activeDialog=null;}}}
+function confirmDialog(o){return new Promise(function(res){var d=openDialog('<div class="dlg-h"><h2 id="dlg-title">'+esc(o.title)+'</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div><div class="dlg-b"><p style="margin:0;font-size:13.5px">'+esc(o.message)+'</p></div><div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button type="button" class="btn '+(o.danger?'btn-danger':'btn-primary')+'" id="cfm-ok">'+esc(o.ok||'Confirm')+'</button></div>',true);
+$('#cfm-ok',d).addEventListener('click',function(){d.dataset.ok='1';if(typeof d.close==='function')d.close();else d.removeAttribute('open');});
+d.addEventListener('close',function(){res(d.dataset.ok==='1');});});}
+
+/* ================= contract form ================= */
+function contractFormHTML(c){var s=c||{};function sel(arr,val){return arr.map(function(o){return '<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>';}).join('');}
+var companies=Array.from(new Set(db.contracts.map(function(x){return x.company;}))).sort();
+var owners=Array.from(new Set(db.contracts.map(function(x){return x.owner;}))).sort();
+return '<div class="dlg-h"><h2 id="dlg-title">'+(c?'Edit contract':'New contract')+'</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'+
+'<form id="contract-form" novalidate><div class="dlg-b"><div class="fgrid">'+
+'<div class="field span2"><label for="cf-title">Contract title *</label><input class="input" id="cf-title" name="title" required value="'+esc(s.title||'')+'" placeholder="e.g. Acme Corp — Master Service Agreement"></div>'+
+'<div class="field"><label for="cf-company">Company / counterparty *</label><input class="input" id="cf-company" name="company" list="dl-companies" required value="'+esc(s.company||'')+'"></div>'+
+'<div class="field"><label for="cf-type">Contract type</label><select id="cf-type" name="type">'+sel(TYPES,s.type||TYPES[2])+'</select></div>'+
+'<div class="field"><label for="cf-owner">Contract owner *</label><input class="input" id="cf-owner" name="owner" list="dl-owners" required value="'+esc(s.owner||'')+'"></div>'+
+'<div class="field"><label for="cf-dept">Department</label><select id="cf-dept" name="department"><option value="">—</option>'+DEPTS.map(function(o){return '<option'+(o===s.department?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'+
+'<div class="field"><label for="cf-start">Start date</label><input class="input" type="date" id="cf-start" name="startDate" value="'+esc(s.startDate||'')+'"></div>'+
+'<div class="field"><label for="cf-expiry">Expiration date *</label><input class="input" type="date" id="cf-expiry" name="expiryDate" required value="'+esc(s.expiryDate||'')+'"></div>'+
+'<div class="field"><label for="cf-renewal">Renewal date</label><input class="input" type="date" id="cf-renewal" name="renewalDate" value="'+esc(s.renewalDate||'')+'"><div class="hint">Leave empty if non-renewing.</div></div>'+
+'<div class="field"><label for="cf-notice">Notice period (days)</label><input class="input" type="number" min="0" step="1" id="cf-notice" name="noticePeriodDays" value="'+(s.noticePeriodDays!=null?s.noticePeriodDays:S().defaultNotice)+'"></div>'+
+'<div class="field"><label for="cf-value">Contract value ('+esc(S().currency)+')</label><input class="input" type="number" min="0" step="100" id="cf-value" name="value" value="'+(s.value!=null?s.value:'')+'"></div>'+
+'<div class="field"><label for="cf-status">Status</label><select id="cf-status" name="status">'+sel(STATUSES,s.status||'Draft')+'</select></div>'+
+'<div class="field"><label for="cf-priority">Priority</label><select id="cf-priority" name="priority">'+sel(PRIORITIES,s.priority||'Medium')+'</select></div>'+
+'<div class="field span2"><label for="cf-notes">Notes</label><textarea id="cf-notes" name="notes">'+esc(s.notes||'')+'</textarea></div>'+
+'</div><div id="cf-errors" class="form-err" hidden></div></div>'+
+'<div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button type="submit" class="btn btn-primary">'+(c?'Save changes':'Create contract')+'</button></div></form>'+
+'<datalist id="dl-companies">'+companies.map(function(o){return '<option value="'+esc(o)+'">';}).join('')+'</datalist>'+
+'<datalist id="dl-owners">'+owners.map(function(o){return '<option value="'+esc(o)+'">';}).join('')+'</datalist>';}
+
+function saveContract(f){var fd=new FormData(f);function g(k){return String(fd.get(k)||'').trim();}
+var errs=[];var title=g('title'),company=g('company'),owner=g('owner'),expiry=g('expiryDate'),renewal=g('renewalDate'),start=g('startDate');
+if(!title)errs.push('Contract title is required.');if(!company)errs.push('Company is required.');if(!owner)errs.push('Contract owner is required.');
+if(!expiry)errs.push('Expiration date is required.');
+if(start&&expiry&&pISO(expiry)<pISO(start))errs.push('Expiration date must be on or after the start date.');
+if(start&&renewal&&pISO(renewal)<pISO(start))errs.push('Renewal date must be on or after the start date.');
+var notice=parseInt(g('noticePeriodDays'),10);if(isNaN(notice)||notice<0)errs.push('Notice period must be 0 or more days.');
+var value=parseFloat(g('value'));if(g('value')!==''&&(isNaN(value)||value<0))errs.push('Contract value must be a positive number.');
+var box=$('#cf-errors');
+if(errs.length){box.hidden=false;box.innerHTML='Please fix the following:<ul>'+errs.map(function(e){return '<li>'+esc(e)+'</li>';}).join('')+'</ul>';return;}
+var id=f.querySelector('#cf-id')?f.querySelector('#cf-id').value:null;var c=id?byId(id):null;var isNew=!c;
+if(isNew)c={id:uid(),createdAt:Date.now(),attachments:[],obligations:[],archived:false};
+c.title=title;c.company=company;c.owner=owner;c.department=g('department');c.type=g('type');c.startDate=start;c.expiryDate=expiry;c.renewalDate=renewal;c.noticePeriodDays=notice;c.value=isNaN(value)?0:value;c.status=g('status');c.priority=g('priority');c.notes=g('notes');c.updatedAt=Date.now();
+if(isNew){db.contracts.unshift(c);log('create','Contract created: '+title,c.id);}else{log('update','Details updated on '+title,c.id);}
+persist();closeDialog();toast(isNew?'Contract created.':'Changes saved.');
+if(isNew)go('/contracts/'+c.id);else renderRoute();}
+
+/* ================= charts ================= */
+function chartColumns(items){var W=items.length*46+14,H=170,max=Math.max(1,Math.max.apply(null,items.map(function(i){return i.value;})));
+var out='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Column chart: '+items.map(function(i){return i.label+' '+i.value;}).join(', ')+'" style="max-width:100%">';
+out+='<line x1="4" y1="'+(H-24)+'" x2="'+(W-4)+'" y2="'+(H-24)+'" stroke="#c2c7cd" stroke-width="1"/>';
+items.forEach(function(it,i){var h=Math.max(it.value>0?3:0,Math.round(it.value/max*(H-64)));var x=8+i*46,y=H-24-h;
+out+='<rect x="'+x+'" y="'+y+'" width="26" height="'+h+'" rx="2" fill="'+(it.fill||'#3e5c76')+'"><title>'+esc(it.label)+': '+it.value+'</title></rect>';
+out+='<text x="'+(x+13)+'" y="'+(y-5)+'" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="#3d454e">'+it.value+'</text>';
+out+='<text x="'+(x+13)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9.5" fill="#66707b">'+esc(it.label)+'</text>';});
+return out+'</svg>';}
+function chartDonut(segs,total){var R=50,C=2*Math.PI*R,acc=0;var out='<svg viewBox="0 0 140 140" width="150" height="150" role="img" aria-label="Distribution chart with '+total+' items">';
+out+='<circle cx="70" cy="70" r="'+R+'" fill="none" stroke="#e9ebed" stroke-width="20"/>';
+segs.forEach(function(s){if(!s.value)return;var frac=s.value/Math.max(1,total);out+='<circle cx="70" cy="70" r="'+R+'" fill="none" stroke="'+s.color+'" stroke-width="20" stroke-dasharray="'+(frac*C).toFixed(1)+' '+C.toFixed(1)+'" stroke-dashoffset="'+(-acc*C).toFixed(1)+'" transform="rotate(-90 70 70)"><title>'+esc(s.label)+': '+s.value+'</title></circle>';acc+=frac;});
+out+='<text x="70" y="66" text-anchor="middle" font-size="22" font-family="IBM Plex Mono, monospace" fill="#1d232a">'+total+'</text><text x="70" y="84" text-anchor="middle" font-size="9.5" fill="#66707b">contracts</text></svg>';return out;}
+function hbars(items,fmt){var max=Math.max(1,Math.max.apply(null,items.map(function(i){return i.value;})));
+if(!items.length)return '<p style="color:var(--muted);font-size:12.5px;margin:0">No data yet.</p>';
+return items.map(function(it){var w=Math.round(it.value/max*100);return '<div class="hbar"><span title="'+esc(it.label)+'">'+esc(it.label)+'</span><span class="track"><span class="fill" style="width:'+w+'%;background:'+(it.color||'#3e5c76')+'"></span></span><span class="val">'+(fmt?fmt(it.value):it.value)+'</span></div>';}).join('');}
+var PALETTE=['#3e5c76','#2e6e4e','#8a6116','#7b5aa0','#9c3636','#4d7d92','#746a52','#5b6770'];
+
+/* ================= views ================= */
+function viewDashboard(){var act=db.contracts.filter(isActive);
+var totalVal=act.reduce(function(s,c){return s+(+c.value||0);},0);
+var dl=allDeadlines().filter(function(r){return !r.done;});
+var overdue=dl.filter(function(r){return r.days<0;});
+var expiring=act.filter(function(c){var d=daysUntil(c.expiryDate);return d>=0&&d<=90;}).length;
+var attention=dl.filter(function(r){return r.days<=S().expiryWarn;}).sort(function(a,b){return a.days-b.days;}).slice(0,8);
+var renewals=act.filter(function(c){return c.renewalDate&&daysUntil(c.renewalDate)>=0;}).sort(function(a,b){return pISO(a.renewalDate)-pISO(b.renewalDate);}).slice(0,5);
+var upcoming=dl.filter(function(r){return r.days>=0;}).sort(function(a,b){return a.days-b.days;}).slice(0,7);
+var high=act.filter(function(c){return c.priority==='High'||c.priority==='Critical';}).sort(function(a,b){return (a.expiryDate?daysUntil(a.expiryDate):9999)-(b.expiryDate?daysUntil(b.expiryDate):9999);}).slice(0,5);
+function row(r){return '<div class="list-row'+(r.days<0?' over':'')+'"><span style="width:8px;height:8px;border-radius:50%;background:'+(r.days<0?'var(--red)':r.days<=21?'var(--red)':r.days<=S().expiryWarn?'var(--amber)':'var(--slate)')+';flex:none" aria-hidden="true"></span><div class="main"><div class="t"><a href="#/contracts/'+r.c.id+'">'+esc(r.c.title)+'</a></div><div class="s">'+esc(r.c.company)+' · '+esc(KIND_META[r.kind].label)+'</div></div><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+daysChip(r.days)+'</div>';}
+var html='<div class="page-head"><div><h1>Dashboard</h1><div class="head-sub">'+fmtDateLong(todayISO())+' · '+esc(S().org)+'</div></div><div class="head-actions"><a class="btn" href="#/contracts">'+ic('file')+'Contracts</a><button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button></div></div>';
+html+='<div class="grid c-kpi">';
+html+='<section class="panel kpi"><div class="lbl">Active contracts</div><div class="val">'+act.length+'</div><div class="sub">'+db.contracts.filter(function(c){return c.archived;}).length+' archived · '+db.contracts.length+' total</div></section>';
+html+='<section class="panel kpi"><div class="lbl">Active contract value</div><div class="val good">'+money(totalVal)+'</div><div class="sub">across '+act.length+' live agreements</div></section>';
+html+='<section class="panel kpi"><div class="lbl">Expiring ≤ 90 days</div><div class="val'+(expiring?' warn':'')+'">'+expiring+'</div><div class="sub">active contracts in window</div></section>';
+html+='<section class="panel kpi"><div class="lbl">Overdue items</div><div class="val'+(overdue.length?' bad':'')+'">'+overdue.length+'</div><div class="sub">deadlines past their date</div></section></div>';
+html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Needs attention','<a class="btn btn-sm" href="#/deadlines">All deadlines</a>')+'<div>'+
+(attention.length?attention.map(row).join(''):emptyState('check','Nothing needs attention','No contracts or obligations are inside the warning window.'))+'</div></section>'+
+'<section class="panel">'+panelHead('Renewals approaching')+'<div>'+
+(renewals.length?renewals.map(function(c){var d=daysUntil(c.renewalDate);return '<div class="list-row"><div class="main"><div class="t"><a href="#/contracts/'+c.id+'">'+esc(c.title)+'</a></div><div class="s">'+esc(c.company)+' · '+money(c.value)+'</div></div><span style="font-size:12px;color:var(--muted)">'+fmtDate(c.renewalDate)+'</span>'+daysChip(d)+'</div>';}).join(''):emptyState('renew','No upcoming renewals','Contracts with renewal dates will appear here.'))+'</div></section></div>';
+html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Upcoming deadlines','<a class="btn btn-sm" href="#/calendar">Calendar</a>')+'<div>'+
+(upcoming.length?upcoming.map(row).join(''):emptyState('clock','No upcoming deadlines','Future expirations, notices and obligations will appear here.'))+'</div></section>'+
+'<div class="grid" style="gap:14px"><section class="panel">'+panelHead('High-priority contracts')+'<div>'+
+(high.length?high.map(function(c){return '<div class="list-row"><div class="main"><div class="t"><a href="#/contracts/'+c.id+'">'+esc(c.title)+'</a></div><div class="s">'+esc(c.owner)+' · exp. '+fmtDate(c.expiryDate)+'</div></div>'+prioBadge(c.priority)+'</div>';}).join(''):emptyState('check','No high-priority contracts','High and critical priority contracts will appear here.'))+'</div></section>'+
+'<section class="panel">'+panelHead('Recent activity')+'<div>'+
+(db.activity.length?db.activity.slice(0,6).map(function(a){return '<div class="list-row"><span style="color:var(--muted)">'+ic(a.kind==='create'?'plus':a.kind==='archive'?'archive':a.kind==='renew'?'renew':a.kind==='status'?'check':'pencil')+'</span><div class="main"><div class="s" style="color:var(--ink-2)">'+esc(a.msg)+'</div><div class="s">'+relTime(a.ts)+'</div></div></div>';}).join(''):'<div class="empty"><p style="margin:0">No activity yet.</p></div>')+'</div></section></div></div>';
+return html;}
+
+function filteredContracts(){var q=cs.q.toLowerCase();var list=db.contracts.filter(function(c){
+if(!cs.showArchived&&c.archived)return false;
+if(cs.company&&c.company!==cs.company)return false;
+if(cs.status!=='all'&&c.status!==cs.status)return false;
+if(cs.priority!=='all'&&c.priority!==cs.priority)return false;
+if(cs.type!=='all'&&c.type!==cs.type)return false;
+if(cs.window==='expired'&&!(c.expiryDate&&daysUntil(c.expiryDate)<0))return false;
+if(cs.window==='30'||cs.window==='60'||cs.window==='90'){var d=c.expiryDate?daysUntil(c.expiryDate):null;if(d==null||d<0||d>parseInt(cs.window,10))return false;}
+if(cs.window==='custom'){if(!c.expiryDate)return false;if(cs.from&&pISO(c.expiryDate)<pISO(cs.from))return false;if(cs.to&&pISO(c.expiryDate)>pISO(cs.to))return false;}
+if(q){var hay=(c.title+' '+c.company+' '+c.owner+' '+c.type+' '+(c.notes||'')+' '+(c.department||'')).toLowerCase();if(hay.indexOf(q)<0)return false;}
+return true;});
+var dir=cs.sortDir==='asc'?1:-1;var k=cs.sortKey;
+list.sort(function(a,b){var va,vb;
+if(k==='value'){va=+a.value||0;vb=+b.value||0;}
+else if(k==='expiry'){va=a.expiryDate?pISO(a.expiryDate):Infinity;vb=b.expiryDate?pISO(b.expiryDate):Infinity;}
+else if(k==='renewal'){va=a.renewalDate?pISO(a.renewalDate):Infinity;vb=b.renewalDate?pISO(b.renewalDate):Infinity;}
+else if(k==='priority'){va=PRIORITIES.indexOf(a.priority);vb=PRIORITIES.indexOf(b.priority);}
+else if(k==='status'){va=STATUSES.indexOf(a.status);vb=STATUSES.indexOf(b.status);}
+else{va=String(a[k]||'').toLowerCase();vb=String(b[k]||'').toLowerCase();}
+if(va<vb)return -1*dir;if(va>vb)return 1*dir;return 0;});
+return list;}
+
+function contractsTable(list){if(!list.length)return '';
+function th(key,label){var active=cs.sortKey===key;var arrow=active?(cs.sortDir==='asc'?'▲':'▼'):'';return '<th scope="col"'+(active?' aria-sort="'+(cs.sortDir==='asc'?'ascending':'descending')+'"':'')+'><button class="th-btn" data-action="sort" data-key="'+key+'">'+label+' <span class="arr" aria-hidden="true">'+arrow+'</span></button></th>';}
+var rows=list.map(function(c){var m=metrics(c);
+return '<tr'+(c.archived?' class="archived"':'')+'>'+
+'<td><a class="rowlink" href="#/contracts/'+c.id+'">'+esc(c.title)+'</a>'+(c.archived?'<span class="sub">archived</span>':'')+'</td>'+
+'<td>'+esc(c.company)+'</td><td>'+esc(c.owner)+'</td><td>'+esc(c.type)+'</td>'+
+'<td>'+statusBadge(c.status)+(c.expiryDate&&m.expiryDays<0&&c.status!=='Expired'&&c.status!=='Terminated'?' <span class="chip t-red" title="Past expiration while status is '+esc(c.status)+'">lapsed</span>':'')+'</td>'+
+'<td>'+badge(PRIORITY_TONE[c.priority],c.priority)+'</td>'+
+'<td>'+fmtDate(c.expiryDate)+' '+(c.expiryDate?daysChip(m.expiryDays):'')+'</td>'+
+'<td>'+fmtDate(c.renewalDate)+'</td>'+
+'<td class="num">'+(c.value?money(c.value):'—')+'</td>'+
+'<td><div class="row-actions">'+
+'<button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'" title="Edit">'+ic('pencil')+'</button>'+
+'<button class="icon-btn" data-action="archive-contract" data-id="'+c.id+'" aria-label="'+(c.archived?'Restore ':'Archive ')+esc(c.title)+'" title="'+(c.archived?'Restore':'Archive')+'">'+ic('archive')+'</button>'+
+'<button class="icon-btn" data-action="delete-contract" data-id="'+c.id+'" aria-label="Delete '+esc(c.title)+'" title="Delete">'+ic('trash')+'</button>'+
+'</div></td></tr>';}).join('');
+return '<div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Contracts with company, owner, type, status, priority, expiration, renewal, value and actions</caption><thead><tr>'+th('title','Contract')+th('company','Company')+th('owner','Owner')+th('type','Type')+th('status','Status')+th('priority','Priority')+th('expiry','Expiration')+th('renewal','Renewal')+'<th scope="col"><span class="th-pad" style="text-align:right">Value</span></th><th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
+
+function refreshContractsTable(){var list=filteredContracts();var pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));if(cs.page>pages)cs.page=pages;
+var slice=list.slice((cs.page-1)*PAGE_SIZE,cs.page*PAGE_SIZE);
+var host=$('#ct-results');if(!host)return;
+var total=list.reduce(function(s,c){return s+(+c.value||0);},0);
+var meta=$('#ct-meta');if(meta)meta.textContent=list.length+' contract'+(list.length===1?'':'s')+' · combined value '+money(total);
+if(!db.contracts.length){host.innerHTML='<div class="panel">'+emptyState('file','No contracts yet','Create your first contract to start tracking deadlines, renewals and obligations.','<button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button>')+'</div>';}
+else if(!list.length){host.innerHTML='<div class="panel">'+emptyState('inbox','No matching contracts','Adjust the search or filters to see more results.','<button class="btn" data-action="clear-filters">Clear filters</button>')+'</div>';}
+else{host.innerHTML='<div class="panel">'+contractsTable(slice)+(pages>1?'<div class="pager"><button class="btn btn-sm" data-action="page" data-page="prev"'+(cs.page<=1?' disabled':'')+'>← Prev</button><span>Page '+cs.page+' of '+pages+'</span><button class="btn btn-sm" data-action="page" data-page="next"'+(cs.page>=pages?' disabled':'')+'>Next →</button></div>':'')+'</div>';}}
+
+function viewContracts(query){['q','status','priority','type','company'].forEach(function(k){var v=query.get(k);if(v!=null)cs[k]=v;});
+var html='<div class="page-head"><div><h1>Contracts</h1><div class="head-sub">Registry of all agreements, counterparties and key terms.</div></div><div class="head-actions"><button class="btn" data-action="export-csv">'+ic('download')+'Export CSV</button><button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button></div></div>';
+html+='<div class="panel toolbar"><div class="grow"><label class="sr-only" for="ct-search">Search contracts</label><input class="input" id="ct-search" type="search" placeholder="Search title, company, owner, notes…" value="'+esc(cs.q)+'" style="width:100%"></div>'+
+'<label class="sr-only" for="ct-status">Status filter</label><select id="ct-status" data-filter="status" title="Status"><option value="all">Status: all</option>'+STATUSES.map(function(s){return '<option value="'+s+'"'+(cs.status===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<label class="sr-only" for="ct-priority">Priority filter</label><select id="ct-priority" data-filter="priority" title="Priority"><option value="all">Priority: all</option>'+PRIORITIES.map(function(s){return '<option value="'+s+'"'+(cs.priority===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<label class="sr-only" for="ct-type">Type filter</label><select id="ct-type" data-filter="type" title="Type"><option value="all">Type: all</option>'+TYPES.map(function(s){return '<option'+(cs.type===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<label class="sr-only" for="ct-window">Expiration window</label><select id="ct-window" data-filter="window" title="Expiration window"><option value="any">Expiry: any</option><option value="expired"'+(cs.window==='expired'?' selected':'')+'>Expired</option><option value="30"'+(cs.window==='30'?' selected':'')+'>Next 30 days</option><option value="60"'+(cs.window==='60'?' selected':'')+'>Next 60 days</option><option value="90"'+(cs.window==='90'?' selected':'')+'>Next 90 days</option><option value="custom"'+(cs.window==='custom'?' selected':'')+'>Custom range</option></select>'+
+'<span id="ct-custom" style="display:'+(cs.window==='custom'?'contents':'none')+';gap:6px"><label class="sr-only" for="ct-from">Expiry from</label><input class="input" type="date" id="ct-from" value="'+esc(cs.from)+'"><label class="sr-only" for="ct-to">Expiry to</label><input class="input" type="date" id="ct-to" value="'+esc(cs.to)+'"></span>'+
+'<label class="inline"><input type="checkbox" id="ct-archived"'+(cs.showArchived?' checked':'')+'>Show archived</label>'+
+(cs.company?'<span class="badge t-slate">Company: '+esc(cs.company)+' <button class="icon-btn" style="width:18px;height:18px" data-action="clear-company" aria-label="Clear company filter">'+ic('x')+'</button></span>':'')+
+'<button class="btn btn-sm" data-action="clear-filters">Clear</button></div>';
+html+='<p class="meta-line" id="ct-meta" aria-live="polite"></p><div id="ct-results"></div>';
+return html;}
+
+function viewContractDetail(id){var c=byId(id);if(!c)return '<div class="panel">'+emptyState('inbox','Contract not found','This contract may have been deleted, or the link is incorrect.','<a class="btn" href="#/contracts">Back to contracts</a>')+'</div>';
+var m=metrics(c);
+var html='<nav class="crumbs" aria-label="Breadcrumb"><a href="#/contracts">Contracts</a> <span aria-hidden="true">/</span> <span>'+esc(c.title)+'</span></nav>';
+html+='<div class="page-head"><div><h1>'+esc(c.title)+'</h1><div class="head-sub">'+esc(c.company)+' · '+esc(c.type)+' · Owner: '+esc(c.owner)+(c.department?' ('+esc(c.department)+')':'')+'</div><div class="head-badges" id="detail-badges">'+statusBadge(c.status)+prioBadge(c.priority)+(c.archived?badge('grey','Archived'):'')+'</div></div>'+
+'<div class="head-actions"><label class="sr-only" for="qs-status">Change status</label><select id="qs-status" data-action="quick-status" data-id="'+c.id+'">'+STATUSES.map(function(s){return '<option'+(s===c.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<label class="sr-only" for="qs-priority">Change priority</label><select id="qs-priority" data-action="quick-priority" data-id="'+c.id+'">'+PRIORITIES.map(function(s){return '<option'+(s===c.priority?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<button class="btn" data-action="edit-contract" data-id="'+c.id+'">'+ic('pencil')+'Edit</button>'+
+(c.renewalDate||c.expiryDate?'<button class="btn" data-action="renew-log" data-id="'+c.id+'" title="Extend dates by 12 months and set status to Renewed">'+ic('renew')+'Log renewal</button>':'')+
+'<button class="btn" data-action="archive-contract" data-id="'+c.id+'">'+ic('archive')+(c.archived?'Restore':'Archive')+'</button>'+
+'<button class="btn btn-danger" data-action="delete-contract" data-id="'+c.id+'">'+ic('trash')+'Delete</button></div></div>';
+var tlItems=[{l:'Start',d:c.startDate},{l:'Notice deadline',d:m.noticeDate},{l:'Renewal',d:c.renewalDate},{l:'Expires',d:c.expiryDate}].filter(function(x){return x.d;}).sort(function(a,b){return pISO(a.d)-pISO(b.d);});
+html+='<div class="grid c-21"><section class="panel">'+panelHead('Key terms')+'<div class="panel-b"><div class="kv">'+
+'<div><div class="k">Contract value</div><div class="v">'+(c.value?money(c.value):'—')+'</div></div>'+
+'<div><div class="k">Department</div><div class="v">'+esc(c.department||'—')+'</div></div>'+
+'<div><div class="k">Start date</div><div class="v">'+fmtDate(c.startDate)+'</div></div>'+
+'<div><div class="k">Expiration</div><div class="v">'+fmtDate(c.expiryDate)+' '+(c.expiryDate?daysChip(m.expiryDays):'')+'</div></div>'+
+'<div><div class="k">Renewal date</div><div class="v">'+fmtDate(c.renewalDate)+' '+(c.renewalDate?daysChip(m.renewalDays):'')+'</div></div>'+
+'<div><div class="k">Notice period</div><div class="v">'+(c.noticePeriodDays>0?c.noticePeriodDays+' days':'None')+'</div></div>'+
+'<div><div class="k">Notice deadline</div><div class="v">'+fmtDate(m.noticeDate)+' '+(m.noticeDate?daysChip(m.noticeDays):'')+'</div></div>'+
+'<div><div class="k">Last updated</div><div class="v">'+relTime(c.updatedAt||Date.now())+'</div></div>'+
+'</div></div></section>'+
+'<section class="panel">'+panelHead('Key dates')+'<div class="panel-b"><ul class="tl">'+
+(tlItems.length?tlItems.map(function(x){var d=daysUntil(x.d);var tone=d<0?'var(--red)':d<=21?'var(--red)':d<=S().expiryWarn?'var(--amber)':'var(--accent)';return '<li><span class="dot" style="background:'+tone+'"></span><div><div style="font-weight:600;font-size:13px">'+x.l+'</div><div style="font-size:12px;color:var(--muted)">'+fmtDate(x.d)+'</div></div><span style="margin-left:auto">'+daysChip(d)+'</span></li>';}).join(''):'<li>No dates recorded.</li>')+
+'</ul></div></section></div>';
+html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Obligations & custom deadlines','<span class="chip t-grey">'+(c.obligations||[]).filter(function(o){return !o.done;}).length+' open</span>')+'<div id="ob-list">'+obligationsHTML(c)+'</div>'+
+'<form class="add-row" id="obligation-form" data-id="'+c.id+'"><label class="sr-only" for="ob-title">New obligation title</label><input class="input" id="ob-title" placeholder="Add obligation or deadline…" required><label class="sr-only" for="ob-date">Due date</label><input class="input" type="date" id="ob-date" required style="flex:0 0 150px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form></section>'+
+'<section class="panel">'+panelHead('Attachments & document references')+'<div id="att-list">'+attachmentsHTML(c)+'</div>'+
+'<form class="add-row" id="attachment-form" data-id="'+c.id+'"><label class="sr-only" for="at-name">Document name</label><input class="input" id="at-name" placeholder="Document name…" required><label class="sr-only" for="at-kind">Type</label><select id="at-kind" style="flex:0 0 90px">'+ATT_KINDS.map(function(k){return '<option>'+k+'</option>';}).join('')+'</select><label class="sr-only" for="at-ref">Reference</label><input class="input" id="at-ref" placeholder="Ref / URL (optional)" style="flex:0 0 140px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form></section></div>';
+html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Notes')+'<div class="panel-b">'+(c.notes?'<pre class="notes-pre">'+esc(c.notes)+'</pre>':'<p style="margin:0;color:var(--muted);font-size:13px">No notes recorded. Use Edit to add notes.</p>')+'</div></section>'+
+'<section class="panel">'+panelHead('Activity')+'<div>'+db.activity.filter(function(a){return a.cid===c.id;}).slice(0,8).map(function(a){return '<div class="list-row"><div class="main"><div class="s" style="color:var(--ink-2)">'+esc(a.msg)+'</div><div class="s">'+relTime(a.ts)+'</div></div></div>';}).join('')||'<div class="empty"><p style="margin:0">No activity for this contract yet.</p></div>'+'</div></section></div>';
+return html;}
+function obligationsHTML(c){var obs=c.obligations||[];if(!obs.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No obligations yet. Add custom deadlines below.</p></div>';
+return obs.slice().sort(function(a,b){return pISO(a.date)-pISO(b.date);}).map(function(o){var d=daysUntil(o.date);return '<div class="ob-row'+(o.done?' done':'')+'"><input type="checkbox" id="ob-'+o.id+'" data-action="obligation-toggle" data-cid="'+c.id+'" data-oid="'+o.id+'"'+(o.done?' checked':'')+' aria-label="Mark '+esc(o.title)+' as '+(o.done?'not done':'done')+'"><div class="main"><label class="ob-t" for="ob-'+o.id+'">'+esc(o.title)+'</label><div class="ob-s">Due '+fmtDate(o.date)+'</div></div>'+(o.done?'<span class="chip t-grey">done</span>':daysChip(d))+'<button class="icon-btn" data-action="obligation-delete" data-cid="'+c.id+'" data-oid="'+o.id+'" aria-label="Delete obligation '+esc(o.title)+'">'+ic('trash')+'</button></div>';}).join('');}
+function attachmentsHTML(c){var ats=c.attachments||[];if(!ats.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No documents referenced yet.</p></div>';
+return ats.map(function(a){return '<div class="ob-row"><span style="color:var(--muted)">'+ic('file')+'</span><div class="main"><div class="ob-t">'+esc(a.name)+'</div><div class="ob-s">'+(a.ref?esc(a.ref)+' · ':'')+esc(a.kind)+'</div></div><button class="icon-btn" data-action="attachment-delete" data-cid="'+c.id+'" data-aid="'+a.id+'" aria-label="Remove reference '+esc(a.name)+'">'+ic('trash')+'</button></div>';}).join('');}
+
+function refreshDeadlines(){var host=$('#dl-list');if(!host)return;
+var rows=allDeadlines().filter(function(r){if(!dls.kinds[r.kind])return false;
+if(dls.time==='overdue')return r.days<0&&!r.done;
+if(dls.time==='7'||dls.time==='30'||dls.time==='90')return !r.done&&r.days>=0&&r.days<=parseInt(dls.time,10);
+if(dls.time==='future')return !r.done&&r.days>=0;
+return true;});
+rows.sort(function(a,b){if(a.done!==b.done)return a.done?1:-1;return pISO(a.date)-pISO(b.date);});
+var over=rows.filter(function(r){return r.days<0&&!r.done;}).length;
+var meta=$('#dl-meta');if(meta)meta.textContent=rows.length+' item'+(rows.length===1?'':'s')+' · '+over+' overdue';
+if(!rows.length){host.innerHTML='<div class="panel">'+emptyState('clock','No deadlines in this view','Change the filters, or add obligations from a contract page.','<a class="btn" href="#/contracts">Open contracts</a>')+'</div>';return;}
+host.innerHTML='<div class="panel">'+rows.map(function(r){return '<div class="list-row'+(r.days<0&&!r.done?' over':'')+'"><div class="dblock" aria-hidden="true"><div class="d">'+r.date.slice(8,10)+'</div><div class="m">'+new Date(pISO(r.date)).toLocaleDateString('en-US',{month:'short'})+'</div></div>'+
+(r.kind==='obligation'?'<input type="checkbox" data-action="obligation-toggle" data-cid="'+r.c.id+'" data-oid="'+r.oid+'"'+(r.done?' checked':'')+' aria-label="Mark '+esc(r.label)+' done">':'')+
+'<div class="main"><div class="t"'+(r.done?' style="text-decoration:line-through;color:var(--muted)"':'')+'><a href="#/contracts/'+r.c.id+'">'+esc(r.label)+'</a></div><div class="s">'+esc(r.c.title)+' · '+esc(r.c.company)+'</div></div>'+
+'<span class="badge t-'+KIND_META[r.kind].tone+'">'+KIND_META[r.kind].label+'</span><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+(r.done?'<span class="chip t-grey">done</span>':daysChip(r.days))+'</div>';}).join('')+'</div>';}
+function viewDeadlines(){var html='<div class="page-head"><div><h1>Deadlines</h1><div class="head-sub">Every expiration, renewal, notice deadline and obligation in one prioritized queue.</div></div></div>';
+html+='<div class="panel toolbar">'+Object.keys(KIND_META).map(function(k){return '<button class="lg-btn" data-action="dl-kind" data-kind="'+k+'" aria-pressed="'+dls.kinds[k]+'"><span class="dot" style="background:'+(k==='expiry'?'var(--red)':k==='renewal'?'var(--accent)':k==='notice'?'var(--amber)':'var(--slate)')+'"></span>'+KIND_META[k].label+'s</button>';}).join('')+
+'<label class="sr-only" for="dl-time">Time range</label><select id="dl-time" data-dlf="time"><option value="all"'+(dls.time==='all'?' selected':'')+'>All dates</option><option value="overdue"'+(dls.time==='overdue'?' selected':'')+'>Overdue only</option><option value="7"'+(dls.time==='7'?' selected':'')+'>Next 7 days</option><option value="30"'+(dls.time==='30'?' selected':'')+'>Next 30 days</option><option value="90"'+(dls.time==='90'?' selected':'')+'>Next 90 days</option><option value="future"'+(dls.time==='future'?' selected':'')+'>All upcoming</option></select></div>';
+html+='<p class="meta-line" id="dl-meta" aria-live="polite"></p><div id="dl-list"></div>';return html;}
+
+function calEvents(){var map={};allDeadlines().forEach(function(r){if(!cal.kinds[r.kind])return;(map[r.date]=map[r.date]||[]).push(r);});return map;}
+function refreshCalendar(){var host=$('#cal-wrap');if(!host)return;var y=cal.y,m=cal.m;var mh=$('#cal-month');if(mh)mh.textContent=fmtMonth(y,m);
+var first=Date.UTC(y,m,1);var offset=(new Date(first).getUTCDay()+6)%7;var start=first-offset*DAY;var evs=calEvents();
+var cells='';for(var i=0;i<42;i++){var d=new Date(start+i*DAY);var iso=d.toISOString().slice(0,10);var inM=d.getUTCMonth()===m;var list=evs[iso]||[];var today=iso===todayISO();
+var evHtml=list.slice(0,3).map(function(r){return '<a class="evt '+KIND_META[r.kind].tone+'" href="#/contracts/'+r.c.id+'" title="'+esc(KIND_META[r.kind].label)+': '+esc(r.label)+' — '+esc(r.c.title)+'">'+esc(KIND_META[r.kind].label)+' · '+esc(r.c.company)+'</a>';}).join('')+(list.length>3?'<span class="more-ev">+'+(list.length-3)+' more</span>':'');
+cells+='<div class="cell'+(inM?'':' dim')+(today?' today':'')+(cal.selected===iso?' sel':'')+'" data-action="cal-day" data-date="'+iso+'" tabindex="0" role="button" aria-label="'+fmtDateLong(iso)+', '+list.length+' event'+(list.length===1?'':'s')+'"><span class="dnum">'+d.getUTCDate()+'</span>'+evHtml+'</div>';}
+var dayHtml='';if(cal.selected){var list=(evs[cal.selected]||[]).slice().sort(function(a,b){return a.kind<b.kind?-1:1;});
+dayHtml='<section class="panel mt">'+panelHead('Events on '+fmtDateLong(cal.selected))+'<div>'+(list.length?list.map(function(r){return '<div class="list-row"><span class="badge t-'+KIND_META[r.kind].tone+'">'+KIND_META[r.kind].label+'</span><div class="main"><div class="t">'+esc(r.label)+'</div><div class="s"><a href="#/contracts/'+r.c.id+'">'+esc(r.c.title)+'</a> · '+esc(r.c.company)+'</div></div>'+daysChip(r.days)+'</div>';}).join(''):'<div class="empty" style="padding:20px"><p style="margin:0">No events on this day.</p></div>')+'</div></section>';}
+host.innerHTML='<div class="cal" role="grid" aria-label="Contract calendar for '+fmtMonth(y,m)+'">'+['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(function(d){return '<div class="hd" role="columnheader">'+d+'</div>';}).join('')+cells+'</div>'+dayHtml;}
+function viewCalendar(){var html='<div class="page-head"><div><h1>Calendar</h1><div class="head-sub">Expirations, renewals, notice deadlines and obligations by date.</div></div><div class="head-actions"><button class="btn" data-action="cal-prev" aria-label="Previous month">'+ic('chevL')+'</button><button class="btn" data-action="cal-today">Today</button><button class="btn" data-action="cal-next" aria-label="Next month">'+ic('chevR')+'</button></div></div>';
+html+='<div class="panel toolbar"><h2 id="cal-month" style="font-size:15px;font-weight:600;min-width:150px"></h2><div class="cal-legend">'+Object.keys(KIND_META).map(function(k){return '<button class="lg-btn" data-action="cal-kind" data-kind="'+k+'" aria-pressed="'+cal.kinds[k]+'"><span class="dot" style="background:'+(k==='expiry'?'var(--red)':k==='renewal'?'var(--accent)':k==='notice'?'var(--amber)':'var(--slate)')+'"></span>'+KIND_META[k].label+'s</button>';}).join('')+'</div></div>';
+html+='<div id="cal-wrap"></div>';return html;}
+
+function viewRenewals(){var rows=db.contracts.filter(function(c){return c.renewalDate&&isLive(c)&&c.status!=='Expired';}).sort(function(a,b){return pISO(a.renewalDate)-pISO(b.renewalDate);});
+var upcoming=rows.filter(function(c){return daysUntil(c.renewalDate)>=0;});
+var val90=upcoming.filter(function(c){return daysUntil(c.renewalDate)<=90;}).reduce(function(s,c){return s+(+c.value||0);},0);
+var openWin=rows.filter(function(c){var m=metrics(c);return m.noticeDate&&m.noticeDays<=S().renewalWarn&&daysUntil(c.renewalDate)>=0;}).length;
+var html='<div class="page-head"><div><h1>Renewals</h1><div class="head-sub">Renewal pipeline with notice-window tracking.</div></div></div>';
+html+='<div class="grid c-kpi" style="grid-template-columns:repeat(3,1fr)"><section class="panel kpi"><div class="lbl">Upcoming renewals</div><div class="val">'+upcoming.length+'</div><div class="sub">live contracts with renewal dates</div></section><section class="panel kpi"><div class="lbl">Renewal value ≤ 90 days</div><div class="val warn">'+money(val90)+'</div><div class="sub">commitments to review now</div></section><section class="panel kpi"><div class="lbl">Notice windows open</div><div class="val'+(openWin?' bad':'')+'">'+openWin+'</div><div class="sub">inside '+S().renewalWarn+'-day threshold</div></section></div>';
+html+='<div class="mt">'+(rows.length?'<div class="panel"><div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Renewal pipeline</caption><thead><tr><th scope="col"><span class="th-pad">Contract</span></th><th scope="col"><span class="th-pad">Renewal</span></th><th scope="col"><span class="th-pad">Notice deadline</span></th><th scope="col"><span class="th-pad">Status</span></th><th scope="col"><span class="th-pad" style="text-align:right">Value</span></th><th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th></tr></thead><tbody>'+
+rows.map(function(c){var m=metrics(c);var nChip;
+if(!m.noticeDate)nChip='<span class="chip t-grey">none</span>';
+else if(m.noticeDays<0&&daysUntil(c.renewalDate)>=0)nChip='<span class="chip t-red" title="Notice deadline passed — renewal window open">'+(-m.noticeDays)+'d over</span>';
+else nChip=daysChip(m.noticeDays);
+return '<tr><td><a class="rowlink" href="#/contracts/'+c.id+'">'+esc(c.title)+'</a><span class="sub">'+esc(c.company)+' · '+esc(c.owner)+'</span></td><td>'+fmtDate(c.renewalDate)+' '+daysChip(m.renewalDays)+'</td><td>'+fmtDate(m.noticeDate)+' '+nChip+'</td><td>'+statusBadge(c.status)+'</td><td class="num">'+money(c.value)+'</td><td><div class="row-actions"><button class="btn btn-sm" data-action="renew-log" data-id="'+c.id+'">'+ic('renew')+'Log renewal</button><button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'">'+ic('pencil')+'</button></div></td></tr>';}).join('')+'</tbody></table></div></div>':
+'<div class="panel">'+emptyState('renew','No renewals tracked','Contracts with a renewal date will build the pipeline here.')+'</div>')+'</div>';
+return html;}
+
+function refreshCompanies(){var host=$('#comp-list');if(!host)return;var q=comps.q.toLowerCase();var map={};
+db.contracts.filter(function(c){return !c.archived;}).forEach(function(c){var e=map[c.company]=map[c.company]||{company:c.company,count:0,active:0,value:0,next:null};
+e.count++;if(isActive(c)){e.active++;e.value+=+c.value||0;}if(c.expiryDate&&(!e.next||pISO(c.expiryDate)<pISO(e.next)))e.next=c.expiryDate;});
+var list=Object.keys(map).map(function(k){return map[k];}).filter(function(e){return !q||e.company.toLowerCase().indexOf(q)>=0;}).sort(function(a,b){return b.value-a.value;});
+if(!list.length){host.innerHTML='<div class="panel">'+emptyState('inbox','No companies found','Add contracts to build your counterparty directory.')+'</div>';return;}
+host.innerHTML='<div class="panel"><div class="tbl-wrap"><table class="tbl" style="min-width:640px"><caption class="sr-only">Companies with contract counts and values</caption><thead><tr><th scope="col"><span class="th-pad">Company</span></th><th scope="col"><span class="th-pad">Contracts</span></th><th scope="col"><span class="th-pad">Active</span></th><th scope="col"><span class="th-pad" style="text-align:right">Active value</span></th><th scope="col"><span class="th-pad">Next expiration</span></th><th scope="col"><span class="th-pad"></span></th></tr></thead><tbody>'+
+list.map(function(e){return '<tr><td><a class="rowlink" href="#/contracts?company='+encodeURIComponent(e.company)+'">'+esc(e.company)+'</a></td><td>'+e.count+'</td><td>'+e.active+'</td><td class="num">'+(e.value?money(e.value):'—')+'</td><td>'+fmtDate(e.next)+(e.next?' '+daysChip(daysUntil(e.next)):'')+'</td><td><div class="row-actions"><a class="btn btn-sm" href="#/contracts?company='+encodeURIComponent(e.company)+'">View contracts</a></div></td></tr>';}).join('')+'</tbody></table></div></div>';}
+function viewCompanies(){var html='<div class="page-head"><div><h1>Companies</h1><div class="head-sub">Counterparties, vendors and partners across the contract book.</div></div></div>';
+html+='<div class="panel toolbar"><div class="grow"><label class="sr-only" for="comp-search">Search companies</label><input class="input" id="comp-search" type="search" placeholder="Search companies…" value="'+esc(comps.q)+'" style="width:100%"></div></div><div id="comp-list"></div>';return html;}
+
+function viewReports(){var live=db.contracts.filter(function(c){return !c.archived;});
+var byStatus=STATUSES.map(function(s,i){return{label:s,value:live.filter(function(c){return c.status===s;}).length,color:PALETTE[i%PALETTE.length]};}).filter(function(x){return x.value>0;});
+var byType=TYPES.map(function(t,i){return{label:t,value:live.filter(function(c){return c.type===t;}).length,color:PALETTE[i%PALETTE.length]};}).filter(function(x){return x.value>0;}).sort(function(a,b){return b.value-a.value;});
+var now=new Date();var months=[];for(var i=0;i<12;i++){var d=new Date(Date.UTC(now.getFullYear(),now.getMonth()+i,1));var key=d.toISOString().slice(0,7);months.push({label:d.toLocaleDateString('en-US',{month:'short'}),value:live.filter(function(c){return c.expiryDate&&c.expiryDate.slice(0,7)===key;}).length,fill:i===0?'#9c3636':'#3e5c76'});}
+var quarters=[];for(var q=0;q<4;q++){var qs=new Date(Date.UTC(now.getFullYear(),Math.floor(now.getMonth()/3)*3+q*3,1));var qe=new Date(Date.UTC(qs.getUTCFullYear(),qs.getUTCMonth()+3,0));var val=live.filter(function(c){return c.renewalDate&&pISO(c.renewalDate)>=pISO(qs.toISOString().slice(0,10))&&pISO(c.renewalDate)<=pISO(qe.toISOString().slice(0,10));}).reduce(function(s,c){return s+(+c.value||0);},0);quarters.push({label:'Q'+(Math.floor(qs.getUTCMonth()/3)+1)+' '+String(qs.getUTCFullYear()).slice(2),value:val});}
+var byOwner={};live.filter(isActive).forEach(function(c){byOwner[c.owner]=(byOwner[c.owner]||0)+(+c.value||0);});
+var ownerItems=Object.keys(byOwner).map(function(k){return{label:k,value:byOwner[k]};}).sort(function(a,b){return b.value-a.value;}).slice(0,6);
+var dlByOwner={};allDeadlines().filter(function(r){return !r.done&&r.days>=0&&r.days<=90;}).forEach(function(r){var k=r.c.owner;dlByOwner[k]=(dlByOwner[k]||0)+1;});
+var dlItems=Object.keys(dlByOwner).map(function(k){return{label:k,value:dlByOwner[k],color:'#8a6116'};}).sort(function(a,b){return b.value-a.value;});
+var overdueObs=allDeadlines().filter(function(r){return r.days<0&&!r.done;}).sort(function(a,b){return a.days-b.days;});
+var html='<div class="page-head"><div><h1>Reports</h1><div class="head-sub">Portfolio analytics as of '+fmtDate(todayISO())+'.</div></div></div>';
+html+='<div class="grid c-11"><figure class="panel fig" style="margin:0"><figcaption>Contracts by status</figcaption><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">'+chartDonut(byStatus,live.length)+'<div class="legend" style="flex-direction:column;align-items:flex-start;gap:6px">'+byStatus.map(function(s){return '<span class="li"><span class="sw" style="background:'+s.color+'"></span>'+s.label+' · <strong>'+s.value+'</strong></span>';}).join('')+'</div></div></figure>'+
+'<figure class="panel fig" style="margin:0"><figcaption>Contracts by type</figcaption>'+hbars(byType.slice(0,7))+'</figure></div>';
+html+='<div class="grid c-11 mt"><figure class="panel fig" style="margin:0"><figcaption>Expirations — next 12 months</figcaption>'+chartColumns(months)+'</figure>'+
+'<figure class="panel fig" style="margin:0"><figcaption>Renewal pipeline value by quarter (thousands)</figcaption>'+chartColumns(quarters.map(function(q){return{label:q.label,value:Math.round(q.value/1000),fill:'#2e6e4e'};}))+'</figure></div>';
+html+='<div class="grid c-11 mt"><figure class="panel fig" style="margin:0"><figcaption>Active value by owner</figcaption>'+hbars(ownerItems,money)+'</figure>'+
+'<figure class="panel fig" style="margin:0"><figcaption>Deadlines ≤ 90 days by owner</figcaption>'+hbars(dlItems)+'</figure></div>';
+html+='<section class="panel mt">'+panelHead('Overdue obligations & lapsed items','<span class="chip t-red">'+overdueObs.length+'</span>')+'<div>'+
+(overdueObs.length?overdueObs.map(function(r){return '<div class="list-row over"><div class="main"><div class="t"><a href="#/contracts/'+r.c.id+'">'+esc(r.label)+'</a></div><div class="s">'+esc(r.c.title)+' · '+esc(r.c.owner)+'</div></div><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+daysChip(r.days)+'</div>';}).join(''):'<div class="empty"><p style="margin:0">Nothing is overdue. Well done.</p></div>')+'</div></section>';
+return html;}
+
+function viewSettings(){var s=S();
+var kb=Math.max(1,Math.round(JSON.stringify(db).length/1024));
+var html='<div class="page-head"><div><h1>Settings</h1><div class="head-sub">Workspace preferences, alert thresholds and data management.</div></div></div>';
+html+='<div class="grid c-11"><section class="panel">'+panelHead('Organization')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Organization name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency">'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save organization</button></div></form></section>'+
+'<section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn">'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn">'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save thresholds</button></div></form></section></div>';
+html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">Workspace data ('+kb+' KB) persists via browser storage, with an automatic in-memory fallback where storage is restricted. The persistence layer is isolated in <code>DataService</code> so a real backend can be connected later.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"></label><button class="btn" data-action="load-sample">'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe">'+ic('trash')+'Clear all data</button></div></div></section>'+
+'<section class="panel">'+panelHead('About deciti')+'<div class="panel-b"><p style="margin:0;font-size:12.5px;color:var(--ink-2)">deciti v1.1 — contract &amp; deadline management for corporate teams. Deadline intelligence is computed automatically from contract dates: days to expiration, renewal windows, notice deadlines and overdue obligations.</p><p style="margin:10px 0 0;font-size:12px;color:var(--muted)">Keyboard: press <strong>/</strong> to focus search, <strong>Esc</strong> to dismiss dialogs and panels.</p></div></section></div>';
+return html;}
+
+function viewNotFound(path){return '<div class="panel" style="max-width:560px;margin:60px auto">'+emptyState('inbox','404 — Page not found','The route “'+(path||'')+'” does not exist in this workspace. Check the address or return to the dashboard.','<a class="btn btn-primary" href="#/">Go to dashboard</a> <a class="btn" href="#/contracts">Open contracts</a>')+'</div>';}
+function viewError(msg){return '<div class="panel" style="max-width:560px;margin:60px auto"><div class="empty"><div class="icn inset">'+ic('alert')+'</div><h3>Something went wrong</h3><p>'+esc(msg||'The application hit an unexpected error.')+'</p><button class="btn" id="err-reload">Reload</button> <button class="btn btn-danger" data-action="wipe">'+ic('trash')+'Reset workspace</button></div></div>';}
+function skeleton(){return '<div class="grid c-kpi">'+[0,1,2,3].map(function(){return '<div class="panel kpi"><div class="sk" style="width:90px;height:10px"></div><div class="sk" style="width:70px;height:26px;margin-top:10px"></div><div class="sk" style="width:120px;height:10px;margin-top:8px"></div></div>';}).join('')+'</div><div class="grid c-21 mt"><div class="panel" style="height:260px;padding:14px">'+[0,1,2,3,4].map(function(){return '<div class="sk" style="height:34px;margin-bottom:10px"></div>';}).join('')+'</div><div class="panel" style="height:260px;padding:14px">'+[0,1,2].map(function(){return '<div class="sk" style="height:52px;margin-bottom:10px"></div>';}).join('')+'</div></div>';}
+
+/* ================= router render ================= */
+var AFTER={contracts:refreshContractsTable,deadlines:refreshDeadlines,calendar:refreshCalendar,companies:refreshCompanies};
+function renderRoute(){var r=parsePath(currentPath);var root=r.segs[0]||'';var key,html;
+try{
+if(root===''){key='dashboard';html=viewDashboard();}
+else if(root==='contracts'&&!r.segs[1]){key='contracts';html=viewContracts(r.query);}
+else if(root==='contracts'){key='contracts';html=viewContractDetail(r.segs[1]);}
+else if(root==='deadlines'){key='deadlines';html=viewDeadlines();}
+else if(root==='calendar'){key='calendar';html=viewCalendar();}
+else if(root==='renewals'){key='renewals';html=viewRenewals();}
+else if(root==='companies'){key='companies';html=viewCompanies();}
+else if(root==='reports'){key='reports';html=viewReports();}
+else if(root==='settings'){key='settings';html=viewSettings();}
+else{key='notfound';html=viewNotFound('#/'+r.segs.join('/'));}
+}catch(err){key='notfound';html=viewError(String(err&&err.message||err));}
+$('#main').innerHTML='<div class="page">'+html+'</div>';
+setMeta(META[key]||META.notfound);
+$$('.nav a').forEach(function(a){if(a.dataset.nav===key)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+updateCounts();closePopovers();window.scrollTo(0,0);
+if(AFTER[key])AFTER[key]();}
+function updateCounts(){var org=$('#org-name');if(org)org.textContent=S().org;
+var over=allDeadlines().filter(function(r){return r.days<0&&!r.done;}).length;
+var cd=$('#cnt-deadlines');if(cd){cd.hidden=!over;cd.textContent=over;}
+var ren=db.contracts.filter(function(c){return c.renewalDate&&isLive(c)&&daysUntil(c.renewalDate)>=0&&daysUntil(c.renewalDate)<=S().renewalWarn;}).length;
+var cr=$('#cnt-renewals');if(cr){cr.hidden=!ren;cr.textContent=ren;}
+var un=unreadAlerts().length;var bb=$('#bell-badge');if(bb){bb.hidden=!un;bb.textContent=un>99?'99+':un;}}
+
+/* ================= popovers / search ================= */
+function closePopovers(){var g=$('#gs-pop');if(g)g.classList.remove('open');var b=$('#bell-pop');if(b)b.classList.remove('open');document.body.classList.remove('nav-open');}
+function buildBell(){var alerts=computeAlerts();var ids=db.readAlerts||[];
+var html='<div class="bell-h"><h2>Notifications</h2><button class="btn btn-sm" data-action="mark-all-read">Mark all read</button></div><div class="bell-list">';
+if(!alerts.length)html+='<div class="empty" style="padding:24px"><p style="margin:0">No active alerts.</p></div>';
+else html+=alerts.slice(0,30).map(function(a){var unread=ids.indexOf(a.id)<0;return '<a class="bell-item" href="#/contracts/'+a.cid+'" data-action="alert-open" data-id="'+a.id+'"><span class="dot" style="background:'+(a.tone==='red'?'var(--red)':'var(--amber)')+';'+(unread?'':'opacity:.35')+'"></span><span><span style="'+(unread?'font-weight:600':'')+'">'+esc(a.text)+'</span><span class="t" style="display:block">'+esc(a.sub)+' · '+fmtDate(a.date)+'</span></span></a>';}).join('');
+$('#bell-pop').innerHTML=html+'</div>';}
+var gsActive=-1;
+function buildSearch(q){var pop=$('#gs-pop');if(q.length<2){pop.classList.remove('open');return;}
+var ql=q.toLowerCase();var csHits=db.contracts.filter(function(c){return !c.archived&&(c.title+' '+c.company+' '+c.owner+' '+c.type).toLowerCase().indexOf(ql)>=0;}).slice(0,6);
+var obHits=[];db.contracts.forEach(function(c){(c.obligations||[]).forEach(function(o){if(o.title.toLowerCase().indexOf(ql)>=0)obHits.push({c:c,o:o});});});obHits=obHits.slice(0,4);
+gsActive=-1;
+if(!csHits.length&&!obHits.length){pop.innerHTML='<div class="gs-head">No results</div><a class="gs-item" href="#/contracts?q='+encodeURIComponent(q)+'">'+ic('external')+'<span>Search contracts for “'+esc(q)+'”</span><span class="sub">Enter ↵</span></a>';pop.classList.add('open');return;}
+var html='';if(csHits.length)html+='<div class="gs-head">Contracts</div>'+csHits.map(function(c){return '<a class="gs-item" href="#/contracts/'+c.id+'">'+ic('file')+'<span>'+esc(c.title)+'</span><span class="sub">'+esc(c.company)+'</span></a>';}).join('');
+if(obHits.length)html+='<div class="gs-head">Deadlines & obligations</div>'+obHits.map(function(x){return '<a class="gs-item" href="#/contracts/'+x.c.id+'">'+ic('clock')+'<span>'+esc(x.o.title)+'</span><span class="sub">'+esc(x.c.company)+'</span></a>';}).join('');
+html+='<a class="gs-item" href="#/contracts?q='+encodeURIComponent(q)+'">'+ic('external')+'<span>Search all contracts for “'+esc(q)+'”</span><span class="sub">Enter ↵</span></a>';
+pop.innerHTML=html;pop.classList.add('open');}
+
+/* ================= event wiring ================= */
+document.addEventListener('click',function(e){
+var el=e.target.closest('[data-action]');
+if(el){var a=el.dataset.action,id=el.dataset.id;
+  if(a==='menu-toggle'){document.body.classList.toggle('nav-open');return;}
+  if(a==='bell-toggle'){e.stopPropagation();var p=$('#bell-pop');if(p.classList.contains('open'))p.classList.remove('open');else{buildBell();p.classList.add('open');var g=$('#gs-pop');if(g)g.classList.remove('open');}return;}
+  if(a==='mark-all-read'){db.readAlerts=computeAlerts().map(function(x){return x.id;});persist();buildBell();updateCounts();return;}
+  if(a==='alert-open'){var aid=el.dataset.id;db.readAlerts=db.readAlerts||[];if(db.readAlerts.indexOf(aid)<0){db.readAlerts.push(aid);persist();}updateCounts();/* fall through to anchor navigation */}
+  else if(a==='new-contract'){openDialog(contractFormHTML(null));return;}
+  else if(a==='edit-contract'){var c1=byId(id);if(c1)openDialog(contractFormHTML(c1));return;}
+  else if(a==='close-modal'){closeDialog();return;}
+  else if(a==='delete-contract'){var c2=byId(id);if(!c2)return;confirmDialog({title:'Delete contract',message:'Permanently delete “'+c2.title+'”? This cannot be undone. Consider archiving instead if you need a record.',ok:'Delete',danger:true}).then(function(ok){if(!ok)return;db.contracts=db.contracts.filter(function(x){return x.id!==id;});log('delete','Contract deleted: '+c2.title);persist();toast('Contract deleted.','warn');if(parsePath(currentPath).segs[1]===id)go('/contracts');else renderRoute();});return;}
+  else if(a==='archive-contract'){var c3=byId(id);if(!c3)return;c3.archived=!c3.archived;c3.updatedAt=Date.now();log('archive',(c3.archived?'Archived: ':'Restored: ')+c3.title,id);persist();toast(c3.archived?'Contract archived.':'Contract restored.');renderRoute();return;}
+  else if(a==='renew-log'){var c4=byId(id);if(!c4)return;confirmDialog({title:'Log renewal',message:'Extend “'+c4.title+'” by 12 months and set its status to Renewed? Expiration and renewal dates will both move forward.',ok:'Log renewal'}).then(function(ok){if(!ok)return;var base=c4.expiryDate||todayISO();var rb=c4.renewalDate||base;c4.expiryDate=addMonthsISO(base,12);c4.renewalDate=addMonthsISO(rb,12);c4.status='Renewed';c4.updatedAt=Date.now();log('renew','Renewal logged on '+c4.title+' — extended to '+fmtDate(c4.expiryDate),id);persist();toast('Renewal logged. Dates extended 12 months.');renderRoute();});return;}
+  else if(a==='sort'){if(cs.sortKey===el.dataset.key)cs.sortDir=cs.sortDir==='asc'?'desc':'asc';else{cs.sortKey=el.dataset.key;cs.sortDir='asc';}refreshContractsTable();return;}
+  else if(a==='page'){if(el.dataset.page==='prev')cs.page--;else cs.page++;refreshContractsTable();return;}
+  else if(a==='clear-filters'){cs.q='';cs.status='all';cs.priority='all';cs.type='all';cs.company='';cs.window='any';cs.from='';cs.to='';cs.showArchived=false;cs.page=1;renderRoute();return;}
+  else if(a==='clear-company'){cs.company='';cs.page=1;renderRoute();return;}
+  else if(a==='cal-prev'){cal.m--;if(cal.m<0){cal.m=11;cal.y--;}cal.selected=null;refreshCalendar();return;}
+  else if(a==='cal-next'){cal.m++;if(cal.m>11){cal.m=0;cal.y++;}cal.selected=null;refreshCalendar();return;}
+  else if(a==='cal-today'){var t=new Date();cal.y=t.getFullYear();cal.m=t.getMonth();cal.selected=todayISO();refreshCalendar();return;}
+  else if(a==='cal-kind'){cal.kinds[el.dataset.kind]=!cal.kinds[el.dataset.kind];el.setAttribute('aria-pressed',cal.kinds[el.dataset.kind]);refreshCalendar();return;}
+  else if(a==='dl-kind'){dls.kinds[el.dataset.kind]=!dls.kinds[el.dataset.kind];el.setAttribute('aria-pressed',dls.kinds[el.dataset.kind]);refreshDeadlines();return;}
+  else if(a==='cal-day'){if(e.target.closest('a.evt')){/* let anchor navigation handle it below */}else{cal.selected=el.dataset.date;refreshCalendar();}return;}
+  else if(a==='obligation-delete'){var c5=byId(el.dataset.cid);if(!c5)return;c5.obligations=(c5.obligations||[]).filter(function(o){return o.id!==el.dataset.oid;});c5.updatedAt=Date.now();log('obligation','Obligation removed from '+c5.title,c5.id);persist();var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c5);updateCounts();return;}
+  else if(a==='attachment-delete'){var c6=byId(el.dataset.cid);if(!c6)return;c6.attachments=(c6.attachments||[]).filter(function(x){return x.id!==el.dataset.aid;});persist();var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c6);return;}
+  else if(a==='export-csv'){var list=filteredContracts();var head=['Title','Company','Owner','Department','Type','Status','Priority','Start','Expiry','Renewal','Notice days','Value','Currency'];
+    var lines=[head.join(',')].concat(list.map(function(c){return [c.title,c.company,c.owner,c.department||'',c.type,c.status,c.priority,c.startDate||'',c.expiryDate||'',c.renewalDate||'',c.noticePeriodDays,c.value||0,S().currency].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}));
+    download('deciti-contracts-'+todayISO()+'.csv',lines.join('\n'),'text/csv');toast('CSV exported.');return;}
+  else if(a==='export-json'){download('deciti-backup-'+todayISO()+'.json',JSON.stringify(db,null,2),'application/json');toast('Backup exported.');return;}
+  else if(a==='load-sample'){confirmDialog({title:'Load sample data',message:'Replace the current workspace with the sample dataset? Current data will be overwritten.',ok:'Load sample'}).then(function(ok){if(!ok)return;db=seedData();persist();toast('Sample data loaded.');renderRoute();});return;}
+  else if(a==='wipe'){confirmDialog({title:'Clear all data',message:'Delete every contract, activity entry and setting from this workspace? This cannot be undone.',ok:'Clear everything',danger:true}).then(function(ok){if(!ok)return;db={contracts:[],activity:[],readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};persist();toast('Workspace cleared.','warn');go('/');});return;}
+}
+/* in-app anchor navigation (prevents native hash navigation which breaks sandboxed previews) */
+var anchor=e.target.closest('a[href^="#"]');
+if(anchor){var href=anchor.getAttribute('href');
+  if(href==='#'||href.indexOf('#/')===0){e.preventDefault();closePopovers();go(href.slice(1)||'/');return;}
+  closePopovers();return;}
+if(!e.target.closest('.gs-wrap')&&!e.target.closest('#bell-btn')&&!e.target.closest('.bell-pop'))closePopovers();
+});
+document.addEventListener('click',function(e){if(e.target&&e.target.id==='err-reload'){try{location.reload();}catch(err){}}});
+document.addEventListener('change',function(e){var t=e.target;
+if(t.matches('[data-filter]')){var k=t.dataset.filter;cs[k]=t.value;cs.page=1;if(k==='window'){var cc=$('#ct-custom');if(cc)cc.style.display=t.value==='custom'?'contents':'none';}refreshContractsTable();return;}
+if(t.id==='ct-from'){cs.from=t.value;refreshContractsTable();return;}
+if(t.id==='ct-to'){cs.to=t.value;refreshContractsTable();return;}
+if(t.id==='ct-archived'){cs.showArchived=t.checked;cs.page=1;refreshContractsTable();return;}
+if(t.matches('[data-dlf]')){dls.time=t.value;refreshDeadlines();return;}
+if(t.dataset.action==='quick-status'){var c=byId(t.dataset.id);if(!c)return;c.status=t.value;c.updatedAt=Date.now();log('status','Status changed to '+t.value+' on '+c.title,c.id);persist();var hb=$('#detail-badges');if(hb)hb.innerHTML=statusBadge(c.status)+prioBadge(c.priority)+(c.archived?badge('grey','Archived'):'');updateCounts();toast('Status set to '+t.value+'.');return;}
+if(t.dataset.action==='quick-priority'){var c7=byId(t.dataset.id);if(!c7)return;c7.priority=t.value;c7.updatedAt=Date.now();log('status','Priority changed to '+t.value+' on '+c7.title,c7.id);persist();var hb2=$('#detail-badges');if(hb2)hb2.innerHTML=statusBadge(c7.status)+prioBadge(c7.priority)+(c7.archived?badge('grey','Archived'):'');toast('Priority set to '+t.value+'.');return;}
+if(t.dataset.action==='obligation-toggle'){var c8=byId(t.dataset.cid);if(!c8)return;var ob=(c8.obligations||[]).filter(function(o){return o.id===t.dataset.oid;})[0];if(!ob)return;ob.done=t.checked;c8.updatedAt=Date.now();log('obligation',(t.checked?'Obligation completed: ':'Obligation reopened: ')+ob.title+' ('+c8.title+')',c8.id);persist();var ol2=$('#ob-list');if(ol2)ol2.innerHTML=obligationsHTML(c8);if($('#dl-list'))refreshDeadlines();updateCounts();return;}
+if(t.id==='import-file'){var f=t.files&&t.files[0];if(!f)return;f.text().then(function(txt){try{var data=JSON.parse(txt);if(!data||data.version!==1||!Array.isArray(data.contracts))throw new Error('bad');db={contracts:data.contracts,activity:data.activity||[],readAlerts:data.readAlerts||[],settings:Object.assign({},DEFAULT_SETTINGS,data.settings||{}),version:1};persist();toast('Backup imported — '+db.contracts.length+' contracts.');renderRoute();}catch(err){toast('Import failed: not a valid deciti backup file.','err');}});t.value='';return;}
+});
+var debT=null;
+document.addEventListener('input',function(e){var t=e.target;
+if(t.id==='gsearch'){clearTimeout(debT);debT=setTimeout(function(){buildSearch(t.value.trim());},120);return;}
+if(t.id==='ct-search'){cs.q=t.value;cs.page=1;clearTimeout(debT);debT=setTimeout(refreshContractsTable,150);return;}
+if(t.id==='comp-search'){comps.q=t.value;clearTimeout(debT);debT=setTimeout(refreshCompanies,150);return;}
+});
+document.addEventListener('keydown',function(e){var t=e.target;
+if(e.key==='/'&&!/^(input|textarea|select)$/i.test(t.tagName)){e.preventDefault();var g=$('#gsearch');if(g)g.focus();return;}
+if(t.id==='gsearch'){var pop=$('#gs-pop');var items=$$('a.gs-item',pop);
+if(e.key==='Escape'){pop.classList.remove('open');t.blur();return;}
+if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!pop.classList.contains('open'))buildSearch(t.value.trim());if(!items.length)return;gsActive=e.key==='ArrowDown'?Math.min(gsActive+1,items.length-1):Math.max(gsActive-1,0);items.forEach(function(it,i){it.classList.toggle('active',i===gsActive);});if(items[gsActive])items[gsActive].scrollIntoView({block:'nearest'});return;}
+if(e.key==='Enter'){e.preventDefault();if(gsActive>=0&&items[gsActive]){go(items[gsActive].getAttribute('href').slice(1));}else if(t.value.trim()){go('/contracts?q='+encodeURIComponent(t.value.trim()));}pop.classList.remove('open');}return;}
+if(e.key==='Escape'){closePopovers();return;}
+if(e.key==='Enter'&&t.classList&&t.classList.contains('cell')){cal.selected=t.dataset.date;refreshCalendar();return;}
+});
+document.addEventListener('submit',function(e){var f=e.target;
+if(f.id==='contract-form'){e.preventDefault();saveContract(f);return;}
+if(f.id==='obligation-form'){e.preventDefault();var c=byId(f.dataset.id);if(!c)return;var ti=$('#ob-title').value.trim(),da=$('#ob-date').value;if(!ti||!da)return;c.obligations=c.obligations||[];c.obligations.push({id:uid(),title:ti,date:da,done:false});c.updatedAt=Date.now();log('obligation','Obligation added: '+ti+' ('+c.title+')',c.id);persist();var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c);f.reset();updateCounts();toast('Obligation added.');return;}
+if(f.id==='attachment-form'){e.preventDefault();var c9=byId(f.dataset.id);if(!c9)return;var nm=$('#at-name').value.trim();if(!nm)return;c9.attachments=c9.attachments||[];c9.attachments.push({id:uid(),name:nm,kind:$('#at-kind').value,ref:$('#at-ref').value.trim()});c9.updatedAt=Date.now();log('update','Document reference added: '+nm+' ('+c9.title+')',c9.id);persist();var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c9);f.reset();toast('Reference added.');return;}
+if(f.id==='settings-org'){e.preventDefault();S().org=$('#st-org').value.trim()||'My Organization';S().currency=$('#st-cur').value;persist();toast('Organization settings saved.');renderRoute();return;}
+if(f.id==='settings-alerts'){e.preventDefault();S().expiryWarn=parseInt($('#st-ew').value,10)||60;S().renewalWarn=parseInt($('#st-rw').value,10)||60;var dn=parseInt($('#st-dn').value,10);S().defaultNotice=isNaN(dn)||dn<0?60:dn;persist();toast('Alert thresholds saved.');renderRoute();return;}
+});
+window.addEventListener('popstate',function(e){var st=e.state&&e.state.p;if(st){currentPath=normPath(st);}else{try{currentPath=normPath((location.hash||'').slice(1));}catch(err){}}renderRoute();});
+
+/* ================= boot ================= */
+(function boot(){var tl=$('#today-line');if(tl)tl.textContent=fmtDateLong(todayISO());
+$('#main').innerHTML=skeleton();
+try{currentPath=normPath((location.hash||'').slice(1));}catch(e){currentPath='/';}
+DataService.load().then(function(loaded){
+if(loaded&&loaded.version===1){db={contracts:loaded.contracts||[],activity:loaded.activity||[],readAlerts:loaded.readAlerts||[],settings:Object.assign({},DEFAULT_SETTINGS,loaded.settings||{}),version:1};}
+else{db=seedData();persist();}
+renderRoute();
+var sa=$('#saved-at');if(sa)sa.textContent='loaded';
+}).catch(function(err){$('#main').innerHTML=viewError('Workspace data could not be read. '+(err&&err.message||''));});
+})();
+</script>
+</body>
+</html>
