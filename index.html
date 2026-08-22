@@ -21,6 +21,8 @@
 <meta name="twitter:title" content="deciti — Contract &amp; Deadline Management">
 <meta name="twitter:description" content="Track contracts, renewals, notice periods and obligations with deadline intelligence.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322262c'/%3E%3Crect x='15' y='17' width='34' height='4' rx='2' fill='%23778089'/%3E%3Crect x='15' y='29' width='22' height='4' rx='2' fill='%23778089'/%3E%3Ccircle cx='43' cy='43' r='9' fill='%232e6e4e'/%3E%3Ccircle cx='43' cy='43' r='3.5' fill='%23d7e5dc'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
 <!--
   Deployment notes (served alongside this app shell in production):
   robots.txt:  User-agent: * / Disallow: /#/  (private workspace screens are not indexable)
@@ -35,6 +37,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"deciti","applicationCategory":"BusinessApplication","operatingSystem":"Any","description":"Corporate contract and deadline management workspace with deadline intelligence.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.js" crossorigin="anonymous"></script>
 <style>
 :root{
   --bg:#e2e4e7; --panel:#f6f7f8; --panel-2:#eef0f2; --inset:#e9ebed;
@@ -274,6 +277,29 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent)}
 .sk{background:#d9dcdf;border-radius:4px;animation:pulse 1.3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- auth screen ---------- */
+.app{display:none}
+body.authed .app{display:grid}
+body.authed #auth-screen{display:none}
+#auth-screen{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:24px;background:radial-gradient(1200px 600px at 50% -10%,#2c333c 0%,#20242a 55%,#191c21 100%);overflow:auto}
+.auth-card{width:min(420px,100%);background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-3);overflow:hidden}
+.auth-brand{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid var(--hairline);background:var(--panel-2)}
+.auth-brand .brand-mark{width:32px;height:32px;flex:none;border-radius:8px;background:#20242a;display:grid;place-items:center}
+.auth-brand .brand-name{font-size:17px;font-weight:600}
+.auth-brand .brand-sub{font-size:10.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.auth-tabs{display:flex;border-bottom:1px solid var(--hairline);background:var(--panel-2)}
+.auth-tab{flex:1;padding:10px 12px;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+.auth-tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);background:var(--panel)}
+.auth-body{padding:18px 20px 20px}
+.auth-body .field{margin-bottom:12px}
+.auth-body .input{width:100%}
+.auth-msg{margin:0 0 12px;border-radius:6px;padding:8px 11px;font-size:12.5px;display:none}
+.auth-msg.err{display:block;border:1px solid var(--red-line);background:var(--red-soft);color:var(--red)}
+.auth-msg.ok{display:block;border:1px solid #b7d2c2;background:var(--accent-soft);color:var(--accent-ink)}
+.auth-foot{padding:11px 20px;border-top:1px solid var(--hairline);background:var(--panel-2);font-size:11.5px;color:var(--muted)}
+.auth-body .btn-primary{width:100%;justify-content:center;padding:9px 12px}
+.pw-row{display:flex;gap:8px;align-items:flex-end}
+#auth-screen .brand-name,#auth-screen .brand-sub{display:block}
 /* ---------- responsive ---------- */
 @media (max-width:1060px){
   .app{grid-template-columns:1fr}
@@ -297,6 +323,37 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent)}
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
+<div id="auth-screen" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 64 64" fill="none"><rect x="13" y="15" width="38" height="5" rx="2.5" fill="#778089"/><rect x="13" y="28" width="25" height="5" rx="2.5" fill="#778089"/><circle cx="45" cy="45" r="10" fill="#2e6e4e"/><circle cx="45" cy="45" r="4" fill="#d7e5dc"/></svg></span>
+      <span><span class="brand-name" id="auth-title">deciti</span><span class="brand-sub">Contract Intelligence</span></span>
+    </div>
+    <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+      <button class="auth-tab" type="button" role="tab" id="tab-signin" data-auth-tab="signin" aria-selected="true" aria-controls="auth-form">Sign in</button>
+      <button class="auth-tab" type="button" role="tab" id="tab-signup" data-auth-tab="signup" aria-selected="false" aria-controls="auth-form">Create account</button>
+    </div>
+    <form class="auth-body" id="auth-form" novalidate>
+      <p class="auth-msg" id="auth-msg" role="alert" aria-live="assertive"></p>
+      <div class="field">
+        <label for="auth-username">Username</label>
+        <input class="input" id="auth-username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required maxlength="30" placeholder="e.g. alex.morgan">
+        <div class="hint" id="auth-username-hint">3–30 characters: lowercase letters, numbers, dots or underscores.</div>
+      </div>
+      <div class="field">
+        <label for="auth-password">Password</label>
+        <input class="input" id="auth-password" name="password" type="password" autocomplete="current-password" required maxlength="128" placeholder="••••••••">
+        <div class="hint" id="auth-password-hint" hidden>Minimum 8 characters. Choose something unique to this workspace.</div>
+      </div>
+      <div class="field" id="auth-confirm-field" hidden>
+        <label for="auth-confirm">Confirm password</label>
+        <input class="input" id="auth-confirm" name="confirm" type="password" autocomplete="new-password" maxlength="128" placeholder="••••••••">
+      </div>
+      <button class="btn btn-primary" type="submit" id="auth-submit">Sign in</button>
+    </form>
+    <div class="auth-foot" id="auth-foot">Your workspace data is stored on the deciti backend and is private to your account.</div>
+  </div>
+</div>
 <div class="app">
   <aside class="sidebar" aria-label="Application sidebar">
     <div class="brand">
@@ -336,10 +393,11 @@ input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent)}
           </button>
           <div class="bell-pop" id="bell-pop" role="region" aria-label="Notifications panel"></div>
         </div>
-        <div class="user-chip" title="Signed in as Alex Morgan">
-          <span class="avatar" aria-hidden="true">AM</span>
-          <span><span class="nm">Alex Morgan</span><br><span class="rl">Contract Operations</span></span>
+        <div class="user-chip" id="user-chip" title="Signed in">
+          <span class="avatar" id="user-avatar" aria-hidden="true">—</span>
+          <span><span class="nm" id="user-name">—</span><br><span class="rl" id="user-role">—</span></span>
         </div>
+        <button class="btn btn-sm" data-action="sign-out" id="signout-btn">Sign out</button>
       </div>
     </header>
     <main id="main" tabindex="-1"></main>
@@ -368,8 +426,17 @@ function fmtDateLong(s){var d=new Date(pISO(s));return d.toLocaleDateString('en-
 function fmtMonth(y,m){return new Date(Date.UTC(y,m,1)).toLocaleDateString('en-US',{month:'long',year:'numeric'});}
 function relTime(ts){var s=Math.floor((Date.now()-ts)/1000);if(s<60)return 'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' h ago';if(s<172800)return 'yesterday';if(s<604800)return Math.floor(s/86400)+' days ago';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 function money(v){if(!v)return '—';try{return new Intl.NumberFormat('en-US',{style:'currency',currency:S().currency,maximumFractionDigits:0}).format(v);}catch(e){return '$'+Number(v).toLocaleString();}}
-function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}
 function download(name,text,type){try{var b=new Blob([text],{type:type||'application/octet-stream'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},500);}catch(e){toast('Download is not available in this environment.','err');}}
+/* Blob.text() is unavailable on older engines; fall back to FileReader. */
+function readFileText(f){
+  if(f&&typeof f.text==='function')return f.text();
+  return new Promise(function(res,rej){
+    var r=new FileReader();
+    r.onload=function(){res(String(r.result||''));};
+    r.onerror=function(){rej(r.error||new Error('The file could not be read.'));};
+    r.readAsText(f);
+  });
+}
 
 /* ================= constants ================= */
 var TYPES=['SaaS Subscription','Licensing','Professional Services','Vendor / Supply','Lease','NDA','Employment','Insurance','Partnership','Other'];
@@ -381,8 +448,17 @@ var PRIORITY_TONE={'Low':'grey','Medium':'slate','High':'amber','Critical':'red'
 var KIND_META={expiry:{label:'Expiration',tone:'red'},renewal:{label:'Renewal',tone:'green'},notice:{label:'Notice',tone:'amber'},obligation:{label:'Obligation',tone:'slate'}};
 var ATT_KINDS=['PDF','DOCX','XLSX','Link','Email','Other'];
 var CURRENCIES=['USD','EUR','GBP','CHF','SGD','AUD','CAD','JPY'];
-var DEFAULT_SETTINGS={org:'Meridian Holdings',currency:'USD',expiryWarn:60,renewalWarn:60,defaultNotice:60};
-var LS_KEY='deciti.workspace.v1';
+var DEFAULT_SETTINGS={org:'My workspace',currency:'USD',expiryWarn:60,renewalWarn:60,defaultNotice:60};
+
+/* ================= backend configuration ================= */
+/* Publishable (anon) key only — it is safe in client code. Every table is
+   protected by row level security keyed on auth.uid(), so a session token is
+   required for any read or write and identity can never be supplied by the
+   client. */
+var SUPABASE_URL='https://drzlwspfbnmmrtzjnrkc.supabase.co';
+var SUPABASE_PUBLISHABLE_KEY='sb_publishable_3VBl44BI9zJClzVfc4nS3w_aukuyYqT';
+var AUTH_EMAIL_DOMAIN='users.decitii.app';
+var USERNAME_RE=/^[a-z0-9_.]{3,30}$/;
 
 /* ================= safe storage (localStorage with in-memory fallback for sandboxed contexts) ================= */
 var safeStorage=(function(){
@@ -395,15 +471,109 @@ var safeStorage=(function(){
   }
 })();
 
-/* ================= persistence layer (swap for a real backend later) ================= */
-var DataService={
-  load:function(){return delay(260).then(function(){var raw=safeStorage.getItem(LS_KEY);if(!raw)return null;return JSON.parse(raw);});},
-  save:function(data){return delay(60).then(function(){safeStorage.setItem(LS_KEY,JSON.stringify(data));});},
-  clear:function(){safeStorage.removeItem(LS_KEY);}
+/* ================= supabase client ================= */
+var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,
+        storage:safeStorage,storageKey:'deciti.auth.v1'}
+});
+
+/* Identity is derived from the verified session only. Nothing here is accepted
+   from user input, and every request is additionally re-checked server side. */
+var ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+/* The `user` object inside a stored session is plain JSON that anyone with
+   access to the browser could edit. The `sub` claim inside the access token
+   cannot be changed without invalidating its signature, and the server rejects
+   unsigned tokens, so the claim is the only client-visible value worth reading.
+   Postgres RLS never trusts either one: it reads auth.uid() from the verified
+   token on every statement. */
+function subjectOf(session){
+  try{
+    var part=String(session.access_token).split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    while(part.length%4)part+='=';
+    var sub=JSON.parse(atob(part)).sub;
+    return /^[0-9a-f-]{36}$/i.test(sub)?sub:null;
+  }catch(e){return null;}
+}
+function usernameToEmail(u){return String(u).trim().toLowerCase()+'@'+AUTH_EMAIL_DOMAIN;}
+function initials(s){var p=String(s||'').replace(/[._]+/g,' ').trim().split(/\s+/);return ((p[0]||'?').charAt(0)+(p[1]||'').charAt(0)).toUpperCase();}
+function canWrite(){return ['owner','admin','manager','member'].indexOf(ME.role)>=0;}
+function canDelete(){return ['owner','admin','manager'].indexOf(ME.role)>=0;}
+
+/* ================= row mappers (snake_case DB <-> camelCase view model) ================= */
+function mapObligation(o){return {id:o.id,title:o.title,date:o.due_date,done:!!o.done};}
+function mapDocument(d){return {id:d.id,name:d.filename,kind:d.kind||'Other',ref:d.reference||''};}
+function mapContract(r){return {
+  id:r.id,title:r.title,company:r.company,owner:r.owner_name||'',department:r.department||'',
+  type:r.type||'Other',status:r.status,priority:r.priority,
+  startDate:r.start_date||'',expiryDate:r.expiry_date||'',renewalDate:r.renewal_date||'',
+  noticePeriodDays:r.notice_period_days||0,value:Number(r.value||0),notes:r.notes||'',
+  archived:!!r.archived,
+  createdAt:r.created_at?Date.parse(r.created_at):Date.now(),
+  updatedAt:r.updated_at?Date.parse(r.updated_at):Date.now(),
+  obligations:(r.contract_obligations||[]).map(mapObligation),
+  attachments:(r.contract_documents||[]).map(mapDocument)
+};}
+function mapSettings(o){return {org:o.name,currency:o.currency||'USD',expiryWarn:o.expiry_warn_days||60,renewalWarn:o.renewal_warn_days||60,defaultNotice:o.default_notice_days==null?60:o.default_notice_days};}
+function mapActivity(a){return {id:a.id,ts:Date.parse(a.created_at),kind:a.action||'update',msg:a.message,cid:a.contract_id||null};}
+function mapNotification(n){return {id:n.id,tone:n.severity==='critical'?'red':'amber',text:n.title,sub:n.body||'',cid:n.contract_id,date:n.due_date||n.created_at.slice(0,10),read:!!n.read_at};}
+function contractPayload(c){return {
+  organization_id:ME.orgId,title:c.title,company:c.company,owner_name:c.owner||'',
+  department:c.department||null,type:c.type||null,status:c.status,priority:c.priority,
+  start_date:c.startDate||null,expiry_date:c.expiryDate,renewal_date:c.renewalDate||null,
+  notice_period_days:c.noticePeriodDays||0,value:c.value||0,currency:S().currency,notes:c.notes||''
+};}
+
+/* ================= data access layer (Supabase / PostgREST) ================= */
+/* Explicit FK hints: both child tables have a second composite FK to
+   (contracts.id, contracts.organization_id), so the relationship must be named. */
+var CONTRACT_SELECT='*,contract_obligations!contract_obligations_contract_id_fkey(*),contract_documents!contract_documents_contract_id_fkey(*)';
+function unwrap(res){if(res.error)throw res.error;return res.data;}
+function backendMessage(err){
+  var m=String(err&&(err.message||err.error_description||err)||'Unknown error');
+  if(/row-level security|permission denied|not authorized|violates/i.test(m))return 'You do not have permission to do that.';
+  if(/Failed to fetch|NetworkError|network/i.test(m))return 'Network error — changes were not saved.';
+  return m;
+}
+
+var API={
+  session:function(){return sb.auth.getSession().then(function(r){return r.data.session||null;});},
+  signIn:function(username,password){return sb.auth.signInWithPassword({email:usernameToEmail(username),password:password});},
+  signUp:function(username,password){
+    return fetch(SUPABASE_URL+'/functions/v1/auth-signup',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_PUBLISHABLE_KEY},
+      body:JSON.stringify({username:String(username).trim().toLowerCase(),password:password})
+    }).then(function(r){return r.json().catch(function(){return {};}).then(function(b){
+      if(!r.ok)throw new Error(b&&b.error||'Sign up failed.');return b;});});
+  },
+  signOut:function(){return sb.auth.signOut();},
+  profile:function(uid){return sb.from('profiles').select('id,username,full_name').eq('id',uid).maybeSingle().then(unwrap);},
+  membership:function(){return sb.from('organization_members').select('role,organization_id,organizations(*)').limit(1).maybeSingle().then(unwrap);},
+  createWorkspace:function(name){return sb.rpc('create_organization',{p_name:name}).then(unwrap);},
+  contracts:function(){return sb.from('contracts').select(CONTRACT_SELECT).order('expiry_date',{ascending:true}).then(unwrap);},
+  activity:function(){return sb.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(120).then(unwrap);},
+  notifications:function(){return sb.from('notifications').select('*').order('due_date',{ascending:true}).limit(200).then(unwrap);},
+  refreshNotifications:function(){return sb.rpc('refresh_my_notifications').then(unwrap);},
+  insertContract:function(c){return sb.from('contracts').insert(Object.assign(contractPayload(c),{created_by:ME.userId})).select(CONTRACT_SELECT).single().then(unwrap);},
+  updateContract:function(id,patch){return sb.from('contracts').update(patch).eq('id',id).select(CONTRACT_SELECT).single().then(unwrap);},
+  deleteContract:function(id){return sb.from('contracts').delete().eq('id',id).then(unwrap);},
+  insertObligation:function(cid,title,date){return sb.from('contract_obligations').insert({organization_id:ME.orgId,contract_id:cid,title:title,due_date:date}).select().single().then(unwrap);},
+  updateObligation:function(id,patch){return sb.from('contract_obligations').update(patch).eq('id',id).select().single().then(unwrap);},
+  deleteObligation:function(id){return sb.from('contract_obligations').delete().eq('id',id).then(unwrap);},
+  insertDocument:function(cid,d){return sb.from('contract_documents').insert({organization_id:ME.orgId,contract_id:cid,filename:d.name,kind:d.kind,reference:d.ref||'',uploaded_by:ME.userId}).select().single().then(unwrap);},
+  deleteDocument:function(id){return sb.from('contract_documents').delete().eq('id',id).then(unwrap);},
+  updateOrg:function(patch){return sb.from('organizations').update(patch).eq('id',ME.orgId).select().single().then(unwrap);},
+  log:function(action,entityType,entityId,contractId,message){
+    return sb.from('audit_logs').insert({organization_id:ME.orgId,user_id:ME.userId,action:action,
+      entity_type:entityType,entity_id:entityId||null,contract_id:contractId||null,
+      message:String(message).slice(0,500)}).select().single().then(unwrap);
+  },
+  markNotificationRead:function(id){return sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).then(unwrap);},
+  markAllNotificationsRead:function(){return sb.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null).then(unwrap);}
 };
 
 /* ================= state ================= */
-var db={contracts:[],activity:[],readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};
+var db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
 function S(){return db.settings;}
 var cs={q:'',status:'all',priority:'all',type:'all',company:'',window:'any',from:'',to:'',showArchived:false,sortKey:'expiry',sortDir:'asc',page:1};
 var dls={time:'all',kinds:{expiry:true,renewal:true,notice:true,obligation:true}};
@@ -425,13 +595,10 @@ function allDeadlines(){var rows=[];db.contracts.forEach(function(c){if(!isLive(
   if(m.noticeDate)rows.push({c:c,date:m.noticeDate,days:m.noticeDays,kind:'notice',label:'Notice deadline ('+c.noticePeriodDays+'d)',done:false});
   (c.obligations||[]).forEach(function(o){rows.push({c:c,date:o.date,days:daysUntil(o.date),kind:'obligation',label:o.title,done:!!o.done,oid:o.id});});
 });return rows;}
-function computeAlerts(){var out=[];db.contracts.forEach(function(c){if(!isLive(c))return;var m=metrics(c);
-  if(m.expiryDays!=null&&m.expiryDays<0&&c.status!=='Expired')out.push({id:'exp:'+c.id+':'+c.expiryDate,tone:'red',text:c.title+' expired '+(-m.expiryDays)+' day'+(m.expiryDays===-1?'':'s')+' ago',sub:c.company+' · action required',cid:c.id,date:c.expiryDate});
-  else if(m.expiryDays!=null&&m.expiryDays<=S().expiryWarn&&isActive(c))out.push({id:'expw:'+c.id+':'+c.expiryDate,tone:m.expiryDays<=21?'red':'amber',text:c.title+' expires in '+m.expiryDays+' days',sub:c.company+' · '+fmtDate(c.expiryDate),cid:c.id,date:c.expiryDate});
-  if(m.noticeDays!=null&&m.noticeDays<=S().renewalWarn&&(m.renewalDays==null||m.renewalDays>=0))out.push({id:'not:'+c.id+':'+m.noticeDate,tone:m.noticeDays<0?'red':'amber',text:m.noticeDays<0?('Notice window open for '+c.title+' (deadline passed '+(-m.noticeDays)+'d ago)'):('Notice for '+c.title+' due in '+m.noticeDays+' days'),sub:c.company+' · notice period '+c.noticePeriodDays+'d',cid:c.id,date:m.noticeDate});
-  (c.obligations||[]).forEach(function(o){if(o.done)return;var d=daysUntil(o.date);if(d<=14)out.push({id:'ob:'+c.id+':'+o.id,tone:d<0?'red':'amber',text:(d<0?'Overdue: ':'Due in '+d+'d: ')+o.title,sub:c.title,cid:c.id,date:o.date});});
-});out.sort(function(a,b){return pISO(a.date)-pISO(b.date);});return out;}
-function unreadAlerts(){var ids=db.readAlerts||[];return computeAlerts().filter(function(a){return ids.indexOf(a.id)<0;});}
+/* Alerts are generated server-side (see regen_contract_notifications) and are
+   scoped to the signed-in user by row level security. */
+function computeAlerts(){return (db.notifications||[]).slice().sort(function(a,b){return pISO(a.date)-pISO(b.date);});}
+function unreadAlerts(){return computeAlerts().filter(function(a){return !a.read;});}
 
 /* ================= icons ================= */
 var ICONS={file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>',renew:'<path d="M20 8A8 8 0 0 0 5.6 6.6L4 9"/><path d="M4 4v5h5"/><path d="M4 16a8 8 0 0 0 14.4 1.4L20 15"/><path d="M20 20v-5h-5"/>',pencil:'<path d="M17 3.5a2.6 2.6 0 0 1 3.7 3.7L8 20 3.5 20.5 4 16z"/>',archive:'<rect x="2.5" y="4" width="19" height="4.5" rx="1"/><path d="M4.5 8.5V19a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V8.5"/><path d="M10 12.5h4"/>',trash:'<path d="M3.5 6.5h17"/><path d="M8.5 6.5v-2h7v2"/><path d="M18.5 6.5l-.9 13a1.5 1.5 0 0 1-1.5 1.4H7.9a1.5 1.5 0 0 1-1.5-1.4l-.9-13"/><path d="M10 10.5v6M14 10.5v6"/>',chevR:'<path d="M9 6l6 6-6 6"/>',chevL:'<path d="M15 6l-6 6 6 6"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',check:'<path d="M4.5 12.5l5 5L20 6.5"/>',alert:'<path d="M12 3.5L22 20.5H2z"/><path d="M12 10v4.5M12 17.5v.01"/>',download:'<path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4.5 20.5h15"/>',upload:'<path d="M12 14V3M7.5 7.5L12 3l4.5 4.5"/><path d="M4.5 20.5h15"/>',plus:'<path d="M12 5v14M5 12h14"/>',inbox:'<path d="M3 13.5h5l1.5 2.5h5L16 13.5h5"/><path d="M5 4.5h14L21 13.5V19a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19v-5.5z"/>',external:'<path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M19 13.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5.5"/>'};
@@ -465,40 +632,52 @@ var META={
   notfound:{t:'Page not found · deciti',d:'The page you requested does not exist in this workspace.'}
 };
 
-/* ================= seed data ================= */
-function seedData(){var t=todayISO();function off(n){return addDaysISO(t,n);}var now=Date.now();
-function C(o){var base={id:uid(),archived:false,notes:'',attachments:[],obligations:[],noticePeriodDays:S().defaultNotice,createdAt:now-40*DAY,updatedAt:now-2*DAY};return Object.assign(base,o);}
-var csd=[
-C({title:'Corvus Cloud — Enterprise Platform Subscription',company:'Corvus Cloud',type:'SaaS Subscription',owner:'Dana Whitfield',department:'IT',startDate:off(-780),expiryDate:off(12),renewalDate:off(12),noticePeriodDays:60,value:240000,status:'Active',priority:'Critical',notes:'Auto-renews unless written notice is given 60 days prior. Negotiated 8% uplift cap at last renewal.',obligations:[{id:uid(),title:'Migration checkpoint review',date:off(6),done:false}],attachments:[{id:uid(),name:'Executed MSA + Order Form',kind:'PDF',ref:'DMS #CT-2214'}]}),
-C({title:'Sterling & Vance — Outside Counsel Retainer',company:'Sterling & Vance LLP',type:'Professional Services',owner:'Priya Raman',department:'Legal',startDate:off(-430),expiryDate:off(75),renewalDate:off(75),noticePeriodDays:30,value:180000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Quarterly retainer reconciliation',date:off(-3),done:false}],attachments:[{id:uid(),name:'Engagement letter 2024',kind:'PDF',ref:'DMS #CT-1987'}]}),
-C({title:'Apex Facilities — HQ Facilities Management',company:'Apex Facilities Group',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-1000),expiryDate:off(160),renewalDate:off(160),noticePeriodDays:90,value:520000,status:'Active',priority:'Medium',obligations:[{id:uid(),title:'Annual site safety audit',date:off(40),done:false}]}),
-C({title:'Kestrel Manufacturing — Raw Materials Supply',company:'Kestrel Manufacturing',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-600),expiryDate:off(-9),renewalDate:'',noticePeriodDays:45,value:310000,status:'Active',priority:'High',notes:'Term lapsed — renewal terms under negotiation with procurement.',obligations:[{id:uid(),title:'Final delivery reconciliation',date:off(-3),done:false}]}),
-C({title:'OrionPay — Payment Processing Agreement',company:'OrionPay',type:'Professional Services',owner:'Elena Vasquez',department:'Finance',startDate:off(-300),expiryDate:off(34),renewalDate:off(34),noticePeriodDays:30,value:145000,status:'Active',priority:'High',obligations:[{id:uid(),title:'PCI compliance attestation',date:off(9),done:false}]}),
+/* ================= sample data (written to the backend on request) ================= */
+function sampleContracts(){var t=todayISO();function off(n){return addDaysISO(t,n);}
+function C(o){return Object.assign({notes:'',attachments:[],obligations:[],noticePeriodDays:S().defaultNotice,archived:false},o);}
+return [
+C({title:'Corvus Cloud — Enterprise Platform Subscription',company:'Corvus Cloud',type:'SaaS Subscription',owner:'Dana Whitfield',department:'IT',startDate:off(-780),expiryDate:off(12),renewalDate:off(12),noticePeriodDays:60,value:240000,status:'Active',priority:'Critical',notes:'Auto-renews unless written notice is given 60 days prior. Negotiated 8% uplift cap at last renewal.',obligations:[{title:'Migration checkpoint review',date:off(6),done:false}],attachments:[{name:'Executed MSA + Order Form',kind:'PDF',ref:'DMS #CT-2214'}]}),
+C({title:'Sterling & Vance — Outside Counsel Retainer',company:'Sterling & Vance LLP',type:'Professional Services',owner:'Priya Raman',department:'Legal',startDate:off(-430),expiryDate:off(75),renewalDate:off(75),noticePeriodDays:30,value:180000,status:'Active',priority:'High',obligations:[{title:'Quarterly retainer reconciliation',date:off(-3),done:false}],attachments:[{name:'Engagement letter 2024',kind:'PDF',ref:'DMS #CT-1987'}]}),
+C({title:'Apex Facilities — HQ Facilities Management',company:'Apex Facilities Group',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-1000),expiryDate:off(160),renewalDate:off(160),noticePeriodDays:90,value:520000,status:'Active',priority:'Medium',obligations:[{title:'Annual site safety audit',date:off(40),done:false}]}),
+C({title:'Kestrel Manufacturing — Raw Materials Supply',company:'Kestrel Manufacturing',type:'Vendor / Supply',owner:'Marcus Bell',department:'Procurement',startDate:off(-600),expiryDate:off(-9),renewalDate:'',noticePeriodDays:45,value:310000,status:'Active',priority:'High',notes:'Term lapsed — renewal terms under negotiation with procurement.',obligations:[{title:'Final delivery reconciliation',date:off(-3),done:false}]}),
+C({title:'OrionPay — Payment Processing Agreement',company:'OrionPay',type:'Professional Services',owner:'Elena Vasquez',department:'Finance',startDate:off(-300),expiryDate:off(34),renewalDate:off(34),noticePeriodDays:30,value:145000,status:'Active',priority:'High',obligations:[{title:'PCI compliance attestation',date:off(9),done:false}]}),
 C({title:'Northwind Logistics — 3PL & Freight Agreement',company:'Northwind Logistics',type:'Vendor / Supply',owner:'Marcus Bell',department:'Operations',startDate:off(-500),expiryDate:off(210),renewalDate:off(210),noticePeriodDays:60,value:460000,status:'Active',priority:'Medium'}),
-C({title:'Halcyon Systems — ERP Licensing & Support',company:'Halcyon Systems',type:'Licensing',owner:'Dana Whitfield',department:'IT',startDate:off(-800),expiryDate:off(300),renewalDate:off(250),noticePeriodDays:90,value:610000,status:'Active',priority:'Medium',obligations:[{id:uid(),title:'Annual license true-up',date:off(18),done:false},{id:uid(),title:'Support plan review',date:off(44),done:true}]}),
-C({title:'Vanta Insurance — Cyber Liability Policy',company:'Vanta Insurance Group',type:'Insurance',owner:'Priya Raman',department:'Legal',startDate:off(-325),expiryDate:off(41),renewalDate:off(41),noticePeriodDays:30,value:96000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Renewal risk questionnaire',date:off(8),done:false}]}),
+C({title:'Halcyon Systems — ERP Licensing & Support',company:'Halcyon Systems',type:'Licensing',owner:'Dana Whitfield',department:'IT',startDate:off(-800),expiryDate:off(300),renewalDate:off(250),noticePeriodDays:90,value:610000,status:'Active',priority:'Medium',obligations:[{title:'Annual license true-up',date:off(18),done:false},{title:'Support plan review',date:off(44),done:true}]}),
+C({title:'Vanta Insurance — Cyber Liability Policy',company:'Vanta Insurance Group',type:'Insurance',owner:'Priya Raman',department:'Legal',startDate:off(-325),expiryDate:off(41),renewalDate:off(41),noticePeriodDays:30,value:96000,status:'Active',priority:'High',obligations:[{title:'Renewal risk questionnaire',date:off(8),done:false}]}),
 C({title:'Brightwave Media — Brand Campaign Services',company:'Brightwave Media',type:'Professional Services',owner:'Tomas Meyer',department:'Sales',startDate:off(-60),expiryDate:off(95),renewalDate:'',noticePeriodDays:14,value:85000,status:'Active',priority:'Low'}),
-C({title:'Ironwood Realty — Warehouse Lease (Dock 7)',company:'Ironwood Realty',type:'Lease',owner:'Sofia Grant',department:'Operations',startDate:off(-1100),expiryDate:off(190),renewalDate:off(190),noticePeriodDays:180,value:288000,status:'Active',priority:'High',obligations:[{id:uid(),title:'Estoppel certificate delivery',date:off(22),done:false}]}),
+C({title:'Ironwood Realty — Warehouse Lease (Dock 7)',company:'Ironwood Realty',type:'Lease',owner:'Sofia Grant',department:'Operations',startDate:off(-1100),expiryDate:off(190),renewalDate:off(190),noticePeriodDays:180,value:288000,status:'Active',priority:'High',obligations:[{title:'Estoppel certificate delivery',date:off(22),done:false}]}),
 C({title:'TalentCore — Contractor Staffing MSA',company:'TalentCore',type:'Professional Services',owner:'Sofia Grant',department:'HR',startDate:off(30),expiryDate:off(400),renewalDate:off(400),noticePeriodDays:30,value:120000,status:'Draft',priority:'Medium',notes:'Awaiting final redlines from HR and rate-card exhibit.'}),
 C({title:'Meridian Datacenter — Colocation Agreement',company:'Meridian Datacenter',type:'Vendor / Supply',owner:'Dana Whitfield',department:'IT',startDate:off(-700),expiryDate:off(500),renewalDate:off(500),noticePeriodDays:90,value:150000,status:'Active',priority:'Medium',archived:true}),
 C({title:'LegalEdge — Contract Lifecycle Software',company:'LegalEdge',type:'SaaS Subscription',owner:'Priya Raman',department:'Legal',startDate:off(-320),expiryDate:off(140),renewalDate:off(25),noticePeriodDays:30,value:42000,status:'Pending renewal',priority:'High',notes:'Notice window missed — confirm holdover terms before renewal date.'}),
 C({title:'Atlas Travel — Corporate Travel Agreement',company:'Atlas Travel',type:'Other',owner:'Elena Vasquez',department:'Operations',startDate:off(-900),expiryDate:off(-120),renewalDate:'',noticePeriodDays:30,value:30000,status:'Terminated',priority:'Low'}),
 C({title:'Greenfield Partners — Mutual NDA',company:'Greenfield Partners',type:'NDA',owner:'Tomas Meyer',department:'Legal',startDate:off(-200),expiryDate:off(720),renewalDate:'',noticePeriodDays:0,value:0,status:'Active',priority:'Low'})
-];
-var act=[
-{id:uid(),ts:now-2*3600e3,kind:'update',msg:'Notice period updated on OrionPay — Payment Processing Agreement',cid:csd[4].id},
-{id:uid(),ts:now-7*3600e3,kind:'obligation',msg:'Obligation completed: Support plan review (Halcyon Systems)',cid:csd[6].id},
-{id:uid(),ts:now-26*3600e3,kind:'status',msg:'Status changed to Pending renewal on LegalEdge — Contract Lifecycle Software',cid:csd[12].id},
-{id:uid(),ts:now-2*DAY,kind:'create',msg:'Contract created: TalentCore — Contractor Staffing MSA',cid:csd[10].id},
-{id:uid(),ts:now-3*DAY,kind:'renew',msg:'Renewal terms requested from Vanta Insurance Group',cid:csd[7].id},
-{id:uid(),ts:now-5*DAY,kind:'archive',msg:'Archived: Meridian Datacenter — Colocation Agreement',cid:csd[11].id}
-];
-return {contracts:csd,activity:act,readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};}
+];}
 
-/* ================= activity log & persistence ================= */
-function log(kind,msg,cid){db.activity.unshift({id:uid(),ts:Date.now(),kind:kind,msg:msg,cid:cid||null});if(db.activity.length>120)db.activity.length=120;}
-function persist(){DataService.save(db).then(function(){var el=$('#saved-at');if(el)el.textContent='saved '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}).catch(function(){toast('Could not save — storage unavailable.','err');});}
+/* ================= backend write helpers ================= */
 function toast(msg,kind){var el=document.createElement('div');el.className='toast'+(kind?' '+kind:'');el.textContent=msg;$('#toasts').appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(function(){el.remove();},320);},3600);}
+function syncMark(state){var el=$('#saved-at');if(!el)return;
+  if(state==='saving')el.textContent='saving…';
+  else if(state==='error')el.textContent='not saved';
+  else el.textContent='saved '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+function fail(err){console.error(err);toast(backendMessage(err),'err');syncMark('error');}
+
+/* Writes go to the backend first; the local view model is only updated from the
+   row the server returns, so the UI can never diverge from what was persisted. */
+function commit(promise){syncMark('saving');return promise.then(function(v){syncMark('saved');return v;},function(err){fail(err);throw err;});}
+function silence(p){return p.catch(function(){});}
+
+/* Audit trail entry. Best-effort: never blocks the user's action. */
+function log(action,msg,cid){
+  var local={id:uid(),ts:Date.now(),kind:action,msg:msg,cid:cid||null};
+  db.activity.unshift(local);if(db.activity.length>120)db.activity.length=120;
+  return silence(API.log(action,cid?'contract':'workspace',null,cid||null,msg));
+}
+
+/* Pull the authoritative contract row (with children) back into local state. */
+function absorbContract(row){var mapped=mapContract(row);
+  for(var i=0;i<db.contracts.length;i++){if(db.contracts[i].id===mapped.id){db.contracts[i]=mapped;return mapped;}}
+  db.contracts.unshift(mapped);return mapped;}
+function reloadNotifications(){return API.notifications().then(function(rows){db.notifications=(rows||[]).map(mapNotification);updateCounts();});}
 
 /* ================= dialogs ================= */
 var activeDialog=null;
@@ -515,7 +694,7 @@ function contractFormHTML(c){var s=c||{};function sel(arr,val){return arr.map(fu
 var companies=Array.from(new Set(db.contracts.map(function(x){return x.company;}))).sort();
 var owners=Array.from(new Set(db.contracts.map(function(x){return x.owner;}))).sort();
 return '<div class="dlg-h"><h2 id="dlg-title">'+(c?'Edit contract':'New contract')+'</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'+
-'<form id="contract-form" novalidate><div class="dlg-b"><div class="fgrid">'+
+'<form id="contract-form" novalidate><div class="dlg-b">'+(c?'<input type="hidden" id="cf-id" value="'+esc(c.id)+'">':'')+'<div class="fgrid">'+
 '<div class="field span2"><label for="cf-title">Contract title *</label><input class="input" id="cf-title" name="title" required value="'+esc(s.title||'')+'" placeholder="e.g. Acme Corp — Master Service Agreement"></div>'+
 '<div class="field"><label for="cf-company">Company / counterparty *</label><input class="input" id="cf-company" name="company" list="dl-companies" required value="'+esc(s.company||'')+'"></div>'+
 '<div class="field"><label for="cf-type">Contract type</label><select id="cf-type" name="type">'+sel(TYPES,s.type||TYPES[2])+'</select></div>'+
@@ -542,14 +721,25 @@ if(start&&expiry&&pISO(expiry)<pISO(start))errs.push('Expiration date must be on
 if(start&&renewal&&pISO(renewal)<pISO(start))errs.push('Renewal date must be on or after the start date.');
 var notice=parseInt(g('noticePeriodDays'),10);if(isNaN(notice)||notice<0)errs.push('Notice period must be 0 or more days.');
 var value=parseFloat(g('value'));if(g('value')!==''&&(isNaN(value)||value<0))errs.push('Contract value must be a positive number.');
+if(!canWrite())errs.push('Your role does not allow creating or editing contracts.');
 var box=$('#cf-errors');
 if(errs.length){box.hidden=false;box.innerHTML='Please fix the following:<ul>'+errs.map(function(e){return '<li>'+esc(e)+'</li>';}).join('')+'</ul>';return;}
-var id=f.querySelector('#cf-id')?f.querySelector('#cf-id').value:null;var c=id?byId(id):null;var isNew=!c;
-if(isNew)c={id:uid(),createdAt:Date.now(),attachments:[],obligations:[],archived:false};
-c.title=title;c.company=company;c.owner=owner;c.department=g('department');c.type=g('type');c.startDate=start;c.expiryDate=expiry;c.renewalDate=renewal;c.noticePeriodDays=notice;c.value=isNaN(value)?0:value;c.status=g('status');c.priority=g('priority');c.notes=g('notes');c.updatedAt=Date.now();
-if(isNew){db.contracts.unshift(c);log('create','Contract created: '+title,c.id);}else{log('update','Details updated on '+title,c.id);}
-persist();closeDialog();toast(isNew?'Contract created.':'Changes saved.');
-if(isNew)go('/contracts/'+c.id);else renderRoute();}
+var idEl=f.querySelector('#cf-id');var id=idEl?idEl.value:null;var existing=id?byId(id):null;var isNew=!existing;
+var draft={title:title,company:company,owner:owner,department:g('department'),type:g('type'),startDate:start,
+  expiryDate:expiry,renewalDate:renewal,noticePeriodDays:notice,value:isNaN(value)?0:value,
+  status:g('status'),priority:g('priority'),notes:g('notes')};
+var btn=f.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
+var req=isNew?API.insertContract(draft):API.updateContract(id,contractPayload(draft));
+commit(req).then(function(row){
+  var saved=absorbContract(row);
+  log(isNew?'contract.created':'contract.updated',(isNew?'Contract created: ':'Details updated on ')+saved.title,saved.id);
+  closeDialog();toast(isNew?'Contract created.':'Changes saved.');
+  return silence(reloadNotifications()).then(function(){
+    if(isNew)go('/contracts/'+saved.id);else renderRoute();});
+}).catch(function(){
+  if(btn)btn.disabled=false;
+  box.hidden=false;box.textContent='The contract could not be saved. Please check your connection and try again.';
+});}
 
 /* ================= charts ================= */
 function chartColumns(items){var W=items.length*46+14,H=170,max=Math.max(1,Math.max.apply(null,items.map(function(i){return i.value;})));
@@ -690,7 +880,7 @@ html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Obligations
 '<section class="panel">'+panelHead('Attachments & document references')+'<div id="att-list">'+attachmentsHTML(c)+'</div>'+
 '<form class="add-row" id="attachment-form" data-id="'+c.id+'"><label class="sr-only" for="at-name">Document name</label><input class="input" id="at-name" placeholder="Document name…" required><label class="sr-only" for="at-kind">Type</label><select id="at-kind" style="flex:0 0 90px">'+ATT_KINDS.map(function(k){return '<option>'+k+'</option>';}).join('')+'</select><label class="sr-only" for="at-ref">Reference</label><input class="input" id="at-ref" placeholder="Ref / URL (optional)" style="flex:0 0 140px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form></section></div>';
 html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Notes')+'<div class="panel-b">'+(c.notes?'<pre class="notes-pre">'+esc(c.notes)+'</pre>':'<p style="margin:0;color:var(--muted);font-size:13px">No notes recorded. Use Edit to add notes.</p>')+'</div></section>'+
-'<section class="panel">'+panelHead('Activity')+'<div>'+db.activity.filter(function(a){return a.cid===c.id;}).slice(0,8).map(function(a){return '<div class="list-row"><div class="main"><div class="s" style="color:var(--ink-2)">'+esc(a.msg)+'</div><div class="s">'+relTime(a.ts)+'</div></div></div>';}).join('')||'<div class="empty"><p style="margin:0">No activity for this contract yet.</p></div>'+'</div></section></div>';
+'<section class="panel">'+panelHead('Activity')+'<div>'+(db.activity.filter(function(a){return a.cid===c.id;}).slice(0,8).map(function(a){return '<div class="list-row"><div class="main"><div class="s" style="color:var(--ink-2)">'+esc(a.msg)+'</div><div class="s">'+relTime(a.ts)+'</div></div></div>';}).join('')||'<div class="empty"><p style="margin:0">No activity for this contract yet.</p></div>')+'</div></section></div>';
 return html;}
 function obligationsHTML(c){var obs=c.obligations||[];if(!obs.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No obligations yet. Add custom deadlines below.</p></div>';
 return obs.slice().sort(function(a,b){return pISO(a.date)-pISO(b.date);}).map(function(o){var d=daysUntil(o.date);return '<div class="ob-row'+(o.done?' done':'')+'"><input type="checkbox" id="ob-'+o.id+'" data-action="obligation-toggle" data-cid="'+c.id+'" data-oid="'+o.id+'"'+(o.done?' checked':'')+' aria-label="Mark '+esc(o.title)+' as '+(o.done?'not done':'done')+'"><div class="main"><label class="ob-t" for="ob-'+o.id+'">'+esc(o.title)+'</label><div class="ob-s">Due '+fmtDate(o.date)+'</div></div>'+(o.done?'<span class="chip t-grey">done</span>':daysChip(d))+'<button class="icon-btn" data-action="obligation-delete" data-cid="'+c.id+'" data-oid="'+o.id+'" aria-label="Delete obligation '+esc(o.title)+'">'+ic('trash')+'</button></div>';}).join('');}
@@ -776,16 +966,23 @@ html+='<section class="panel mt">'+panelHead('Overdue obligations & lapsed items
 return html;}
 
 function viewSettings(){var s=S();
-var kb=Math.max(1,Math.round(JSON.stringify(db).length/1024));
-var html='<div class="page-head"><div><h1>Settings</h1><div class="head-sub">Workspace preferences, alert thresholds and data management.</div></div></div>';
-html+='<div class="grid c-11"><section class="panel">'+panelHead('Organization')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Organization name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency">'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save organization</button></div></form></section>'+
-'<section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn">'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn">'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit">Save thresholds</button></div></form></section></div>';
-html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">Workspace data ('+kb+' KB) persists via browser storage, with an automatic in-memory fallback where storage is restricted. The persistence layer is isolated in <code>DataService</code> so a real backend can be connected later.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"></label><button class="btn" data-action="load-sample">'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe">'+ic('trash')+'Clear all data</button></div></div></section>'+
-'<section class="panel">'+panelHead('About deciti')+'<div class="panel-b"><p style="margin:0;font-size:12.5px;color:var(--ink-2)">deciti v1.1 — contract &amp; deadline management for corporate teams. Deadline intelligence is computed automatically from contract dates: days to expiration, renewal windows, notice deadlines and overdue obligations.</p><p style="margin:10px 0 0;font-size:12px;color:var(--muted)">Keyboard: press <strong>/</strong> to focus search, <strong>Esc</strong> to dismiss dialogs and panels.</p></div></section></div>';
+var readOnly=!canWrite();
+var html='<div class="page-head"><div><h1>Settings</h1><div class="head-sub">Account, workspace preferences, alert thresholds and data management.</div></div></div>';
+html+='<div class="grid c-11"><section class="panel">'+panelHead('Account')+'<div class="panel-b"><div class="kv">'+
+'<div><div class="k">Username</div><div class="v mono">'+esc(ME.username)+'</div></div>'+
+'<div><div class="k">Workspace role</div><div class="v">'+esc(ME.role||'—')+'</div></div>'+
+'<div><div class="k">Workspace</div><div class="v">'+esc(s.org)+'</div></div>'+
+'<div><div class="k">Account ID</div><div class="v mono" style="font-size:11px;word-break:break-all">'+esc(ME.userId||'—')+'</div></div>'+
+'</div><p style="margin:12px 0 0;font-size:12px;color:var(--muted)">Your username is fixed at sign up and identifies your account. All data below is stored on the deciti backend and is only accessible with your password.</p>'+
+'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="change-password">Change password</button><button class="btn" data-action="sign-out">Sign out</button></div></div></section>'+
+'<section class="panel">'+panelHead('Workspace')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Workspace name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"'+(readOnly?' disabled':'')+'></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency"'+(readOnly?' disabled':'')+'>'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(readOnly?' disabled':'')+'>Save workspace</button></div></form></section></div>';
+html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn"'+(readOnly?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn"'+(readOnly?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"'+(readOnly?' disabled':'')+'></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(readOnly?' disabled':'')+'>Save thresholds</button></div><p class="hint" style="margin-top:8px">Alerts are recalculated on the server whenever thresholds or contract dates change.</p></form></section>'+
+'<section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">'+db.contracts.length+' contract'+(db.contracts.length===1?'':'s')+' stored on the deciti backend for this workspace. Nothing is kept in browser storage except your session token.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer'+(readOnly?';opacity:.5':'')+'">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"'+(readOnly?' disabled':'')+'></label><button class="btn" data-action="load-sample"'+(readOnly?' disabled':'')+'>'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe"'+(canDelete()?'':' disabled')+'>'+ic('trash')+'Delete all contracts</button></div></div></section></div>';
+html+='<section class="panel mt">'+panelHead('About deciti')+'<div class="panel-b"><p style="margin:0;font-size:12.5px;color:var(--ink-2)">deciti v2.0 — contract &amp; deadline management for corporate teams, backed by a Postgres workspace with per-account row level security. Deadline intelligence is computed from contract dates: days to expiration, renewal windows, notice deadlines and overdue obligations.</p><p style="margin:10px 0 0;font-size:12px;color:var(--muted)">Keyboard: press <strong>/</strong> to focus search, <strong>Esc</strong> to dismiss dialogs and panels.</p></div></section>';
 return html;}
 
 function viewNotFound(path){return '<div class="panel" style="max-width:560px;margin:60px auto">'+emptyState('inbox','404 — Page not found','The route “'+(path||'')+'” does not exist in this workspace. Check the address or return to the dashboard.','<a class="btn btn-primary" href="#/">Go to dashboard</a> <a class="btn" href="#/contracts">Open contracts</a>')+'</div>';}
-function viewError(msg){return '<div class="panel" style="max-width:560px;margin:60px auto"><div class="empty"><div class="icn inset">'+ic('alert')+'</div><h3>Something went wrong</h3><p>'+esc(msg||'The application hit an unexpected error.')+'</p><button class="btn" id="err-reload">Reload</button> <button class="btn btn-danger" data-action="wipe">'+ic('trash')+'Reset workspace</button></div></div>';}
+function viewError(msg){return '<div class="panel" style="max-width:560px;margin:60px auto"><div class="empty"><div class="icn inset">'+ic('alert')+'</div><h3>Something went wrong</h3><p>'+esc(msg||'The application hit an unexpected error.')+'</p><button class="btn" id="err-reload">Reload</button> <button class="btn" data-action="sign-out">Sign out</button></div></div>';}
 function skeleton(){return '<div class="grid c-kpi">'+[0,1,2,3].map(function(){return '<div class="panel kpi"><div class="sk" style="width:90px;height:10px"></div><div class="sk" style="width:70px;height:26px;margin-top:10px"></div><div class="sk" style="width:120px;height:10px;margin-top:8px"></div></div>';}).join('')+'</div><div class="grid c-21 mt"><div class="panel" style="height:260px;padding:14px">'+[0,1,2,3,4].map(function(){return '<div class="sk" style="height:34px;margin-bottom:10px"></div>';}).join('')+'</div><div class="panel" style="height:260px;padding:14px">'+[0,1,2].map(function(){return '<div class="sk" style="height:52px;margin-bottom:10px"></div>';}).join('')+'</div></div>';}
 
 /* ================= router render ================= */
@@ -817,10 +1014,10 @@ var un=unreadAlerts().length;var bb=$('#bell-badge');if(bb){bb.hidden=!un;bb.tex
 
 /* ================= popovers / search ================= */
 function closePopovers(){var g=$('#gs-pop');if(g)g.classList.remove('open');var b=$('#bell-pop');if(b)b.classList.remove('open');document.body.classList.remove('nav-open');}
-function buildBell(){var alerts=computeAlerts();var ids=db.readAlerts||[];
+function buildBell(){var alerts=computeAlerts();
 var html='<div class="bell-h"><h2>Notifications</h2><button class="btn btn-sm" data-action="mark-all-read">Mark all read</button></div><div class="bell-list">';
 if(!alerts.length)html+='<div class="empty" style="padding:24px"><p style="margin:0">No active alerts.</p></div>';
-else html+=alerts.slice(0,30).map(function(a){var unread=ids.indexOf(a.id)<0;return '<a class="bell-item" href="#/contracts/'+a.cid+'" data-action="alert-open" data-id="'+a.id+'"><span class="dot" style="background:'+(a.tone==='red'?'var(--red)':'var(--amber)')+';'+(unread?'':'opacity:.35')+'"></span><span><span style="'+(unread?'font-weight:600':'')+'">'+esc(a.text)+'</span><span class="t" style="display:block">'+esc(a.sub)+' · '+fmtDate(a.date)+'</span></span></a>';}).join('');
+else html+=alerts.slice(0,30).map(function(a){var unread=!a.read;return '<a class="bell-item" href="#/contracts/'+a.cid+'" data-action="alert-open" data-id="'+a.id+'"><span class="dot" style="background:'+(a.tone==='red'?'var(--red)':'var(--amber)')+';'+(unread?'':'opacity:.35')+'"></span><span><span style="'+(unread?'font-weight:600':'')+'">'+esc(a.text)+'</span><span class="t" style="display:block">'+esc(a.sub)+' · '+fmtDate(a.date)+'</span></span></a>';}).join('');
 $('#bell-pop').innerHTML=html+'</div>';}
 var gsActive=-1;
 function buildSearch(q){var pop=$('#gs-pop');if(q.length<2){pop.classList.remove('open');return;}
@@ -839,14 +1036,47 @@ var el=e.target.closest('[data-action]');
 if(el){var a=el.dataset.action,id=el.dataset.id;
   if(a==='menu-toggle'){document.body.classList.toggle('nav-open');return;}
   if(a==='bell-toggle'){e.stopPropagation();var p=$('#bell-pop');if(p.classList.contains('open'))p.classList.remove('open');else{buildBell();p.classList.add('open');var g=$('#gs-pop');if(g)g.classList.remove('open');}return;}
-  if(a==='mark-all-read'){db.readAlerts=computeAlerts().map(function(x){return x.id;});persist();buildBell();updateCounts();return;}
-  if(a==='alert-open'){var aid=el.dataset.id;db.readAlerts=db.readAlerts||[];if(db.readAlerts.indexOf(aid)<0){db.readAlerts.push(aid);persist();}updateCounts();/* fall through to anchor navigation */}
-  else if(a==='new-contract'){openDialog(contractFormHTML(null));return;}
+  if(a==='mark-all-read'){commit(API.markAllNotificationsRead()).then(reloadNotifications).then(function(){buildBell();}).catch(function(){});return;}
+  if(a==='alert-open'){var aid=el.dataset.id;var n=(db.notifications||[]).filter(function(x){return x.id===aid;})[0];
+    if(n&&!n.read){n.read=true;updateCounts();silence(API.markNotificationRead(aid));}
+    /* fall through to anchor navigation */}
+  else if(a==='new-contract'){if(!canWrite()){toast('Your role does not allow creating contracts.','err');return;}openDialog(contractFormHTML(null));return;}
   else if(a==='edit-contract'){var c1=byId(id);if(c1)openDialog(contractFormHTML(c1));return;}
   else if(a==='close-modal'){closeDialog();return;}
-  else if(a==='delete-contract'){var c2=byId(id);if(!c2)return;confirmDialog({title:'Delete contract',message:'Permanently delete “'+c2.title+'”? This cannot be undone. Consider archiving instead if you need a record.',ok:'Delete',danger:true}).then(function(ok){if(!ok)return;db.contracts=db.contracts.filter(function(x){return x.id!==id;});log('delete','Contract deleted: '+c2.title);persist();toast('Contract deleted.','warn');if(parsePath(currentPath).segs[1]===id)go('/contracts');else renderRoute();});return;}
-  else if(a==='archive-contract'){var c3=byId(id);if(!c3)return;c3.archived=!c3.archived;c3.updatedAt=Date.now();log('archive',(c3.archived?'Archived: ':'Restored: ')+c3.title,id);persist();toast(c3.archived?'Contract archived.':'Contract restored.');renderRoute();return;}
-  else if(a==='renew-log'){var c4=byId(id);if(!c4)return;confirmDialog({title:'Log renewal',message:'Extend “'+c4.title+'” by 12 months and set its status to Renewed? Expiration and renewal dates will both move forward.',ok:'Log renewal'}).then(function(ok){if(!ok)return;var base=c4.expiryDate||todayISO();var rb=c4.renewalDate||base;c4.expiryDate=addMonthsISO(base,12);c4.renewalDate=addMonthsISO(rb,12);c4.status='Renewed';c4.updatedAt=Date.now();log('renew','Renewal logged on '+c4.title+' — extended to '+fmtDate(c4.expiryDate),id);persist();toast('Renewal logged. Dates extended 12 months.');renderRoute();});return;}
+  else if(a==='sign-out'){signOut();return;}
+  else if(a==='change-password'){openPasswordDialog();return;}
+  else if(a==='delete-contract'){var c2=byId(id);if(!c2)return;
+    if(!canDelete()){toast('Your role does not allow deleting contracts.','err');return;}
+    confirmDialog({title:'Delete contract',message:'Permanently delete “'+c2.title+'”? This cannot be undone. Consider archiving instead if you need a record.',ok:'Delete',danger:true}).then(function(ok){if(!ok)return;
+      return commit(API.deleteContract(id)).then(function(){
+        db.contracts=db.contracts.filter(function(x){return x.id!==id;});
+        log('contract.deleted','Contract deleted: '+c2.title,null);
+        toast('Contract deleted.','warn');
+        return silence(reloadNotifications()).then(function(){
+          if(parsePath(currentPath).segs[1]===id)go('/contracts');else renderRoute();});
+      });
+    }).catch(function(){});return;}
+  else if(a==='archive-contract'){var c3=byId(id);if(!c3)return;
+    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    var next=!c3.archived;
+    commit(API.updateContract(id,{archived:next})).then(function(row){
+      var saved=absorbContract(row);
+      log('contract.archived',(saved.archived?'Archived: ':'Restored: ')+saved.title,id);
+      toast(saved.archived?'Contract archived.':'Contract restored.');
+      return silence(reloadNotifications()).then(renderRoute);
+    }).catch(function(){});return;}
+  else if(a==='renew-log'){var c4=byId(id);if(!c4)return;
+    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    confirmDialog({title:'Log renewal',message:'Extend “'+c4.title+'” by 12 months and set its status to Renewed? Expiration and renewal dates will both move forward.',ok:'Log renewal'}).then(function(ok){if(!ok)return;
+      var base=c4.expiryDate||todayISO();var rb=c4.renewalDate||base;
+      var patch={expiry_date:addMonthsISO(base,12),renewal_date:addMonthsISO(rb,12),status:'Renewed'};
+      return commit(API.updateContract(id,patch)).then(function(row){
+        var saved=absorbContract(row);
+        log('contract.renewed','Renewal logged on '+saved.title+' — extended to '+fmtDate(saved.expiryDate),id);
+        toast('Renewal logged. Dates extended 12 months.');
+        return silence(reloadNotifications()).then(renderRoute);
+      });
+    }).catch(function(){});return;}
   else if(a==='sort'){if(cs.sortKey===el.dataset.key)cs.sortDir=cs.sortDir==='asc'?'desc':'asc';else{cs.sortKey=el.dataset.key;cs.sortDir='asc';}refreshContractsTable();return;}
   else if(a==='page'){if(el.dataset.page==='prev')cs.page--;else cs.page++;refreshContractsTable();return;}
   else if(a==='clear-filters'){cs.q='';cs.status='all';cs.priority='all';cs.type='all';cs.company='';cs.window='any';cs.from='';cs.to='';cs.showArchived=false;cs.page=1;renderRoute();return;}
@@ -857,14 +1087,40 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
   else if(a==='cal-kind'){cal.kinds[el.dataset.kind]=!cal.kinds[el.dataset.kind];el.setAttribute('aria-pressed',cal.kinds[el.dataset.kind]);refreshCalendar();return;}
   else if(a==='dl-kind'){dls.kinds[el.dataset.kind]=!dls.kinds[el.dataset.kind];el.setAttribute('aria-pressed',dls.kinds[el.dataset.kind]);refreshDeadlines();return;}
   else if(a==='cal-day'){if(e.target.closest('a.evt')){/* let anchor navigation handle it below */}else{cal.selected=el.dataset.date;refreshCalendar();}return;}
-  else if(a==='obligation-delete'){var c5=byId(el.dataset.cid);if(!c5)return;c5.obligations=(c5.obligations||[]).filter(function(o){return o.id!==el.dataset.oid;});c5.updatedAt=Date.now();log('obligation','Obligation removed from '+c5.title,c5.id);persist();var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c5);updateCounts();return;}
-  else if(a==='attachment-delete'){var c6=byId(el.dataset.cid);if(!c6)return;c6.attachments=(c6.attachments||[]).filter(function(x){return x.id!==el.dataset.aid;});persist();var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c6);return;}
+  else if(a==='obligation-delete'){var c5=byId(el.dataset.cid);if(!c5)return;var oid=el.dataset.oid;
+    if(!canDelete()){toast('Your role does not allow deleting obligations.','err');return;}
+    commit(API.deleteObligation(oid)).then(function(){
+      c5.obligations=(c5.obligations||[]).filter(function(o){return o.id!==oid;});
+      log('obligation.deleted','Obligation removed from '+c5.title,c5.id);
+      var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c5);
+      return silence(reloadNotifications());
+    }).catch(function(){});return;}
+  else if(a==='attachment-delete'){var c6=byId(el.dataset.cid);if(!c6)return;var did=el.dataset.aid;
+    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    commit(API.deleteDocument(did)).then(function(){
+      c6.attachments=(c6.attachments||[]).filter(function(x){return x.id!==did;});
+      var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c6);
+    }).catch(function(){});return;}
   else if(a==='export-csv'){var list=filteredContracts();var head=['Title','Company','Owner','Department','Type','Status','Priority','Start','Expiry','Renewal','Notice days','Value','Currency'];
     var lines=[head.join(',')].concat(list.map(function(c){return [c.title,c.company,c.owner,c.department||'',c.type,c.status,c.priority,c.startDate||'',c.expiryDate||'',c.renewalDate||'',c.noticePeriodDays,c.value||0,S().currency].map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}));
     download('deciti-contracts-'+todayISO()+'.csv',lines.join('\n'),'text/csv');toast('CSV exported.');return;}
-  else if(a==='export-json'){download('deciti-backup-'+todayISO()+'.json',JSON.stringify(db,null,2),'application/json');toast('Backup exported.');return;}
-  else if(a==='load-sample'){confirmDialog({title:'Load sample data',message:'Replace the current workspace with the sample dataset? Current data will be overwritten.',ok:'Load sample'}).then(function(ok){if(!ok)return;db=seedData();persist();toast('Sample data loaded.');renderRoute();});return;}
-  else if(a==='wipe'){confirmDialog({title:'Clear all data',message:'Delete every contract, activity entry and setting from this workspace? This cannot be undone.',ok:'Clear everything',danger:true}).then(function(ok){if(!ok)return;db={contracts:[],activity:[],readAlerts:[],settings:Object.assign({},DEFAULT_SETTINGS),version:1};persist();toast('Workspace cleared.','warn');go('/');});return;}
+  else if(a==='export-json'){download('deciti-backup-'+todayISO()+'.json',JSON.stringify({version:2,exportedAt:new Date().toISOString(),settings:db.settings,contracts:db.contracts},null,2),'application/json');toast('Backup exported.');return;}
+  else if(a==='load-sample'){
+    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    confirmDialog({title:'Load sample data',message:'Add the sample contract set to this workspace? Existing contracts are kept.',ok:'Load sample'}).then(function(ok){if(!ok)return;
+      return importContracts(sampleContracts(),'Sample data loaded.');}).catch(function(){});return;}
+  else if(a==='wipe'){
+    if(!canDelete()){toast('Your role does not allow this.','err');return;}
+    confirmDialog({title:'Delete all contracts',message:'Delete every contract in this workspace, including obligations and document references? This cannot be undone.',ok:'Delete everything',danger:true}).then(function(ok){if(!ok)return;
+      var ids=db.contracts.map(function(c){return c.id;});
+      if(!ids.length){toast('Nothing to delete.');return;}
+      return commit(Promise.all(ids.map(function(cid){return API.deleteContract(cid);}))).then(function(){
+        db.contracts=[];
+        log('workspace.cleared','All contracts deleted from workspace',null);
+        toast('All contracts deleted.','warn');
+        return silence(reloadNotifications()).then(function(){go('/');});
+      });
+    }).catch(function(){});return;}
 }
 /* in-app anchor navigation (prevents native hash navigation which breaks sandboxed previews) */
 var anchor=e.target.closest('a[href^="#"]');
@@ -880,10 +1136,54 @@ if(t.id==='ct-from'){cs.from=t.value;refreshContractsTable();return;}
 if(t.id==='ct-to'){cs.to=t.value;refreshContractsTable();return;}
 if(t.id==='ct-archived'){cs.showArchived=t.checked;cs.page=1;refreshContractsTable();return;}
 if(t.matches('[data-dlf]')){dls.time=t.value;refreshDeadlines();return;}
-if(t.dataset.action==='quick-status'){var c=byId(t.dataset.id);if(!c)return;c.status=t.value;c.updatedAt=Date.now();log('status','Status changed to '+t.value+' on '+c.title,c.id);persist();var hb=$('#detail-badges');if(hb)hb.innerHTML=statusBadge(c.status)+prioBadge(c.priority)+(c.archived?badge('grey','Archived'):'');updateCounts();toast('Status set to '+t.value+'.');return;}
-if(t.dataset.action==='quick-priority'){var c7=byId(t.dataset.id);if(!c7)return;c7.priority=t.value;c7.updatedAt=Date.now();log('status','Priority changed to '+t.value+' on '+c7.title,c7.id);persist();var hb2=$('#detail-badges');if(hb2)hb2.innerHTML=statusBadge(c7.status)+prioBadge(c7.priority)+(c7.archived?badge('grey','Archived'):'');toast('Priority set to '+t.value+'.');return;}
-if(t.dataset.action==='obligation-toggle'){var c8=byId(t.dataset.cid);if(!c8)return;var ob=(c8.obligations||[]).filter(function(o){return o.id===t.dataset.oid;})[0];if(!ob)return;ob.done=t.checked;c8.updatedAt=Date.now();log('obligation',(t.checked?'Obligation completed: ':'Obligation reopened: ')+ob.title+' ('+c8.title+')',c8.id);persist();var ol2=$('#ob-list');if(ol2)ol2.innerHTML=obligationsHTML(c8);if($('#dl-list'))refreshDeadlines();updateCounts();return;}
-if(t.id==='import-file'){var f=t.files&&t.files[0];if(!f)return;f.text().then(function(txt){try{var data=JSON.parse(txt);if(!data||data.version!==1||!Array.isArray(data.contracts))throw new Error('bad');db={contracts:data.contracts,activity:data.activity||[],readAlerts:data.readAlerts||[],settings:Object.assign({},DEFAULT_SETTINGS,data.settings||{}),version:1};persist();toast('Backup imported — '+db.contracts.length+' contracts.');renderRoute();}catch(err){toast('Import failed: not a valid deciti backup file.','err');}});t.value='';return;}
+if(t.dataset.action==='quick-status'){var c=byId(t.dataset.id);if(!c)return;var prev=c.status;var next=t.value;
+  if(!canWrite()){t.value=prev;toast('Your role does not allow this change.','err');return;}
+  commit(API.updateContract(c.id,{status:next})).then(function(row){var saved=absorbContract(row);
+    log('contract.status','Status changed to '+saved.status+' on '+saved.title,saved.id);
+    var hb=$('#detail-badges');if(hb)hb.innerHTML=statusBadge(saved.status)+prioBadge(saved.priority)+(saved.archived?badge('grey','Archived'):'');
+    toast('Status set to '+saved.status+'.');return silence(reloadNotifications());
+  }).catch(function(){t.value=prev;});return;}
+if(t.dataset.action==='quick-priority'){var c7=byId(t.dataset.id);if(!c7)return;var prevP=c7.priority;var nextP=t.value;
+  if(!canWrite()){t.value=prevP;toast('Your role does not allow this change.','err');return;}
+  commit(API.updateContract(c7.id,{priority:nextP})).then(function(row){var saved=absorbContract(row);
+    log('contract.priority','Priority changed to '+saved.priority+' on '+saved.title,saved.id);
+    var hb2=$('#detail-badges');if(hb2)hb2.innerHTML=statusBadge(saved.status)+prioBadge(saved.priority)+(saved.archived?badge('grey','Archived'):'');
+    toast('Priority set to '+saved.priority+'.');
+  }).catch(function(){t.value=prevP;});return;}
+if(t.dataset.action==='obligation-toggle'){var c8=byId(t.dataset.cid);if(!c8)return;
+  var ob=(c8.obligations||[]).filter(function(o){return o.id===t.dataset.oid;})[0];if(!ob)return;
+  var want=t.checked;
+  if(!canWrite()){t.checked=!want;toast('Your role does not allow this change.','err');return;}
+  commit(API.updateObligation(ob.id,{done:want})).then(function(row){
+    ob.done=!!row.done;
+    log('obligation.toggled',(ob.done?'Obligation completed: ':'Obligation reopened: ')+ob.title+' ('+c8.title+')',c8.id);
+    var ol2=$('#ob-list');if(ol2)ol2.innerHTML=obligationsHTML(c8);
+    if($('#dl-list'))refreshDeadlines();
+    return silence(reloadNotifications());
+  }).catch(function(){t.checked=!want;});return;}
+if(t.id==='import-file'){var f=t.files&&t.files[0];if(!f)return;
+  if(!canWrite()){t.value='';toast('Your role does not allow importing data.','err');return;}
+  readFileText(f).then(function(txt){
+    var rows;
+    try{var data=JSON.parse(txt);
+      var list=Array.isArray(data)?data:(data&&data.contracts);
+      if(!Array.isArray(list))throw new Error('bad');
+      rows=list.map(function(c){return {
+        title:String(c.title||'').slice(0,300),company:String(c.company||'').slice(0,200),
+        owner:String(c.owner||c.owner_name||'').slice(0,120),department:c.department||'',
+        type:c.type||'Other',status:STATUSES.indexOf(c.status)>=0?c.status:'Draft',
+        priority:PRIORITIES.indexOf(c.priority)>=0?c.priority:'Medium',
+        startDate:c.startDate||c.start_date||'',expiryDate:c.expiryDate||c.expiry_date||'',
+        renewalDate:c.renewalDate||c.renewal_date||'',
+        noticePeriodDays:Math.max(0,parseInt(c.noticePeriodDays!=null?c.noticePeriodDays:c.notice_period_days,10)||0),
+        value:Math.max(0,parseFloat(c.value)||0),notes:String(c.notes||''),archived:!!c.archived,
+        obligations:(c.obligations||[]).map(function(o){return {title:String(o.title||''),date:o.date||o.due_date||'',done:!!o.done};}),
+        attachments:(c.attachments||[]).map(function(a){return {name:String(a.name||a.filename||''),kind:a.kind||'Other',ref:a.ref||a.reference||''};})
+      };}).filter(function(c){return c.title&&c.company&&c.expiryDate;});
+      if(!rows.length)throw new Error('empty');
+    }catch(err){toast('Import failed: not a valid deciti backup file.','err');return;}
+    return importContracts(rows,'Backup imported — '+rows.length+' contract'+(rows.length===1?'':'s')+'.');
+  }).catch(function(){toast('Import failed: the file could not be read.','err');});t.value='';return;}
 });
 var debT=null;
 document.addEventListener('input',function(e){var t=e.target;
@@ -901,24 +1201,270 @@ if(e.key==='Escape'){closePopovers();return;}
 if(e.key==='Enter'&&t.classList&&t.classList.contains('cell')){cal.selected=t.dataset.date;refreshCalendar();return;}
 });
 document.addEventListener('submit',function(e){var f=e.target;
+if(f.id==='auth-form'){e.preventDefault();submitAuth(f);return;}
+if(f.id==='password-form'){e.preventDefault();submitPasswordChange(f);return;}
 if(f.id==='contract-form'){e.preventDefault();saveContract(f);return;}
-if(f.id==='obligation-form'){e.preventDefault();var c=byId(f.dataset.id);if(!c)return;var ti=$('#ob-title').value.trim(),da=$('#ob-date').value;if(!ti||!da)return;c.obligations=c.obligations||[];c.obligations.push({id:uid(),title:ti,date:da,done:false});c.updatedAt=Date.now();log('obligation','Obligation added: '+ti+' ('+c.title+')',c.id);persist();var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c);f.reset();updateCounts();toast('Obligation added.');return;}
-if(f.id==='attachment-form'){e.preventDefault();var c9=byId(f.dataset.id);if(!c9)return;var nm=$('#at-name').value.trim();if(!nm)return;c9.attachments=c9.attachments||[];c9.attachments.push({id:uid(),name:nm,kind:$('#at-kind').value,ref:$('#at-ref').value.trim()});c9.updatedAt=Date.now();log('update','Document reference added: '+nm+' ('+c9.title+')',c9.id);persist();var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c9);f.reset();toast('Reference added.');return;}
-if(f.id==='settings-org'){e.preventDefault();S().org=$('#st-org').value.trim()||'My Organization';S().currency=$('#st-cur').value;persist();toast('Organization settings saved.');renderRoute();return;}
-if(f.id==='settings-alerts'){e.preventDefault();S().expiryWarn=parseInt($('#st-ew').value,10)||60;S().renewalWarn=parseInt($('#st-rw').value,10)||60;var dn=parseInt($('#st-dn').value,10);S().defaultNotice=isNaN(dn)||dn<0?60:dn;persist();toast('Alert thresholds saved.');renderRoute();return;}
+if(f.id==='obligation-form'){e.preventDefault();var c=byId(f.dataset.id);if(!c)return;
+  var ti=$('#ob-title').value.trim(),da=$('#ob-date').value;if(!ti||!da)return;
+  if(!canWrite()){toast('Your role does not allow adding obligations.','err');return;}
+  commit(API.insertObligation(c.id,ti,da)).then(function(row){
+    c.obligations=(c.obligations||[]).concat([mapObligation(row)]);
+    log('obligation.created','Obligation added: '+ti+' ('+c.title+')',c.id);
+    var ol=$('#ob-list');if(ol)ol.innerHTML=obligationsHTML(c);
+    f.reset();toast('Obligation added.');
+    return silence(reloadNotifications());
+  }).catch(function(){});return;}
+if(f.id==='attachment-form'){e.preventDefault();var c9=byId(f.dataset.id);if(!c9)return;
+  var nm=$('#at-name').value.trim();if(!nm)return;
+  if(!canWrite()){toast('Your role does not allow adding references.','err');return;}
+  var doc={name:nm,kind:$('#at-kind').value,ref:$('#at-ref').value.trim()};
+  commit(API.insertDocument(c9.id,doc)).then(function(row){
+    c9.attachments=(c9.attachments||[]).concat([mapDocument(row)]);
+    log('document.created','Document reference added: '+nm+' ('+c9.title+')',c9.id);
+    var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c9);
+    f.reset();toast('Reference added.');
+  }).catch(function(){});return;}
+if(f.id==='settings-org'){e.preventDefault();
+  var name=$('#st-org').value.trim();var cur=$('#st-cur').value;
+  if(!name){toast('Workspace name is required.','err');return;}
+  commit(API.updateOrg({name:name.slice(0,120),currency:cur})).then(function(row){
+    db.settings=mapSettings(row);
+    log('organization.updated','Workspace settings updated',null);
+    toast('Workspace settings saved.');renderRoute();
+  }).catch(function(){});return;}
+if(f.id==='settings-alerts'){e.preventDefault();
+  var ew=parseInt($('#st-ew').value,10)||60,rw=parseInt($('#st-rw').value,10)||60;
+  var dn=parseInt($('#st-dn').value,10);if(isNaN(dn)||dn<0)dn=60;
+  commit(API.updateOrg({expiry_warn_days:ew,renewal_warn_days:rw,default_notice_days:dn})).then(function(row){
+    db.settings=mapSettings(row);
+    log('organization.updated','Alert thresholds updated',null);
+    /* thresholds change which alerts apply — ask the server to recompute */
+    return silence(API.refreshNotifications().then(reloadNotifications)).then(function(){
+      toast('Alert thresholds saved.');renderRoute();});
+  }).catch(function(){});return;}
 });
-window.addEventListener('popstate',function(e){var st=e.state&&e.state.p;if(st){currentPath=normPath(st);}else{try{currentPath=normPath((location.hash||'').slice(1));}catch(err){}}renderRoute();});
+window.addEventListener('popstate',function(e){var st=e.state&&e.state.p;if(st){currentPath=normPath(st);}else{try{currentPath=normPath((location.hash||'').slice(1));}catch(err){}}if(ME.ready)renderRoute();});
+
+/* ================= bulk import ================= */
+/* Contracts are inserted one row at a time so RLS validates each write, then
+   children are attached to the ids the server assigned. */
+function importContracts(rows,successMsg){
+  syncMark('saving');
+  var created=0;
+  return rows.reduce(function(chain,row){
+    return chain.then(function(){
+      return API.insertContract(row).then(function(saved){
+        var kids=[];
+        (row.obligations||[]).forEach(function(o){
+          if(o.title&&o.date)kids.push(API.insertObligation(saved.id,o.title,o.date).then(function(orow){
+            if(o.done)return API.updateObligation(orow.id,{done:true});}));
+        });
+        (row.attachments||[]).forEach(function(a){
+          if(a.name)kids.push(API.insertDocument(saved.id,a));
+        });
+        if(row.archived)kids.push(API.updateContract(saved.id,{archived:true}));
+        return Promise.all(kids).then(function(){created++;});
+      });
+    });
+  },Promise.resolve()).then(function(){
+    return loadWorkspaceData().then(function(){
+      syncMark('saved');
+      log('workspace.imported',created+' contracts imported',null);
+      toast(successMsg||(created+' contracts imported.'));
+      renderRoute();
+    });
+  }).catch(function(err){fail(err);return loadWorkspaceData().then(renderRoute);});
+}
+
+/* ================= authentication ================= */
+var authMode='signin',authBusy=false;
+function authMsg(text,kind){var el=$('#auth-msg');if(!el)return;el.className='auth-msg'+(kind?' '+kind:'');el.textContent=text||'';}
+function setAuthMode(mode){authMode=mode==='signup'?'signup':'signin';
+  $$('.auth-tab').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.authTab===authMode));});
+  $('#auth-confirm-field').hidden=authMode!=='signup';
+  $('#auth-password-hint').hidden=authMode!=='signup';
+  $('#auth-password').setAttribute('autocomplete',authMode==='signup'?'new-password':'current-password');
+  $('#auth-submit').textContent=authMode==='signup'?'Create account':'Sign in';
+  $('#auth-foot').textContent=authMode==='signup'
+    ? 'No email required. Your username and password are the only credentials.'
+    : 'Your workspace data is stored on the deciti backend and is private to your account.';
+  authMsg('');
+}
+function submitAuth(f){
+  if(authBusy)return;
+  var username=String($('#auth-username').value||'').trim().toLowerCase();
+  var password=String($('#auth-password').value||'');
+  if(!USERNAME_RE.test(username)){authMsg('Username must be 3–30 characters using lowercase letters, numbers, dots or underscores.','err');$('#auth-username').focus();return;}
+  if(authMode==='signup'){
+    if(password.length<8){authMsg('Password must be at least 8 characters.','err');$('#auth-password').focus();return;}
+    if(password!==String($('#auth-confirm').value||'')){authMsg('The two passwords do not match.','err');$('#auth-confirm').focus();return;}
+  }else if(!password){authMsg('Enter your password.','err');$('#auth-password').focus();return;}
+
+  authBusy=true;var btn=$('#auth-submit');btn.disabled=true;
+  btn.textContent=authMode==='signup'?'Creating account…':'Signing in…';
+  var work=authMode==='signup'
+    ? API.signUp(username,password).then(function(){return API.signIn(username,password);})
+    : API.signIn(username,password);
+
+  work.then(function(res){
+    if(res&&res.error)throw res.error;
+    /* onAuthStateChange completes the bootstrap */
+  }).catch(function(err){
+    var m=String(err&&err.message||err||'');
+    if(/Invalid login credentials/i.test(m))m='Incorrect username or password.';
+    else if(/Email not confirmed/i.test(m))m='This account is not active. Contact your workspace owner.';
+    else if(/Failed to fetch|NetworkError/i.test(m))m='Cannot reach the deciti backend. Check your connection.';
+    authMsg(m||'Sign in failed.','err');
+    $('#auth-password').value='';var cf=$('#auth-confirm');if(cf)cf.value='';
+  }).then(function(){
+    authBusy=false;btn.disabled=false;
+    btn.textContent=authMode==='signup'?'Create account':'Sign in';
+  });
+}
+function openPasswordDialog(){
+  openDialog('<div class="dlg-h"><h2 id="dlg-title">Change password</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'+
+  '<form id="password-form" novalidate><div class="dlg-b">'+
+  '<div class="field"><label for="pw-current">Current password</label><input class="input" type="password" id="pw-current" autocomplete="current-password" required style="width:100%"></div>'+
+  '<div class="field" style="margin-top:12px"><label for="pw-new">New password</label><input class="input" type="password" id="pw-new" autocomplete="new-password" required minlength="8" style="width:100%"><div class="hint">Minimum 8 characters.</div></div>'+
+  '<div class="field" style="margin-top:12px"><label for="pw-confirm">Confirm new password</label><input class="input" type="password" id="pw-confirm" autocomplete="new-password" required style="width:100%"></div>'+
+  '<div id="pw-errors" class="form-err" hidden></div></div>'+
+  '<div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button type="submit" class="btn btn-primary">Update password</button></div></form>',true);
+}
+function submitPasswordChange(f){
+  var box=$('#pw-errors');var cur=$('#pw-current').value,nw=$('#pw-new').value,cf=$('#pw-confirm').value;
+  function err(m){box.hidden=false;box.textContent=m;}
+  if(!cur)return err('Enter your current password.');
+  if(nw.length<8)return err('New password must be at least 8 characters.');
+  if(nw!==cf)return err('The two new passwords do not match.');
+  if(nw===cur)return err('Choose a password different from the current one.');
+  var btn=f.querySelector('button[type="submit"]');btn.disabled=true;
+  /* re-authenticate first so a hijacked open tab cannot change the password */
+  API.signIn(ME.username,cur).then(function(res){
+    if(res&&res.error)throw new Error('Current password is incorrect.');
+    return sb.auth.updateUser({password:nw});
+  }).then(function(res){
+    if(res&&res.error)throw res.error;
+    closeDialog();toast('Password updated.');
+    silence(API.log('account.password_changed','profile',null,null,'Password changed'));
+  }).catch(function(e){btn.disabled=false;err(String(e&&e.message||'Could not update the password.'));});
+}
+function signOut(){
+  API.signOut().catch(function(){}).then(function(){
+    /* clear every trace of the previous account from memory before re-render */
+    db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
+    ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+    document.body.classList.remove('authed');
+    $('#main').innerHTML='';
+    closeDialog();closePopovers();
+    setAuthMode('signin');
+    $('#auth-form').reset();
+    authMsg('You have been signed out.','ok');
+    try{history.replaceState({p:'/'},'','#/');}catch(e){}
+    currentPath='/';
+  });
+}
+
+/* ================= session bootstrap ================= */
+function applyIdentityToChrome(){
+  var av=$('#user-avatar'),nm=$('#user-name'),rl=$('#user-role'),chip=$('#user-chip');
+  if(av)av.textContent=initials(ME.username);
+  if(nm)nm.textContent=ME.username;
+  if(rl)rl.textContent=ME.role?ME.role.charAt(0).toUpperCase()+ME.role.slice(1):'';
+  if(chip)chip.title='Signed in as '+ME.username;
+  var org=$('#org-name');if(org)org.textContent=S().org;
+}
+function loadWorkspaceData(){
+  return Promise.all([API.contracts(),API.activity(),API.notifications()]).then(function(res){
+    db.contracts=(res[0]||[]).map(mapContract);
+    db.activity=(res[1]||[]).map(mapActivity);
+    db.notifications=(res[2]||[]).map(mapNotification);
+  });
+}
+/* Establishes identity from the verified session, then loads only the rows the
+   server is willing to return for that session. */
+function bootstrapSession(session){
+  if(!session||!session.user){document.body.classList.remove('authed');return Promise.resolve(false);}
+  /* Read the subject from the signed token rather than the editable user object. */
+  var uid=subjectOf(session);
+  if(!uid){document.body.classList.remove('authed');
+    return API.signOut().catch(function(){}).then(function(){
+      authMsg('Your session is invalid. Please sign in again.','err');return false;});}
+  ME.userId=uid;
+  return API.profile(ME.userId).then(function(p){
+    ME.username=(p&&p.username)||'';
+    ME.fullName=(p&&p.full_name)||ME.username;
+    return API.membership();
+  }).then(function(m){
+    if(!m){
+      /* No workspace yet (e.g. an invitation was revoked) — create one. */
+      return API.createWorkspace(ME.username+"'s workspace").then(API.membership);
+    }
+    return m;
+  }).then(function(m){
+    if(!m)throw new Error('No workspace is available for this account.');
+    ME.orgId=m.organization_id;ME.role=m.role;
+    db.settings=m.organizations?mapSettings(m.organizations):Object.assign({},DEFAULT_SETTINGS);
+    return loadWorkspaceData();
+  }).then(function(){
+    ME.ready=true;
+    document.body.classList.add('authed');
+    applyIdentityToChrome();
+    try{currentPath=normPath((location.hash||'').slice(1));}catch(e){currentPath='/';}
+    renderRoute();
+    var sa=$('#saved-at');if(sa)sa.textContent='loaded';
+    /* refresh server-side deadline alerts for this account on each sign-in */
+    silence(API.refreshNotifications().then(reloadNotifications));
+    return true;
+  }).catch(function(err){
+    console.error(err);
+    document.body.classList.remove('authed');
+    authMsg(backendMessage(err),'err');
+    return API.signOut().catch(function(){}).then(function(){return false;});
+  });
+}
+
+document.addEventListener('click',function(e){
+  var tab=e.target.closest('[data-auth-tab]');
+  if(tab){setAuthMode(tab.dataset.authTab);$('#auth-username').focus();}
+});
+
+/* Any session change — including a token forged or edited in storage being
+   rejected by the server — re-runs the bootstrap from scratch. */
+sb.auth.onAuthStateChange(function(event,session){
+  if(event==='SIGNED_OUT'||!session){
+    if(ME.ready||document.body.classList.contains('authed')){
+      db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
+      ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+      document.body.classList.remove('authed');
+      $('#main').innerHTML='';
+    }
+    return;
+  }
+  var uid=subjectOf(session);
+  if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
+    if(uid&&uid===ME.userId)return; /* same account, nothing to reload */
+  }
+  if(ME.ready&&uid&&uid===ME.userId)return;
+  bootstrapSession(session);
+});
 
 /* ================= boot ================= */
-(function boot(){var tl=$('#today-line');if(tl)tl.textContent=fmtDateLong(todayISO());
-$('#main').innerHTML=skeleton();
-try{currentPath=normPath((location.hash||'').slice(1));}catch(e){currentPath='/';}
-DataService.load().then(function(loaded){
-if(loaded&&loaded.version===1){db={contracts:loaded.contracts||[],activity:loaded.activity||[],readAlerts:loaded.readAlerts||[],settings:Object.assign({},DEFAULT_SETTINGS,loaded.settings||{}),version:1};}
-else{db=seedData();persist();}
-renderRoute();
-var sa=$('#saved-at');if(sa)sa.textContent='loaded';
-}).catch(function(err){$('#main').innerHTML=viewError('Workspace data could not be read. '+(err&&err.message||''));});
+(function boot(){
+  var tl=$('#today-line');if(tl)tl.textContent=fmtDateLong(todayISO());
+  setAuthMode('signin');
+  /* PWA: register the offline shell (best-effort, never blocks the app) */
+  try{
+    if('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+      window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});
+    }
+  }catch(e){}
+  API.session().then(function(session){
+    if(!session){var u=$('#auth-username');if(u)u.focus();return false;}
+    $('#main').innerHTML=skeleton();
+    return bootstrapSession(session);
+  }).catch(function(){
+    authMsg('Cannot reach the deciti backend. Check your connection and reload.','err');
+  });
 })();
 </script>
 </body>
