@@ -44,6 +44,9 @@ a hardened Supabase (Postgres) workspace with per-account row level security.
   *every* statement, audit log of all changes, password change with
   re-authentication.
 - **PWA** — installable, offline-capable app shell via a service worker.
+- **Dark-first interface** — a charcoal-and-green dark UI by default with an
+  optional light theme; the toggle lives in the top bar and the choice is
+  remembered per device. Charts, calendars and badges adapt automatically.
 
 ## Security model
 

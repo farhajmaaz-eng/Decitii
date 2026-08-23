@@ -2,13 +2,18 @@
    Strategy: network-first for everything, cache fallback for offline reads.
    Supabase API/auth/edge-function traffic is never intercepted or cached. */
 'use strict';
-var CACHE = 'deciti.shell.v1';
+var CACHE = 'deciti.shell.v3';
 var SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(CACHE)
-      .then(function (c) { return c.addAll(SHELL); })
+      .then(function (c) {
+        /* add entries individually so one failed fetch cannot break install */
+        return Promise.all(SHELL.map(function (u) {
+          return c.add(u).catch(function () {});
+        }));
+      })
       .then(function () { return self.skipWaiting(); })
   );
 });
@@ -42,7 +47,7 @@ self.addEventListener('fetch', function (e) {
     fetch(req).then(function (res) {
       if (res && res.ok && (url.origin === location.origin || cdn)) {
         var copy = res.clone();
-        caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        e.waitUntil(caches.open(CACHE).then(function (c) { return c.put(req, copy); }));
       }
       return res;
     }).catch(function () {
