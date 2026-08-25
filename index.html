@@ -158,10 +158,16 @@ button{font:inherit}
 /* invite code card + rows (settings) */
 .code-card{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px dashed var(--green-line);background:var(--accent-soft);border-radius:10px;padding:12px 16px;margin:12px 0 4px;animation:viewItem .3s cubic-bezier(.16,.84,.3,1) backwards}
 .code-num{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:.24em;color:var(--accent-ink);line-height:1.15}
-.inv-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--hairline);font-size:13px}
+.inv-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--hairline);font-size:13px;transition:background-color .12s ease}
 .inv-row:last-child{border-bottom:0}
+.inv-row:hover{background:var(--row-hover)}
 .inv-code{font-family:var(--mono);font-weight:600;letter-spacing:.14em}
-.role-select{min-width:130px}
+.role-select{min-width:160px}
+.panel-h{flex-wrap:wrap}
+.code-card{box-shadow:var(--shadow-1),inset 0 1px 0 var(--edge-highlight)}
+.code-num{font-size:30px}
+.roles-note{border-top:1px solid var(--hairline);padding:10px 15px;margin:0}
+.ws-item .chip,.list-row .btn-sm{flex:none}
 /* ---------- workspace ---------- */
 .workspace{display:flex;flex-direction:column;min-width:0;min-height:100vh}
 dialog[open]::backdrop{animation:bgFade .28s ease both}
@@ -1361,6 +1367,28 @@ function activeInvitesHTML(){
   if(!rows.length)return '<p class="hint" style="padding:12px 15px;margin:0;border-top:1px solid var(--hairline)">No active invite codes.</p>';
   return rows.map(function(v){return '<div class="inv-row"><span class="inv-code">'+esc(v.code)+'</span><span class="badge t-'+(ROLE_TONE[v.role]||'grey')+'">'+esc(ROLE_LABEL[v.role]||v.role)+'</span><span style="color:var(--muted);font-size:12px;margin-right:auto">'+esc(fmtRemaining(v.expires_at))+'</span><button class="icon-btn" type="button" data-action="invite-revoke" data-id="'+v.id+'" aria-label="Revoke code '+esc(v.code)+'" title="Revoke code">'+ic('x')+'</button></div>';}).join('');
 }
+function teamTableHTML(){
+  if(!(db.members||[]).length)return '<p class="hint" style="padding:14px 15px;margin:0">No members found.</p>';
+  return '<div class="tbl-wrap"><table class="tbl" style="min-width:480px"><caption class="sr-only">Workspace members and roles</caption><thead><tr><th scope="col"><span class="th-pad">User</span></th><th scope="col"><span class="th-pad">Role</span></th>'+(canManage()?'<th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th>':'')+'</tr></thead><tbody>'+
+  db.members.map(function(m,i){
+    var self=m.user_id===ME.userId;
+    var adminRow=m.role==='admin';
+    var ctl;
+    if(canManage()&&!self&&!adminRow){
+      ctl='<select class="input role-select" aria-label="Role for '+esc(m.username)+'" data-action="member-role" data-id="'+m.id+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===m.role?' selected':'')+'>'+ROLE_LABEL[r]+'</option>';}).join('')+'</select>';
+    }else{
+      ctl=badge(ROLE_TONE[m.role],ROLE_LABEL[m.role]);
+    }
+    var rm=(canManage()&&!self&&!adminRow)?'<button class="icon-btn" data-action="member-remove" data-id="'+m.id+'" aria-label="Remove '+esc(m.username)+'" title="Remove from workspace">'+ic('trash')+'</button>':'';
+    return '<tr class="stg" style="--r:'+(i%10)+'"><td><div class="co-cell">'+coTile(m.username)+'<span style="font-weight:600">'+esc(m.username)+'</span>'+(self?' <span class="chip t-grey">you</span>':'')+(adminRow?' <span class="chip t-dark">owner</span>':'')+'</div></td><td>'+ctl+'</td>'+(canManage()?'<td><div class="row-actions">'+rm+'</div></td>':'')+'</tr>';
+  }).join('')+'</tbody></table></div>';
+}
+/* In-place section refreshes keep scroll position stable on team/invite changes */
+function refreshTeamSection(){var el=$('#team-wrap');if(el)el.innerHTML=teamTableHTML();}
+function refreshInviteSections(){
+  var r=$('#invite-result');if(r)r.innerHTML=db.lastInvite?codeCardHTML(db.lastInvite):'';
+  var l=$('#invite-list');if(l)l.innerHTML=activeInvitesHTML();
+}
 function viewSettings(){var s=S();
 var adminLock=!canManage();   /* workspace prefs, thresholds, destructive ops */
 var writeLock=!canWrite();    /* bulk imports */
@@ -1373,20 +1401,7 @@ html+='<div class="grid c-11"><section class="panel">'+panelHead('Account')+'<di
 '</div><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="change-password">Change password</button><button class="btn" data-action="sign-out">Sign out</button></div></div></section>'+
 '<section class="panel">'+panelHead('Workspace')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Workspace name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"'+(adminLock?' disabled':'')+'></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency"'+(adminLock?' disabled':'')+'>'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(adminLock?' disabled':'')+'>Save workspace</button>'+(adminLock?'<span class="hint" style="margin-left:8px">Only workspace admins can change these.</span>':'')+'</div></form></section></div>';
 /* ---- team ---- */
-html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Team','<span class="chip t-grey">'+db.members.length+' member'+(db.members.length===1?'':'s')+'</span>')+'<div class="tbl-wrap"><table class="tbl" style="min-width:480px"><caption class="sr-only">Workspace members and roles</caption><thead><tr><th scope="col"><span class="th-pad">User</span></th><th scope="col"><span class="th-pad">Role</span></th>'+(canManage()?'<th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th>':'')+'</tr></thead><tbody>'+
-(db.members.length?db.members.map(function(m,i){
-  var self=m.user_id===ME.userId;
-  var adminRow=m.role==='admin';
-  var ctl;
-  if(canManage()&&!self&&!adminRow){
-    ctl='<select class="input role-select" aria-label="Role for '+esc(m.username)+'" data-action="member-role" data-id="'+m.id+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===m.role?' selected':'')+'>'+ROLE_LABEL[r]+'</option>';}).join('')+'</select>';
-  }else{
-    ctl=badge(ROLE_TONE[m.role],ROLE_LABEL[m.role]);
-  }
-  var rm=(canManage()&&!self&&!adminRow)?'<button class="icon-btn" data-action="member-remove" data-id="'+m.id+'" aria-label="Remove '+esc(m.username)+'" title="Remove from workspace">'+ic('trash')+'</button>':'';
-  return '<tr class="stg" style="--r:'+(i%10)+'"><td><div class="co-cell">'+coTile(m.username)+'<span style="font-weight:600">'+esc(m.username)+'</span>'+(self?' <span class="chip t-grey">you</span>':'')+(adminRow?' <span class="chip t-dark">owner</span>':'')+'</div></td><td>'+ctl+'</td>'+(canManage()?'<td><div class="row-actions">'+rm+'</div></td>':'')+'</tr>';
-}).join(''):'<tr><td colspan="3"><p class="hint" style="margin:12px">Loading team…</p></td></tr>')+
-'</tbody></table></div><p class="hint" style="padding:10px 15px;margin:0">Admins manage everything · Managers create, edit and assign any contract · Contributors edit what is assigned to them · Viewers are read-only.</p></section>'+
+html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Team','<span class="chip t-grey">'+db.members.length+' member'+(db.members.length===1?'':'s')+'</span>')+'<div id="team-wrap">'+teamTableHTML()+'</div><p class="hint roles-note">Admins manage everything · Managers create, edit and assign any contract · Contributors edit what is assigned to them · Viewers are read-only.</p></section>'+
 /* ---- workspaces ---- */
 '<section class="panel">'+panelHead('Your workspaces','<span class="chip t-grey">'+(ME.memberships||[]).length+'</span>')+'<div>'+
 (ME.memberships||[]).map(function(m){
@@ -1398,8 +1413,8 @@ html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Team','<spa
 if(canManage()){
 html+='<section class="panel mt">'+panelHead('Invite teammates','<span class="chip t-amber">'+INVITE_TTL_HOURS+' h expiry</span>')+
 '<form id="invite-form" class="add-row"><label class="sr-only" for="inv-role">Invite role</label><select id="inv-role" class="input role-select"><option value="contributor" selected>Contributor — create &amp; edit assigned</option><option value="manager">Manager — create, edit, assign all</option><option value="viewer">Viewer — read-only</option></select><button class="btn btn-primary" type="submit">'+ic('plus')+'Generate invite code</button><span class="hint" style="flex-basis:100%">Codes are 6 digits and stop working after '+INVITE_TTL_HOURS+' hours. Rejoining never downgrades an existing member.</span></form>'+
-(db.lastInvite?codeCardHTML(db.lastInvite):'')+
-'<div>'+activeInvitesHTML()+'</div></section>';
+(db.lastInvite?'<div id="invite-result">'+codeCardHTML(db.lastInvite)+'</div>':'<div id="invite-result"></div>')+
+'<div id="invite-list">'+activeInvitesHTML()+'</div></section>';
 }
 html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn"'+(adminLock?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn"'+(adminLock?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"'+(adminLock?' disabled':'')+'></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(adminLock?' disabled':'')+'>Save thresholds</button></div><p class="hint" style="margin-top:8px">Alerts are recalculated on the server whenever thresholds or contract dates change.</p></form></section>'+
 '<section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">'+db.contracts.length+' contract'+(db.contracts.length===1?'':'s')+' stored on the deciti backend for this workspace. Nothing is kept in browser storage except your session token.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer'+(writeLock?';opacity:.5':'')+'">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"'+(writeLock?' disabled':'')+'></label><button class="btn" data-action="load-sample"'+(writeLock?' disabled':'')+'>'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe"'+(canManage()?'':' disabled')+' title="'+(canManage()?'':'Admins only')+'">'+ic('trash')+'Delete all contracts</button></div></div></section></div>';
@@ -1538,7 +1553,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
         if(db.lastInvite&&db.lastInvite.code===iv.code)db.lastInvite=null;
         log('invite.revoked','Invite code revoked',null);
         toast('Invite code revoked.','warn');
-        return loadInvites().then(renderRoute);
+        return loadInvites().then(refreshInviteSections);
       });
     }).catch(function(){});return;}
   else if(a==='member-remove'){var mm=db.members.filter(function(x){return x.id===id;})[0];if(!mm)return;
@@ -1546,7 +1561,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
       commit(API.removeMember(mm.id)).then(function(){
         log('member.removed','Removed '+mm.username+' from workspace',null);
         toast(mm.username+' removed.','warn');
-        return Promise.all([loadOrgDirectory(),silence(refreshMemberships()),loadInvites()]).then(renderRoute);
+        return Promise.all([loadOrgDirectory(),silence(refreshMemberships()),loadInvites()]).then(function(){refreshTeamSection();refreshInviteSections();});
       });
     }).catch(function(){});return;}
   else if(a==='delete-contract'){var c2=byId(id);if(!c2)return;
@@ -1780,7 +1795,7 @@ if(f.id==='invite-form'){e.preventDefault();
     var inv=rows&&rows[0];
     if(inv){db.lastInvite={code:inv.code,role:inv.role,expires_at:inv.expires_at};toast('Invite code generated.');}
     if(igBtn)igBtn.disabled=false;
-    return loadInvites().then(renderRoute);
+    return loadInvites().then(refreshInviteSections);
   }).catch(function(){if(igBtn)igBtn.disabled=false;});return;}
 if(f.id==='settings-org'){e.preventDefault();
   var name=$('#st-org').value.trim();var cur=$('#st-cur').value;
