@@ -40,9 +40,18 @@ a hardened Supabase (Postgres) workspace with per-account row level security.
 - **Data portability** — full JSON backup export/import, sample dataset,
   CSV/JSON export. Nothing lives only in the browser.
 - **Accounts & roles** — username + password sign-up/sign-in (no email
-  required), owner/admin/manager/member roles enforced by Postgres RLS on
-  *every* statement, audit log of all changes, password change with
+  required), four roles enforced by Postgres RLS on *every* statement:
+  - **Admin** — everything: team, invites, workspace settings, deletions.
+  - **Manager** — create, edit and assign every contract in the workspace.
+  - **Contributor** — create contracts and edit the ones assigned to them.
+  - **Viewer** — read-only access to the whole workspace.
+
+  Includes an audit log of all changes and password change with
   re-authentication.
+- **Shared workspaces & invites** — admins mint 6-digit invite codes from
+  Settings that expire after 6 hours and grant a chosen role; people join
+  from the sidebar or Settings and can switch between as many workspaces as
+  they belong to (their choice is remembered per device).
 - **PWA** — installable, offline-capable app shell via a service worker.
 - **Dark-first interface** — a charcoal-and-green dark UI by default with an
   optional light theme; the toggle lives in the top bar and the choice is
@@ -120,10 +129,12 @@ The client expects:
 
 - Tables: `profiles`, `organizations`, `organization_members`, `contracts`,
   `contract_obligations`, `contract_documents`, `audit_logs`,
-  `notifications` — all with RLS enabled and policies scoped to the caller's
-  organization and role.
-- Database functions: `create_organization(p_name text)` and
-  `refresh_my_notifications()`.
+  `notifications`, `workspace_invites` — all with RLS enabled and policies
+  scoped to the caller's organization and role.
+- Database functions: `create_organization(p_name text)`,
+  `refresh_my_notifications()`,
+  `create_workspace_invite(p_org uuid, p_role text, p_ttl_hours int)` and
+  `redeem_workspace_invite(p_code text)`.
 - An Edge Function named `auth-signup` that creates the auth user, profile
   and personal organization.
 

@@ -134,8 +134,34 @@ button{font:inherit}
 .nav a[aria-current="page"] .ic{color:var(--accent-ink);opacity:1}
 .nav .cnt{margin-left:auto;font-family:var(--mono);font-size:10.5px;line-height:1;background:#313947;color:#cdd4dc;border-radius:999px;padding:3px 8px}
 .nav .cnt.hot{background:#4e2626;color:#f0c9c9}
-.sidebar-foot{margin:12px;padding:11px 13px;border:1px solid #232932;border-radius:10px;background:rgba(255,255,255,.02);font-size:11.5px;color:#79838e}
-.sidebar-foot .org{color:#ccd3da;font-weight:600;font-size:12.5px;margin-bottom:1px}
+.sidebar-foot{margin:12px;padding:6px;border:1px solid #232932;border-radius:10px;background:rgba(255,255,255,.02);font-size:11.5px;color:#79838e;position:relative}
+.sidebar-foot .org{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#ccd3da;font-weight:600;font-size:12.5px}
+/* workspace switcher */
+.ws-btn{display:flex;align-items:center;gap:8px;width:100%;background:none;border:1px solid transparent;border-radius:8px;padding:6px 8px;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:background-color .14s ease,border-color .14s ease}
+.ws-btn:hover,.ws-btn[aria-expanded="true"]{background:#1b212a;border-color:#262d37}
+.ws-meta{flex:1;min-width:0}
+.ws-sub{display:block;font-size:10px;color:#79838e;margin-top:1px}
+.ws-chev{width:14px;height:14px;flex:none;color:#79838e;margin-left:auto;transition:transform .18s ease}
+.ws-btn[aria-expanded="true"] .ws-chev{transform:rotate(180deg)}
+.ws-pop{position:absolute;left:0;right:0;bottom:calc(100% + 8px);background:var(--panel);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-3);z-index:80;display:none;overflow:auto;max-height:min(340px,58vh);overscroll-behavior:contain}
+.ws-pop.open{display:block;animation:popIn .16s cubic-bezier(.2,.8,.3,1)}
+.ws-head{padding:8px 13px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);background:var(--panel-2);border-bottom:1px solid var(--hairline)}
+.ws-item{display:flex;align-items:center;gap:9px;width:100%;padding:9px 13px;background:none;border:0;border-bottom:1px solid var(--hairline);color:var(--ink);font:inherit;font-size:13px;text-align:left;cursor:pointer;transition:background-color .12s ease}
+.ws-item:hover{background:var(--panel-2)}
+.ws-item.on{background:var(--accent-soft)}
+.ws-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.ws-item.on .nm{color:var(--accent-ink)}
+.ws-item .ck{color:var(--accent-ink);display:inline-flex}
+.ws-sep{height:1px;background:var(--hairline)}
+.ws-act{display:flex;align-items:center;gap:9px;width:100%;padding:10px 13px;background:none;border:0;color:var(--ink-2);font:inherit;font-size:12.5px;font-weight:500;text-align:left;cursor:pointer;transition:background-color .12s ease,color .12s ease}
+.ws-act:hover{background:var(--panel-2);color:var(--ink)}
+/* invite code card + rows (settings) */
+.code-card{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px dashed var(--green-line);background:var(--accent-soft);border-radius:10px;padding:12px 16px;margin:12px 0 4px;animation:viewItem .3s cubic-bezier(.16,.84,.3,1) backwards}
+.code-num{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:.24em;color:var(--accent-ink);line-height:1.15}
+.inv-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--hairline);font-size:13px}
+.inv-row:last-child{border-bottom:0}
+.inv-code{font-family:var(--mono);font-weight:600;letter-spacing:.14em}
+.role-select{min-width:130px}
 /* ---------- workspace ---------- */
 .workspace{display:flex;flex-direction:column;min-width:0;min-height:100vh}
 dialog[open]::backdrop{animation:bgFade .28s ease both}
@@ -599,7 +625,13 @@ body.authed #auth-screen .auth-wrap{transform:scale(.985) translateY(8px);transi
       <div class="nav-sec">System</div>
       <a href="#/settings" data-nav="settings"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21v-6M5 9V3M12 21v-9M12 6V3M19 21v-3M19 12V3"/><path d="M2 15h6M9 6h6M16 18h6"/></svg>Settings</a>
     </nav>
-    <div class="sidebar-foot"><div class="org" id="org-name">—</div><div>deciti workspace · v2.2</div></div>
+    <div class="sidebar-foot">
+      <button class="ws-btn" type="button" data-action="ws-switcher" aria-haspopup="true" aria-expanded="false" title="Switch workspace">
+        <span class="ws-meta"><span class="org" id="org-name">—</span><span class="ws-sub"><span id="ws-role">—</span> · v2.3</span></span>
+        <svg class="ic ws-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>
+      </button>
+      <div class="ws-pop" id="ws-pop" role="menu" aria-label="Workspaces"></div>
+    </div>
   </aside>
   <div class="workspace">
     <header class="topbar">
@@ -676,6 +708,16 @@ var STATUS_TONE={'Draft':'grey','Active':'green','Pending renewal':'amber','Rene
 var PRIORITIES=['Low','Medium','High','Critical'];
 var PRIORITY_TONE={'Low':'grey','Medium':'slate','High':'amber','Critical':'red'};
 var KIND_META={expiry:{label:'Expiration',tone:'red'},renewal:{label:'Renewal',tone:'green'},notice:{label:'Notice',tone:'amber'},obligation:{label:'Obligation',tone:'slate'}};
+var ROLES=['admin','manager','contributor','viewer'];
+var ROLE_LABEL={admin:'Admin',manager:'Manager',contributor:'Contributor',viewer:'Viewer'};
+var ROLE_TONE={admin:'green',manager:'slate',contributor:'amber',viewer:'grey'};
+var ROLE_DESC={
+  admin:'Full access — billing, team, invites, settings and deleting contracts.',
+  manager:'Create, edit and assign every contract in the workspace.',
+  contributor:'Create contracts and edit the ones assigned to them.',
+  viewer:'Read-only access to everything in the workspace.'
+};
+var INVITE_TTL_HOURS=6;
 var ATT_KINDS=['PDF','DOCX','XLSX','Link','Email','Other'];
 var CURRENCIES=['USD','EUR','GBP','CHF','SGD','AUD','CAD','JPY'];
 var DEFAULT_SETTINGS={org:'My workspace',currency:'USD',expiryWarn:60,renewalWarn:60,defaultNotice:60};
@@ -734,7 +776,7 @@ var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
 
 /* Identity is derived from the verified session only. Nothing here is accepted
    from user input, and every request is additionally re-checked server side. */
-var ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+var ME={userId:null,username:'',fullName:'',orgId:null,role:'',memberships:[],ready:false};
 /* The `user` object inside a stored session is plain JSON that anyone with
    access to the browser could edit. The `sub` claim inside the access token
    cannot be changed without invalidating its signature, and the server rejects
@@ -757,8 +799,15 @@ for(var i=0;i<s.length;i++)h=((h*31)+s.charCodeAt(i))>>>0;
 var c=PALETTE[h%PALETTE.length];var w=s.split(/\s+/);
 var ini=(((w[0]||'?').charAt(0))+((w[1]&&w[1].charAt(0))||(w[0]&&w[0].charAt(1))||'')).toUpperCase();
 return '<span class="co-tile" aria-hidden="true" style="color:'+c+';border-color:'+c+'55;background:'+c+'1f">'+esc(ini)+'</span>';}
-function canWrite(){return ['owner','admin','manager','member'].indexOf(ME.role)>=0;}
-function canDelete(){return ['owner','admin','manager'].indexOf(ME.role)>=0;}
+function normRole(r){r=String(r||'').toLowerCase();if(r==='owner')return 'admin';if(r==='member')return 'contributor';return ROLES.indexOf(r)>=0?r:'viewer';}
+function isAdmin(){return ME.role==='admin';}
+function canWrite(){return ME.role==='admin'||ME.role==='manager'||ME.role==='contributor';}
+function canManage(){return ME.role==='admin';}
+function canEditContract(c){if(!canWrite())return false;
+  if(ME.role!=='contributor')return true;
+  /* contributors may touch contracts they created or that are assigned to them */
+  return !!c&&(c.createdBy===ME.userId|| (!!c.ownerUserId&&c.ownerUserId===ME.userId));}
+function canDeleteContract(){return ME.role==='admin';}
 
 /* ================= row mappers (snake_case DB <-> camelCase view model) ================= */
 function mapObligation(o){return {id:o.id,title:o.title,date:o.due_date,done:!!o.done};}
@@ -768,7 +817,7 @@ function mapContract(r){return {
   type:r.type||'Other',status:r.status,priority:r.priority,
   startDate:r.start_date||'',expiryDate:r.expiry_date||'',renewalDate:r.renewal_date||'',
   noticePeriodDays:r.notice_period_days||0,value:Number(r.value||0),notes:r.notes||'',
-  archived:!!r.archived,
+  archived:!!r.archived,createdBy:r.created_by||null,ownerUserId:r.owner_user_id||null,
   createdAt:r.created_at?Date.parse(r.created_at):Date.now(),
   updatedAt:r.updated_at?Date.parse(r.updated_at):Date.now(),
   obligations:(r.contract_obligations||[]).map(mapObligation),
@@ -778,7 +827,7 @@ function mapSettings(o){return {org:o.name,currency:o.currency||'USD',expiryWarn
 function mapActivity(a){return {id:a.id,ts:Date.parse(a.created_at),kind:a.action||'update',msg:a.message,cid:a.contract_id||null};}
 function mapNotification(n){return {id:n.id,tone:n.severity==='critical'?'red':'amber',text:n.title,sub:n.body||'',cid:n.contract_id,date:n.due_date||n.created_at.slice(0,10),read:!!n.read_at};}
 function contractPayload(c){return {
-  organization_id:ME.orgId,title:c.title,company:c.company,owner_name:c.owner||'',
+  organization_id:ME.orgId,title:c.title,company:c.company,owner_name:c.owner||'',owner_user_id:c.ownerUserId||null,
   department:c.department||null,type:c.type||null,status:c.status,priority:c.priority,
   start_date:c.startDate||null,expiry_date:c.expiryDate,renewal_date:c.renewalDate||null,
   notice_period_days:c.noticePeriodDays||0,value:c.value||0,currency:S().currency,notes:c.notes||''
@@ -787,8 +836,7 @@ function contractPayload(c){return {
 /* ================= data access layer (Supabase / PostgREST) ================= */
 /* Explicit FK hints: both child tables have a second composite FK to
    (contracts.id, contracts.organization_id), so the relationship must be named. */
-var CONTRACT_SELECT='*,contract_obligations!contract_obligations_contract_id_fkey(*),contract_documents!contract_documents_contract_id_fkey(*)';
-function unwrap(res){if(res.error)throw res.error;return res.data;}
+var CONTRACT_SELECT='*,contract_obligations!contract_obligations_contract_id_fkey(*),contract_documents!contract_documents_contract_id_fkey(*)';function unwrap(res){if(res.error)throw res.error;return res.data;}
 function backendMessage(err){
   var m=String(err&&(err.message||err.error_description||err)||'Unknown error');
   if(/row-level security|permission denied|not authorized|violates/i.test(m))return 'You do not have permission to do that.';
@@ -809,34 +857,45 @@ var API={
   },
   signOut:function(){return sb.auth.signOut();},
   profile:function(uid){return sb.from('profiles').select('id,username,full_name').eq('id',uid).maybeSingle().then(unwrap);},
-  membership:function(){return sb.from('organization_members').select('role,organization_id,organizations(*)').limit(1).maybeSingle().then(unwrap);},
+  /* every workspace the signed-in account belongs to */
+  memberships:function(){return sb.from('organization_members').select('role,organization_id,organizations(*)').order('created_at',{ascending:true}).then(unwrap);},
   createWorkspace:function(name){return sb.rpc('create_organization',{p_name:name}).then(unwrap);},
-  contracts:function(){return sb.from('contracts').select(CONTRACT_SELECT).order('expiry_date',{ascending:true}).then(unwrap);},
-  activity:function(){return sb.from('audit_logs').select('*').order('created_at',{ascending:false}).limit(120).then(unwrap);},
-  notifications:function(){return sb.from('notifications').select('*').order('due_date',{ascending:true}).limit(200).then(unwrap);},
+  contracts:function(){return sb.from('contracts').select(CONTRACT_SELECT).eq('organization_id',ME.orgId).order('expiry_date',{ascending:true}).then(unwrap);},
+  activity:function(){return sb.from('audit_logs').select('*').eq('organization_id',ME.orgId).order('created_at',{ascending:false}).limit(120).then(unwrap);},
+  notifications:function(){return sb.from('notifications').select('*').eq('organization_id',ME.orgId).order('due_date',{ascending:true}).limit(200).then(unwrap);},
   refreshNotifications:function(){return sb.rpc('refresh_my_notifications').then(unwrap);},
+  /* team directory for the active workspace (merged with profiles client-side) */
+  orgMembers:function(){return sb.from('organization_members').select('id,user_id,role,created_at').eq('organization_id',ME.orgId).order('created_at',{ascending:true}).then(unwrap);},
+  profilesList:function(){return sb.from('profiles').select('id,username').then(unwrap);},
+  updateMemberRole:function(memberRowId,role){return sb.from('organization_members').update({role:role}).eq('id',memberRowId).eq('organization_id',ME.orgId).select().single().then(unwrap);},
+  removeMember:function(memberRowId){return sb.from('organization_members').delete().eq('id',memberRowId).eq('organization_id',ME.orgId).then(unwrap);},
+  /* 6-digit invite codes, admin-minted, expiring */
+  invites:function(){return sb.from('workspace_invites').select('*').eq('organization_id',ME.orgId).order('created_at',{ascending:false}).limit(50).then(unwrap);},
+  createInvite:function(role){return sb.rpc('create_workspace_invite',{p_org:ME.orgId,p_role:role,p_ttl_hours:INVITE_TTL_HOURS}).then(unwrap);},
+  redeemInvite:function(code){return sb.rpc('redeem_workspace_invite',{p_code:code}).then(unwrap);},
+  revokeInvite:function(id){return sb.from('workspace_invites').delete().eq('id',id).eq('organization_id',ME.orgId).then(unwrap);},
   insertContract:function(c){return sb.from('contracts').insert(Object.assign(contractPayload(c),{created_by:ME.userId})).select(CONTRACT_SELECT).single().then(unwrap);},
-  updateContract:function(id,patch){return sb.from('contracts').update(patch).eq('id',id).select(CONTRACT_SELECT).single().then(unwrap);},
-  deleteContract:function(id){return sb.from('contracts').delete().eq('id',id).then(unwrap);},
+  updateContract:function(id,patch){return sb.from('contracts').update(patch).eq('id',id).eq('organization_id',ME.orgId).select(CONTRACT_SELECT).single().then(unwrap);},
+  deleteContract:function(id){return sb.from('contracts').delete().eq('id',id).eq('organization_id',ME.orgId).then(unwrap);},
   /* one round trip for "delete all"; RLS still validates every row server side */
-  deleteContracts:function(ids){return sb.from('contracts').delete().in('id',ids).then(unwrap);},
+  deleteContracts:function(ids){return sb.from('contracts').delete().in('id',ids).eq('organization_id',ME.orgId).then(unwrap);},
   insertObligation:function(cid,title,date){return sb.from('contract_obligations').insert({organization_id:ME.orgId,contract_id:cid,title:title,due_date:date}).select().single().then(unwrap);},
-  updateObligation:function(id,patch){return sb.from('contract_obligations').update(patch).eq('id',id).select().single().then(unwrap);},
-  deleteObligation:function(id){return sb.from('contract_obligations').delete().eq('id',id).then(unwrap);},
+  updateObligation:function(id,patch){return sb.from('contract_obligations').update(patch).eq('id',id).eq('organization_id',ME.orgId).select().single().then(unwrap);},
+  deleteObligation:function(id){return sb.from('contract_obligations').delete().eq('id',id).eq('organization_id',ME.orgId).then(unwrap);},
   insertDocument:function(cid,d){return sb.from('contract_documents').insert({organization_id:ME.orgId,contract_id:cid,filename:d.name,kind:d.kind,reference:d.ref||'',uploaded_by:ME.userId}).select().single().then(unwrap);},
-  deleteDocument:function(id){return sb.from('contract_documents').delete().eq('id',id).then(unwrap);},
+  deleteDocument:function(id){return sb.from('contract_documents').delete().eq('id',id).eq('organization_id',ME.orgId).then(unwrap);},
   updateOrg:function(patch){return sb.from('organizations').update(patch).eq('id',ME.orgId).select().single().then(unwrap);},
   log:function(action,entityType,entityId,contractId,message){
     return sb.from('audit_logs').insert({organization_id:ME.orgId,user_id:ME.userId,action:action,
       entity_type:entityType,entity_id:entityId||null,contract_id:contractId||null,
       message:String(message).slice(0,500)}).select().single().then(unwrap);
   },
-  markNotificationRead:function(id){return sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).then(unwrap);},
-  markAllNotificationsRead:function(){return sb.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null).then(unwrap);}
+  markNotificationRead:function(id){return sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).eq('organization_id',ME.orgId).then(unwrap);},
+  markAllNotificationsRead:function(){return sb.from('notifications').update({read_at:new Date().toISOString()}).is('read_at',null).eq('organization_id',ME.orgId).then(unwrap);}
 };
 
 /* ================= state ================= */
-var db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
+var db={contracts:[],activity:[],members:[],invites:[],lastInvite:null,notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:3};
 function S(){return db.settings;}
 var cs={q:'',status:'all',priority:'all',type:'all',company:'',window:'any',from:'',to:'',showArchived:false,sortKey:'expiry',sortDir:'asc',page:1};
 var dls={time:'all',kinds:{expiry:true,renewal:true,notice:true,obligation:true}};
@@ -971,13 +1030,29 @@ d.addEventListener('close',function(){res(d.dataset.ok==='1');});});}
 /* ================= contract form ================= */
 function contractFormHTML(c){var s=c||{};function sel(arr,val){return arr.map(function(o){return '<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>';}).join('');}
 var companies=Array.from(new Set(db.contracts.map(function(x){return x.company;}))).sort();
-var owners=Array.from(new Set(db.contracts.map(function(x){return x.owner;}))).sort();
+/* Assignment select is driven by workspace members. Contributors are pinned
+   to themselves; managers and admins may assign anyone or leave unassigned. */
+var members=(db.members||[]).slice().sort(function(a,b){return String(a.username).localeCompare(String(b.username));});
+var selUid=s.ownerUserId||(members.filter(function(mm){return mm.username===(s.owner||'');})[0]||{}).user_id||(ME.role==='contributor'?ME.userId:'');
+var legacyName=(s.owner&&!members.some(function(mm){return mm.user_id===selUid;}))?s.owner:'';
+var assignCtl;
+if(ME.role==='contributor'){
+  assignCtl='<select class="input" id="cf-owner" disabled><option selected>'+esc(ME.username||'you')+' — you</option></select>'
+    +'<input type="hidden" id="cf-owner-user" value="'+esc(ME.userId)+'">'
+    +'<div class="hint">New contracts are assigned to you. You can edit contracts assigned to you.</div>';
+}else{
+  assignCtl='<select class="input" id="cf-owner" name="assigneeId">'
+    +'<option value=""'+((selUid||legacyName)?'':' selected')+'>Unassigned</option>'
+    +members.map(function(m){return '<option value="'+esc(m.user_id)+'"'+(m.user_id===selUid?' selected':'')+'>'+esc(m.username)+' — '+ROLE_LABEL[m.role]+'</option>';}).join('')
+    +(legacyName?'<option value="keep" selected>'+esc(legacyName)+' (existing)</option>':'')
+    +'</select><div class="hint">Contributors can only edit contracts assigned to them.</div>';
+}
 return '<div class="dlg-h"><h2 id="dlg-title">'+(c?'Edit contract':'New contract')+'</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'+
 '<form id="contract-form" novalidate><div class="dlg-b">'+(c?'<input type="hidden" id="cf-id" value="'+esc(c.id)+'">':'')+'<div class="fgrid">'+
 '<div class="field span2"><label for="cf-title">Contract title *</label><input class="input" id="cf-title" name="title" required value="'+esc(s.title||'')+'" placeholder="e.g. Acme Corp — Master Service Agreement"></div>'+
 '<div class="field"><label for="cf-company">Company / counterparty *</label><input class="input" id="cf-company" name="company" list="dl-companies" required value="'+esc(s.company||'')+'"></div>'+
 '<div class="field"><label for="cf-type">Contract type</label><select id="cf-type" name="type">'+sel(TYPES,s.type||TYPES[2])+'</select></div>'+
-'<div class="field"><label for="cf-owner">Contract owner *</label><input class="input" id="cf-owner" name="owner" list="dl-owners" required value="'+esc(s.owner||'')+'"></div>'+
+'<div class="field"><label for="cf-owner">Assigned to</label>'+assignCtl+'</div>'+
 '<div class="field"><label for="cf-dept">Department</label><select id="cf-dept" name="department"><option value="">—</option>'+DEPTS.map(function(o){return '<option'+(o===s.department?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'+
 '<div class="field"><label for="cf-start">Start date</label><input class="input" type="date" id="cf-start" name="startDate" value="'+esc(s.startDate||'')+'"></div>'+
 '<div class="field"><label for="cf-expiry">Expiration date *</label><input class="input" type="date" id="cf-expiry" name="expiryDate" required value="'+esc(s.expiryDate||'')+'"></div>'+
@@ -989,22 +1064,29 @@ return '<div class="dlg-h"><h2 id="dlg-title">'+(c?'Edit contract':'New contract
 '<div class="field span2"><label for="cf-notes">Notes</label><textarea id="cf-notes" name="notes">'+esc(s.notes||'')+'</textarea></div>'+
 '</div><div id="cf-errors" class="form-err" hidden></div></div>'+
 '<div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button type="submit" class="btn btn-primary">'+(c?'Save changes':'Create contract')+'</button></div></form>'+
-'<datalist id="dl-companies">'+companies.map(function(o){return '<option value="'+esc(o)+'">';}).join('')+'</datalist>'+
-'<datalist id="dl-owners">'+owners.map(function(o){return '<option value="'+esc(o)+'">';}).join('')+'</datalist>';}
+'<datalist id="dl-companies">'+companies.map(function(o){return '<option value="'+esc(o)+'">';}).join('')+'</datalist>';}
 
 function saveContract(f){var fd=new FormData(f);function g(k){return String(fd.get(k)||'').trim();}
-var errs=[];var title=g('title'),company=g('company'),owner=g('owner'),expiry=g('expiryDate'),renewal=g('renewalDate'),start=g('startDate');
-if(!title)errs.push('Contract title is required.');if(!company)errs.push('Company is required.');if(!owner)errs.push('Contract owner is required.');
+var errs=[];var title=g('title'),company=g('company'),expiry=g('expiryDate'),renewal=g('renewalDate'),start=g('startDate');
+var idEl=f.querySelector('#cf-id');var id=idEl?idEl.value:null;var existing=id?byId(id):null;var isNew=!existing;
+if(!title)errs.push('Contract title is required.');if(!company)errs.push('Company is required.');
 if(!expiry)errs.push('Expiration date is required.');
 if(start&&expiry&&pISO(expiry)<pISO(start))errs.push('Expiration date must be on or after the start date.');
 if(start&&renewal&&pISO(renewal)<pISO(start))errs.push('Renewal date must be on or after the start date.');
 var notice=parseInt(g('noticePeriodDays'),10);if(isNaN(notice)||notice<0)errs.push('Notice period must be 0 or more days.');
 var value=parseFloat(g('value'));if(g('value')!==''&&(isNaN(value)||value<0))errs.push('Contract value must be a positive number.');
-if(!canWrite())errs.push('Your role does not allow creating or editing contracts.');
+if(isNew&&!canWrite())errs.push('Your role does not allow creating contracts.');
+if(!isNew&&!canEditContract(existing))errs.push('You can only edit contracts assigned to you.');
 var box=$('#cf-errors');
 if(errs.length){box.hidden=false;box.innerHTML='Please fix the following:<ul>'+errs.map(function(e){return '<li>'+esc(e)+'</li>';}).join('')+'</ul>';return;}
-var idEl=f.querySelector('#cf-id');var id=idEl?idEl.value:null;var existing=id?byId(id):null;var isNew=!existing;
-var draft={title:title,company:company,owner:owner,department:g('department'),type:g('type'),startDate:start,
+/* resolve assignment: hidden input for contributors, select otherwise */
+var hiddenUid=f.querySelector('#cf-owner-user');
+var assignSel=f.querySelector('#cf-owner');
+var rawUid=hiddenUid?hiddenUid.value:(assignSel?String(assignSel.value||''):'');
+var ownerName='',ownerUid=null;
+if(rawUid==='keep'&&existing){ownerName=existing.owner||'';ownerUid=existing.ownerUserId||null;}
+else if(rawUid){var memRow=(db.members||[]).filter(function(x){return x.user_id===rawUid;})[0];ownerName=memRow?memRow.username:'';ownerUid=rawUid;}
+var draft={title:title,company:company,owner:ownerName,ownerUserId:ownerUid,department:g('department'),type:g('type'),startDate:start,
   expiryDate:expiry,renewalDate:renewal,noticePeriodDays:notice,value:isNaN(value)?0:value,
   status:g('status'),priority:g('priority'),notes:g('notes')};
 var btn=f.querySelector('button[type="submit"]');if(btn)btn.disabled=true;
@@ -1074,7 +1156,7 @@ var renewals=act.filter(function(c){return c.renewalDate&&daysUntil(c.renewalDat
 var upcoming=dl.filter(function(r){return r.days>=0;}).sort(function(a,b){return a.days-b.days;}).slice(0,7);
 var high=act.filter(function(c){return c.priority==='High'||c.priority==='Critical';}).sort(function(a,b){return (a.expiryDate?daysUntil(a.expiryDate):9999)-(b.expiryDate?daysUntil(b.expiryDate):9999);}).slice(0,5);
 function row(r){return '<div class="list-row'+(r.days<0?' over':'')+'"><span style="width:8px;height:8px;border-radius:50%;background:'+(r.days<0?'var(--red)':r.days<=21?'var(--red)':r.days<=S().expiryWarn?'var(--amber)':'var(--slate)')+';flex:none" aria-hidden="true"></span><div class="main"><div class="t"><a href="#/contracts/'+r.c.id+'">'+esc(r.c.title)+'</a></div><div class="s">'+esc(r.c.company)+' · '+esc(KIND_META[r.kind].label)+'</div></div><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+daysChip(r.days)+'</div>';}
-var html='<div class="page-head"><div><h1>Dashboard</h1><div class="head-sub">'+fmtDateLong(todayISO())+' · '+esc(S().org)+'</div></div><div class="head-actions"><a class="btn" href="#/contracts">'+ic('file')+'Contracts</a><button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button></div></div>';
+var html='<div class="page-head"><div><h1>Dashboard</h1><div class="head-sub">'+fmtDateLong(todayISO())+' · '+esc(S().org)+'</div></div><div class="head-actions"><a class="btn" href="#/contracts">'+ic('file')+'Contracts</a>'+(canWrite()?'<button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button>':'')+'</div></div>';
 html+='<div class="grid c-kpi">';
 html+='<section class="panel kpi"><div class="lbl">Active contracts</div><div class="val" data-count="'+act.length+'" data-format="int">'+act.length+'</div><div class="sub">'+db.contracts.filter(function(c){return c.archived;}).length+' archived · '+db.contracts.length+' total</div></section>';
 html+='<section class="panel kpi"><div class="lbl">Active contract value</div><div class="val good" data-count="'+totalVal+'" data-format="compact">'+moneyC(totalVal)+'</div><div class="sub">across '+act.length+' live agreements</div></section>';
@@ -1120,19 +1202,19 @@ var caret='<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="c
 var idle='<svg viewBox="0 0 16 16" width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 6L8 2.5 11.5 6"/><path d="M4.5 10L8 13.5 11.5 10"/></svg>';
 return '<th scope="col"'+(active?' aria-sort="'+(dir?'ascending':'descending')+'"':'')+'><button class="th-btn'+(active?' on':'')+'" data-action="sort" data-key="'+key+'"><span>'+label+'</span><span class="arr" aria-hidden="true">'+(active?caret:idle)+'</span></button></th>';}
 var rows=list.map(function(c,i){var m=metrics(c);
+var acts='';
+if(canEditContract(c))acts+='<button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'" title="Edit">'+ic('pencil')+'</button>'
+  +'<button class="icon-btn" data-action="archive-contract" data-id="'+c.id+'" aria-label="'+(c.archived?'Restore ':'Archive ')+esc(c.title)+'" title="'+(c.archived?'Restore':'Archive')+'">'+ic('archive')+'</button>';
+if(canDeleteContract())acts+='<button class="icon-btn" data-action="delete-contract" data-id="'+c.id+'" aria-label="Delete '+esc(c.title)+'" title="Delete">'+ic('trash')+'</button>';
 return '<tr class="stg'+(c.archived?' archived':'')+'" style="--r:'+(i%12)+'">'+
 '<td><div class="co-cell">'+coTile(c.company)+'<div style="min-width:0"><a class="rowlink" href="#/contracts/'+c.id+'">'+esc(c.title)+'</a>'+(c.archived?'<span class="sub">archived</span>':'')+'</div></div></td>'+
-'<td>'+esc(c.company)+'</td><td>'+esc(c.owner)+'</td><td>'+esc(c.type)+'</td>'+
+'<td>'+esc(c.company)+'</td><td>'+esc(c.owner||'—')+'</td><td>'+esc(c.type)+'</td>'+
 '<td>'+statusBadge(c.status)+(c.expiryDate&&m.expiryDays<0&&c.status!=='Expired'&&c.status!=='Terminated'?' <span class="chip t-red" title="Past expiration while status is '+esc(c.status)+'">lapsed</span>':'')+'</td>'+
 '<td>'+badge(PRIORITY_TONE[c.priority],c.priority)+'</td>'+
 '<td>'+fmtDate(c.expiryDate)+' '+(c.expiryDate?daysChip(m.expiryDays):'')+'</td>'+
 '<td>'+fmtDate(c.renewalDate)+'</td>'+
 '<td class="num">'+(c.value?money(c.value):'—')+'</td>'+
-'<td><div class="row-actions">'+
-'<button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'" title="Edit">'+ic('pencil')+'</button>'+
-'<button class="icon-btn" data-action="archive-contract" data-id="'+c.id+'" aria-label="'+(c.archived?'Restore ':'Archive ')+esc(c.title)+'" title="'+(c.archived?'Restore':'Archive')+'">'+ic('archive')+'</button>'+
-'<button class="icon-btn" data-action="delete-contract" data-id="'+c.id+'" aria-label="Delete '+esc(c.title)+'" title="Delete">'+ic('trash')+'</button>'+
-'</div></td></tr>';}).join('');
+'<td><div class="row-actions">'+acts+'</div></td></tr>';}).join('');
 return '<div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Contracts with company, owner, type, status, priority, expiration, renewal, value and actions</caption><thead><tr>'+th('title','Contract')+th('company','Company')+th('owner','Owner')+th('type','Type')+th('status','Status')+th('priority','Priority')+th('expiry','Expiration')+th('renewal','Renewal')+'<th scope="col"><span class="th-pad" style="text-align:right">Value</span></th><th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
 
 function refreshContractsTable(){var list=filteredContracts();var pages=Math.max(1,Math.ceil(list.length/PAGE_SIZE));if(cs.page>pages)cs.page=pages;
@@ -1145,7 +1227,7 @@ else if(!list.length){host.innerHTML='<div class="panel">'+emptyState('inbox','N
 else{host.innerHTML='<div class="panel">'+contractsTable(slice)+(pages>1?'<div class="pager"><button class="btn btn-sm" data-action="page" data-page="prev"'+(cs.page<=1?' disabled':'')+'>← Prev</button><span>Page '+cs.page+' of '+pages+'</span><button class="btn btn-sm" data-action="page" data-page="next"'+(cs.page>=pages?' disabled':'')+'>Next →</button></div>':'')+'</div>';}}
 
 function viewContracts(query){['q','status','priority','type','company'].forEach(function(k){var v=query.get(k);if(v!=null)cs[k]=v;});cs.page=1;
-var html='<div class="page-head"><div><h1>Contracts</h1><div class="head-sub">Registry of all agreements, counterparties and key terms.</div></div><div class="head-actions"><button class="btn" data-action="export-csv">'+ic('download')+'Export CSV</button><button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button></div></div>';
+var html='<div class="page-head"><div><h1>Contracts</h1><div class="head-sub">Registry of all agreements, counterparties and key terms.</div></div><div class="head-actions"><button class="btn" data-action="export-csv">'+ic('download')+'Export CSV</button>'+(canWrite()?'<button class="btn btn-primary" data-action="new-contract">'+ic('plus')+'New contract</button>':'')+'</div></div>';
 html+='<div class="panel toolbar"><div class="grow"><label class="sr-only" for="ct-search">Search contracts</label><input class="input" id="ct-search" type="search" placeholder="Search title, company, owner, notes…" value="'+esc(cs.q)+'" style="width:100%"></div>'+
 '<label class="sr-only" for="ct-status">Status filter</label><select id="ct-status" data-filter="status" title="Status"><option value="all">Status: all</option>'+STATUSES.map(function(s){return '<option value="'+s+'"'+(cs.status===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
 '<label class="sr-only" for="ct-priority">Priority filter</label><select id="ct-priority" data-filter="priority" title="Priority"><option value="all">Priority: all</option>'+PRIORITIES.map(function(s){return '<option value="'+s+'"'+(cs.priority===s?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
@@ -1160,14 +1242,16 @@ return html;}
 
 function viewContractDetail(id){var c=byId(id);if(!c)return '<div class="panel">'+emptyState('inbox','Contract not found','This contract may have been deleted, or the link is incorrect.','<a class="btn" href="#/contracts">Back to contracts</a>')+'</div>';
 var m=metrics(c);
+var canEd=canEditContract(c);
 var html='<nav class="crumbs" aria-label="Breadcrumb"><a href="#/contracts">Contracts</a> <span aria-hidden="true">/</span> <span>'+esc(c.title)+'</span></nav>';
-html+='<div class="page-head"><div><h1>'+esc(c.title)+'</h1><div class="head-sub">'+esc(c.company)+' · '+esc(c.type)+' · Owner: '+esc(c.owner)+(c.department?' ('+esc(c.department)+')':'')+'</div><div class="head-badges" id="detail-badges">'+statusBadge(c.status)+prioBadge(c.priority)+(c.archived?badge('grey','Archived'):'')+'</div></div>'+
-'<div class="head-actions"><label class="sr-only" for="qs-status">Change status</label><select id="qs-status" data-action="quick-status" data-id="'+c.id+'">'+STATUSES.map(function(s){return '<option'+(s===c.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
-'<label class="sr-only" for="qs-priority">Change priority</label><select id="qs-priority" data-action="quick-priority" data-id="'+c.id+'">'+PRIORITIES.map(function(s){return '<option'+(s===c.priority?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
-'<button class="btn" data-action="edit-contract" data-id="'+c.id+'">'+ic('pencil')+'Edit</button>'+
-(c.renewalDate||c.expiryDate?'<button class="btn" data-action="renew-log" data-id="'+c.id+'" title="Extend dates by 12 months and set status to Renewed">'+ic('renew')+'Log renewal</button>':'')+
-'<button class="btn" data-action="archive-contract" data-id="'+c.id+'">'+ic('archive')+(c.archived?'Restore':'Archive')+'</button>'+
-'<button class="btn btn-danger" data-action="delete-contract" data-id="'+c.id+'">'+ic('trash')+'Delete</button></div></div>';
+html+='<div class="page-head"><div><h1>'+esc(c.title)+'</h1><div class="head-sub">'+esc(c.company)+' · '+esc(c.type)+' · Assigned: '+esc(c.owner||'unassigned')+(c.department?' ('+esc(c.department)+')':'')+'</div><div class="head-badges" id="detail-badges">'+statusBadge(c.status)+prioBadge(c.priority)+(c.archived?badge('grey','Archived'):'')+'</div></div>'+
+'<div class="head-actions"><label class="sr-only" for="qs-status">Change status</label><select id="qs-status" data-action="quick-status" data-id="'+c.id+'"'+(canEd?'':' disabled')+'> '+STATUSES.map(function(s){return '<option'+(s===c.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+'<label class="sr-only" for="qs-priority">Change priority</label><select id="qs-priority" data-action="quick-priority" data-id="'+c.id+'"'+(canEd?'':' disabled')+'>'+PRIORITIES.map(function(s){return '<option'+(s===c.priority?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+(canEd?'<button class="btn" data-action="edit-contract" data-id="'+c.id+'">'+ic('pencil')+'Edit</button>'+
+((c.renewalDate||c.expiryDate)?'<button class="btn" data-action="renew-log" data-id="'+c.id+'" title="Extend dates by 12 months and set status to Renewed">'+ic('renew')+'Log renewal</button>':'')+
+'<button class="btn" data-action="archive-contract" data-id="'+c.id+'">'+ic('archive')+(c.archived?'Restore':'Archive')+'</button>':'')+
+(canDeleteContract()?'<button class="btn btn-danger" data-action="delete-contract" data-id="'+c.id+'">'+ic('trash')+'Delete</button>':'')+
+'</div></div>';
 var tlItems=[{l:'Start',d:c.startDate},{l:'Notice deadline',d:m.noticeDate},{l:'Renewal',d:c.renewalDate},{l:'Expires',d:c.expiryDate}].filter(function(x){return x.d;}).sort(function(a,b){return pISO(a.d)-pISO(b.d);});
 html+='<div class="grid c-21"><section class="panel">'+panelHead('Key terms')+'<div class="panel-b"><div class="kv">'+
 '<div><div class="k">Contract value</div><div class="v">'+(c.value?money(c.value):'—')+'</div></div>'+
@@ -1183,16 +1267,16 @@ html+='<div class="grid c-21"><section class="panel">'+panelHead('Key terms')+'<
 (tlItems.length?tlItems.map(function(x){var d=daysUntil(x.d);var tone=d<0?'var(--red)':d<=21?'var(--red)':d<=S().expiryWarn?'var(--amber)':'var(--accent)';return '<li><span class="dot" style="background:'+tone+'"></span><div><div style="font-weight:600;font-size:13px">'+x.l+'</div><div style="font-size:12px;color:var(--muted)">'+fmtDate(x.d)+'</div></div><span style="margin-left:auto">'+daysChip(d)+'</span></li>';}).join(''):'<li>No dates recorded.</li>')+
 '</ul></div></section></div>';
 html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Obligations & custom deadlines','<span class="chip t-grey">'+(c.obligations||[]).filter(function(o){return !o.done;}).length+' open</span>')+'<div id="ob-list">'+obligationsHTML(c)+'</div>'+
-'<form class="add-row" id="obligation-form" data-id="'+c.id+'"><label class="sr-only" for="ob-title">New obligation title</label><input class="input" id="ob-title" placeholder="Add obligation or deadline…" required><label class="sr-only" for="ob-date">Due date</label><input class="input" type="date" id="ob-date" required style="flex:0 0 150px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form></section>'+
+(canEd?'<form class="add-row" id="obligation-form" data-id="'+c.id+'"><label class="sr-only" for="ob-title">New obligation title</label><input class="input" id="ob-title" placeholder="Add obligation or deadline…" required><label class="sr-only" for="ob-date">Due date</label><input class="input" type="date" id="ob-date" required style="flex:0 0 150px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form>':'')+'</section>'+
 '<section class="panel">'+panelHead('Attachments & document references')+'<div id="att-list">'+attachmentsHTML(c)+'</div>'+
-'<form class="add-row" id="attachment-form" data-id="'+c.id+'"><label class="sr-only" for="at-name">Document name</label><input class="input" id="at-name" placeholder="Document name…" required><label class="sr-only" for="at-kind">Type</label><select id="at-kind" style="flex:0 0 90px">'+ATT_KINDS.map(function(k){return '<option>'+k+'</option>';}).join('')+'</select><label class="sr-only" for="at-ref">Reference</label><input class="input" id="at-ref" placeholder="Ref / URL (optional)" style="flex:0 0 140px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form></section></div>';
+(canEd?'<form class="add-row" id="attachment-form" data-id="'+c.id+'"><label class="sr-only" for="at-name">Document name</label><input class="input" id="at-name" placeholder="Document name…" required><label class="sr-only" for="at-kind">Type</label><select id="at-kind" style="flex:0 0 90px">'+ATT_KINDS.map(function(k){return '<option>'+k+'</option>';}).join('')+'</select><label class="sr-only" for="at-ref">Reference</label><input class="input" id="at-ref" placeholder="Ref / URL (optional)" style="flex:0 0 140px"><button class="btn" type="submit">'+ic('plus')+'Add</button></form>':'')+'</section></div>';
 html+='<div class="grid c-21 mt"><section class="panel">'+panelHead('Notes')+'<div class="panel-b">'+(c.notes?'<pre class="notes-pre">'+esc(c.notes)+'</pre>':'<p style="margin:0;color:var(--muted);font-size:13px">No notes recorded. Use Edit to add notes.</p>')+'</div></section>'+
 '<section class="panel">'+panelHead('Activity')+'<div>'+(db.activity.filter(function(a){return a.cid===c.id;}).slice(0,8).map(function(a){return '<div class="list-row"><div class="main"><div class="s" style="color:var(--ink-2)">'+esc(a.msg)+'</div><div class="s">'+relTime(a.ts)+'</div></div></div>';}).join('')||'<div class="empty"><p style="margin:0">No activity for this contract yet.</p></div>')+'</div></section></div>';
 return html;}
-function obligationsHTML(c){var obs=c.obligations||[];if(!obs.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No obligations yet. Add custom deadlines below.</p></div>';
-return obs.slice().sort(function(a,b){return pISO(a.date)-pISO(b.date);}).map(function(o){var d=daysUntil(o.date);return '<div class="ob-row'+(o.done?' done':'')+'"><input type="checkbox" id="ob-'+o.id+'" data-action="obligation-toggle" data-cid="'+c.id+'" data-oid="'+o.id+'"'+(o.done?' checked':'')+' aria-label="Mark '+esc(o.title)+' as '+(o.done?'not done':'done')+'"><div class="main"><label class="ob-t" for="ob-'+o.id+'">'+esc(o.title)+'</label><div class="ob-s">Due '+fmtDate(o.date)+'</div></div>'+(o.done?'<span class="chip t-grey">done</span>':daysChip(d))+'<button class="icon-btn" data-action="obligation-delete" data-cid="'+c.id+'" data-oid="'+o.id+'" aria-label="Delete obligation '+esc(o.title)+'">'+ic('trash')+'</button></div>';}).join('');}
-function attachmentsHTML(c){var ats=c.attachments||[];if(!ats.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No documents referenced yet.</p></div>';
-return ats.map(function(a){return '<div class="ob-row"><span style="color:var(--muted)">'+ic('file')+'</span><div class="main"><div class="ob-t">'+esc(a.name)+'</div><div class="ob-s">'+(a.ref?esc(a.ref)+' · ':'')+esc(a.kind)+'</div></div><button class="icon-btn" data-action="attachment-delete" data-cid="'+c.id+'" data-aid="'+a.id+'" aria-label="Remove reference '+esc(a.name)+'">'+ic('trash')+'</button></div>';}).join('');}
+function obligationsHTML(c){var obs=c.obligations||[];var canEd=canEditContract(c);if(!obs.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No obligations yet.'+(canEd?' Add custom deadlines below.':'')+'</p></div>';
+return obs.slice().sort(function(a,b){return pISO(a.date)-pISO(b.date);}).map(function(o){var d=daysUntil(o.date);return '<div class="ob-row'+(o.done?' done':'')+'"><input type="checkbox" id="ob-'+o.id+'" data-action="obligation-toggle" data-cid="'+c.id+'" data-oid="'+o.id+'"'+(o.done?' checked':'')+(canEd?'':' disabled')+' aria-label="Mark '+esc(o.title)+' as '+(o.done?'not done':'done')+'"><div class="main"><label class="ob-t" for="ob-'+o.id+'">'+esc(o.title)+'</label><div class="ob-s">Due '+fmtDate(o.date)+'</div></div>'+(o.done?'<span class="chip t-grey">done</span>':daysChip(d))+(canEd?'<button class="icon-btn" data-action="obligation-delete" data-cid="'+c.id+'" data-oid="'+o.id+'" aria-label="Delete obligation '+esc(o.title)+'">'+ic('trash')+'</button>':'')+'</div>';}).join('');}
+function attachmentsHTML(c){var ats=c.attachments||[];var canEd=canEditContract(c);if(!ats.length)return '<div class="empty" style="padding:22px"><p style="margin:0">No documents referenced yet.</p></div>';
+return ats.map(function(a){return '<div class="ob-row"><span style="color:var(--muted)">'+ic('file')+'</span><div class="main"><div class="ob-t">'+esc(a.name)+'</div><div class="ob-s">'+(a.ref?esc(a.ref)+' · ':'')+esc(a.kind)+'</div></div>'+(canEd?'<button class="icon-btn" data-action="attachment-delete" data-cid="'+c.id+'" data-aid="'+a.id+'" aria-label="Remove reference '+esc(a.name)+'">'+ic('trash')+'</button>':'')+'</div>';}).join('');}
 
 function refreshDeadlines(){var host=$('#dl-list');if(!host)return;
 var rows=allDeadlines().filter(function(r){if(!dls.kinds[r.kind])return false;
@@ -1205,7 +1289,7 @@ var over=rows.filter(function(r){return r.days<0&&!r.done;}).length;
 var meta=$('#dl-meta');if(meta)meta.textContent=rows.length+' item'+(rows.length===1?'':'s')+' · '+over+' overdue';
 if(!rows.length){host.innerHTML='<div class="panel">'+emptyState('clock','No deadlines in this view','Change the filters, or add obligations from a contract page.','<a class="btn" href="#/contracts">Open contracts</a>')+'</div>';return;}
 host.innerHTML='<div class="panel">'+rows.map(function(r,i){return '<div class="list-row'+(r.days<0&&!r.done?' over':'')+' stg" style="--r:'+(i%14)+'"><div class="dblock" aria-hidden="true"><div class="d">'+r.date.slice(8,10)+'</div><div class="m">'+new Date(pISO(r.date)).toLocaleDateString('en-US',{month:'short'})+'</div></div>'+
-(r.kind==='obligation'?'<input type="checkbox" data-action="obligation-toggle" data-cid="'+r.c.id+'" data-oid="'+r.oid+'"'+(r.done?' checked':'')+' aria-label="Mark '+esc(r.label)+' as '+(r.done?'not done':'done')+'">':'')+
+(r.kind==='obligation'?'<input type="checkbox" data-action="obligation-toggle" data-cid="'+r.c.id+'" data-oid="'+r.oid+'"'+(r.done?' checked':'')+(canEditContract(r.c)?'':' disabled')+' aria-label="Mark '+esc(r.label)+' as '+(r.done?'not done':'done')+'">':'')+
 '<div class="main"><div class="t"'+(r.done?' style="text-decoration:line-through;color:var(--muted)"':'')+'><a href="#/contracts/'+r.c.id+'">'+esc(r.label)+'</a></div><div class="s">'+esc(r.c.title)+' · '+esc(r.c.company)+'</div></div>'+
 '<span class="badge t-'+KIND_META[r.kind].tone+'">'+KIND_META[r.kind].label+'</span><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+(r.done?'<span class="chip t-grey">done</span>':daysChip(r.days))+'</div>';}).join('')+'</div>';}
 function viewDeadlines(){var html='<div class="page-head"><div><h1>Deadlines</h1><div class="head-sub">Every expiration, renewal, notice deadline and obligation in one prioritized queue.</div></div></div>';
@@ -1237,7 +1321,7 @@ rows.map(function(c,i){var m=metrics(c);var nChip;
 if(!m.noticeDate)nChip='<span class="chip t-grey">none</span>';
 else if(m.noticeDays<0&&daysUntil(c.renewalDate)>=0)nChip='<span class="chip t-red" title="Notice deadline passed — renewal window open">'+(-m.noticeDays)+'d over</span>';
 else nChip=daysChip(m.noticeDays);
-return '<tr class="stg" style="--r:'+(i%12)+'"><td><div class="co-cell">'+coTile(c.company)+'<div style="min-width:0"><a class="rowlink" href="#/contracts/'+c.id+'">'+esc(c.title)+'</a><span class="sub">'+esc(c.company)+' · '+esc(c.owner)+'</span></div></div></td><td>'+fmtDate(c.renewalDate)+' '+daysChip(m.renewalDays)+'</td><td>'+fmtDate(m.noticeDate)+' '+nChip+'</td><td>'+statusBadge(c.status)+'</td><td class="num">'+money(c.value)+'</td><td><div class="row-actions"><button class="btn btn-sm" data-action="renew-log" data-id="'+c.id+'">'+ic('renew')+'Log renewal</button><button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'">'+ic('pencil')+'</button></div></td></tr>';}).join('')+'</tbody></table></div></div>':
+return '<tr class="stg" style="--r:'+(i%12)+'"><td><div class="co-cell">'+coTile(c.company)+'<div style="min-width:0"><a class="rowlink" href="#/contracts/'+c.id+'">'+esc(c.title)+'</a><span class="sub">'+esc(c.company)+' · '+esc(c.owner||'—')+'</span></div></div></td><td>'+fmtDate(c.renewalDate)+' '+daysChip(m.renewalDays)+'</td><td>'+fmtDate(m.noticeDate)+' '+nChip+'</td><td>'+statusBadge(c.status)+'</td><td class="num">'+money(c.value)+'</td><td><div class="row-actions">'+(canEditContract(c)?'<button class="btn btn-sm" data-action="renew-log" data-id="'+c.id+'">'+ic('renew')+'Log renewal</button><button class="icon-btn" data-action="edit-contract" data-id="'+c.id+'" aria-label="Edit '+esc(c.title)+'">'+ic('pencil')+'</button>':'')+'</div></td></tr>';}).join('')+'</tbody></table></div></div>':
 '<div class="panel">'+emptyState('renew','No renewals tracked','Contracts with a renewal date will build the pipeline here.')+'</div>')+'</div>';
 return html;}
 
@@ -1272,20 +1356,54 @@ html+='<section class="panel mt">'+panelHead('Overdue obligations & lapsed items
 (overdueObs.length?overdueObs.map(function(r){return '<div class="list-row over"><div class="main"><div class="t"><a href="#/contracts/'+r.c.id+'">'+esc(r.label)+'</a></div><div class="s">'+esc(r.c.title)+' · '+esc(r.c.owner)+'</div></div><span style="font-size:12px;color:var(--muted)">'+fmtDate(r.date)+'</span>'+daysChip(r.days)+'</div>';}).join(''):'<div class="empty"><p style="margin:0">Nothing is overdue. Well done.</p></div>')+'</div></section>';
 return html;}
 
+function activeInvitesHTML(){
+  var rows=(db.invites||[]).filter(function(v){return !v.revoked_at&&isFinite(Date.parse(v.expires_at))&&Date.parse(v.expires_at)>Date.now();});
+  if(!rows.length)return '<p class="hint" style="padding:12px 15px;margin:0;border-top:1px solid var(--hairline)">No active invite codes.</p>';
+  return rows.map(function(v){return '<div class="inv-row"><span class="inv-code">'+esc(v.code)+'</span><span class="badge t-'+(ROLE_TONE[v.role]||'grey')+'">'+esc(ROLE_LABEL[v.role]||v.role)+'</span><span style="color:var(--muted);font-size:12px;margin-right:auto">'+esc(fmtRemaining(v.expires_at))+'</span><button class="icon-btn" type="button" data-action="invite-revoke" data-id="'+v.id+'" aria-label="Revoke code '+esc(v.code)+'" title="Revoke code">'+ic('x')+'</button></div>';}).join('');
+}
 function viewSettings(){var s=S();
-var readOnly=!canWrite();
-var html='<div class="page-head"><div><h1>Settings</h1><div class="head-sub">Account, workspace preferences, alert thresholds and data management.</div></div></div>';
+var adminLock=!canManage();   /* workspace prefs, thresholds, destructive ops */
+var writeLock=!canWrite();    /* bulk imports */
+var html='<div class="page-head"><div><h1>Settings</h1><div class="head-sub">Account, team, workspaces, alert thresholds and data management.</div></div></div>';
 html+='<div class="grid c-11"><section class="panel">'+panelHead('Account')+'<div class="panel-b"><div class="kv">'+
 '<div><div class="k">Username</div><div class="v mono">'+esc(ME.username)+'</div></div>'+
-'<div><div class="k">Workspace role</div><div class="v">'+esc(ME.role||'—')+'</div></div>'+
-'<div><div class="k">Workspace</div><div class="v">'+esc(s.org)+'</div></div>'+
-'<div><div class="k">Account ID</div><div class="v mono" style="font-size:11px;word-break:break-all">'+esc(ME.userId||'—')+'</div></div>'+
-'</div><p style="margin:12px 0 0;font-size:12px;color:var(--muted)">Your username is fixed at sign up and identifies your account. All data below is stored on the deciti backend and is only accessible with your password.</p>'+
-'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="change-password">Change password</button><button class="btn" data-action="sign-out">Sign out</button></div></div></section>'+
-'<section class="panel">'+panelHead('Workspace')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Workspace name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"'+(readOnly?' disabled':'')+'></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency"'+(readOnly?' disabled':'')+'>'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(readOnly?' disabled':'')+'>Save workspace</button></div></form></section></div>';
-html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn"'+(readOnly?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn"'+(readOnly?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"'+(readOnly?' disabled':'')+'></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(readOnly?' disabled':'')+'>Save thresholds</button></div><p class="hint" style="margin-top:8px">Alerts are recalculated on the server whenever thresholds or contract dates change.</p></form></section>'+
-'<section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">'+db.contracts.length+' contract'+(db.contracts.length===1?'':'s')+' stored on the deciti backend for this workspace. Nothing is kept in browser storage except your session token.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer'+(readOnly?';opacity:.5':'')+'">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"'+(readOnly?' disabled':'')+'></label><button class="btn" data-action="load-sample"'+(readOnly?' disabled':'')+'>'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe"'+(canDelete()?'':' disabled')+'>'+ic('trash')+'Delete all contracts</button></div></div></section></div>';
-html+='<section class="panel mt">'+panelHead('About deciti')+'<div class="panel-b"><p style="margin:0;font-size:12.5px;color:var(--ink-2)">deciti v2.2 — contract &amp; deadline management for corporate teams, backed by a Postgres workspace with per-account row level security. Deadline intelligence is computed from contract dates: days to expiration, renewal windows, notice deadlines and overdue obligations.</p><p style="margin:10px 0 0;font-size:12px;color:var(--muted)">Dark interface by default — switch to light mode anytime from the top bar. Keyboard: press <strong>/</strong> to focus search, <strong>Esc</strong> to dismiss dialogs and panels.</p></div></section>';
+'<div><div class="k">Workspace role</div><div class="v">'+badge(ROLE_TONE[ME.role]||'grey',ROLE_LABEL[ME.role]||ME.role)+' <span class="hint" style="display:block;margin-top:6px">'+esc(ROLE_DESC[ME.role]||'')+'</span></div></div>'+
+'<div><div class="k">Active workspace</div><div class="v">'+esc(s.org)+'</div></div>'+
+'<div><div class="k">Your workspaces</div><div class="v">'+((ME.memberships||[]).length)+' · switch anytime from the sidebar</div></div>'+
+'</div><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="change-password">Change password</button><button class="btn" data-action="sign-out">Sign out</button></div></div></section>'+
+'<section class="panel">'+panelHead('Workspace')+'<form id="settings-org" class="panel-b"><div class="fgrid"><div class="field"><label for="st-org">Workspace name</label><input class="input" id="st-org" name="org" value="'+esc(s.org)+'"'+(adminLock?' disabled':'')+'></div><div class="field"><label for="st-cur">Reporting currency</label><select id="st-cur" name="currency"'+(adminLock?' disabled':'')+'>'+CURRENCIES.map(function(c){return '<option'+(c===s.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(adminLock?' disabled':'')+'>Save workspace</button>'+(adminLock?'<span class="hint" style="margin-left:8px">Only workspace admins can change these.</span>':'')+'</div></form></section></div>';
+/* ---- team ---- */
+html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Team','<span class="chip t-grey">'+db.members.length+' member'+(db.members.length===1?'':'s')+'</span>')+'<div class="tbl-wrap"><table class="tbl" style="min-width:480px"><caption class="sr-only">Workspace members and roles</caption><thead><tr><th scope="col"><span class="th-pad">User</span></th><th scope="col"><span class="th-pad">Role</span></th>'+(canManage()?'<th scope="col"><span class="th-pad" style="text-align:right">Actions</span></th>':'')+'</tr></thead><tbody>'+
+(db.members.length?db.members.map(function(m,i){
+  var self=m.user_id===ME.userId;
+  var adminRow=m.role==='admin';
+  var ctl;
+  if(canManage()&&!self&&!adminRow){
+    ctl='<select class="input role-select" aria-label="Role for '+esc(m.username)+'" data-action="member-role" data-id="'+m.id+'">'+ROLES.map(function(r){return '<option value="'+r+'"'+(r===m.role?' selected':'')+'>'+ROLE_LABEL[r]+'</option>';}).join('')+'</select>';
+  }else{
+    ctl=badge(ROLE_TONE[m.role],ROLE_LABEL[m.role]);
+  }
+  var rm=(canManage()&&!self&&!adminRow)?'<button class="icon-btn" data-action="member-remove" data-id="'+m.id+'" aria-label="Remove '+esc(m.username)+'" title="Remove from workspace">'+ic('trash')+'</button>':'';
+  return '<tr class="stg" style="--r:'+(i%10)+'"><td><div class="co-cell">'+coTile(m.username)+'<span style="font-weight:600">'+esc(m.username)+'</span>'+(self?' <span class="chip t-grey">you</span>':'')+(adminRow?' <span class="chip t-dark">owner</span>':'')+'</div></td><td>'+ctl+'</td>'+(canManage()?'<td><div class="row-actions">'+rm+'</div></td>':'')+'</tr>';
+}).join(''):'<tr><td colspan="3"><p class="hint" style="margin:12px">Loading team…</p></td></tr>')+
+'</tbody></table></div><p class="hint" style="padding:10px 15px;margin:0">Admins manage everything · Managers create, edit and assign any contract · Contributors edit what is assigned to them · Viewers are read-only.</p></section>'+
+/* ---- workspaces ---- */
+'<section class="panel">'+panelHead('Your workspaces','<span class="chip t-grey">'+(ME.memberships||[]).length+'</span>')+'<div>'+
+(ME.memberships||[]).map(function(m){
+  var on=m.orgId===ME.orgId;
+  return '<div class="list-row"><div class="main"><div class="t">'+esc(m.name)+(on?' <span class="chip t-green">current</span>':'')+'</div><div class="s">You are '+esc(ROLE_LABEL[m.role]||m.role)+'</div></div>'+(on?'':'<button class="btn btn-sm" data-action="ws-switch" data-org="'+m.orgId+'">Switch</button>')+'</div>';
+}).join('')+
+'</div><div class="add-row"><button class="btn" type="button" data-action="ws-new">'+ic('plus')+'New workspace</button><button class="btn" type="button" data-action="ws-join">'+ic('external')+'Join with invite code…</button></div></section></div>';
+/* ---- invites (admins) ---- */
+if(canManage()){
+html+='<section class="panel mt">'+panelHead('Invite teammates','<span class="chip t-amber">'+INVITE_TTL_HOURS+' h expiry</span>')+
+'<form id="invite-form" class="add-row"><label class="sr-only" for="inv-role">Invite role</label><select id="inv-role" class="input role-select"><option value="contributor" selected>Contributor — create &amp; edit assigned</option><option value="manager">Manager — create, edit, assign all</option><option value="viewer">Viewer — read-only</option></select><button class="btn btn-primary" type="submit">'+ic('plus')+'Generate invite code</button><span class="hint" style="flex-basis:100%">Codes are 6 digits and stop working after '+INVITE_TTL_HOURS+' hours. Rejoining never downgrades an existing member.</span></form>'+
+(db.lastInvite?codeCardHTML(db.lastInvite):'')+
+'<div>'+activeInvitesHTML()+'</div></section>';
+}
+html+='<div class="grid c-11 mt"><section class="panel">'+panelHead('Deadlines & alerts')+'<form id="settings-alerts" class="panel-b"><div class="fgrid"><div class="field"><label for="st-ew">Expiration warning window (days)</label><select id="st-ew" name="expiryWarn"'+(adminLock?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.expiryWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field"><label for="st-rw">Renewal / notice warning window (days)</label><select id="st-rw" name="renewalWarn"'+(adminLock?' disabled':'')+'>'+[30,45,60,90,120].map(function(v){return '<option value="'+v+'"'+(v===s.renewalWarn?' selected':'')+'>'+v+'</option>';}).join('')+'</select></div><div class="field span2"><label for="st-dn">Default notice period (days)</label><input class="input" type="number" min="0" id="st-dn" name="defaultNotice" value="'+s.defaultNotice+'"'+(adminLock?' disabled':'')+'></div></div><div style="margin-top:12px"><button class="btn btn-primary" type="submit"'+(adminLock?' disabled':'')+'>Save thresholds</button></div><p class="hint" style="margin-top:8px">Alerts are recalculated on the server whenever thresholds or contract dates change.</p></form></section>'+
+'<section class="panel">'+panelHead('Data management')+'<div class="panel-b"><p style="margin:0 0 12px;font-size:12.5px;color:var(--muted)">'+db.contracts.length+' contract'+(db.contracts.length===1?'':'s')+' stored on the deciti backend for this workspace. Nothing is kept in browser storage except your session token.</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-action="export-json">'+ic('download')+'Export backup (JSON)</button><label class="btn" style="cursor:pointer'+(writeLock?';opacity:.5':'')+'">'+ic('upload')+'Import backup<input type="file" id="import-file" accept="application/json" class="sr-only"'+(writeLock?' disabled':'')+'></label><button class="btn" data-action="load-sample"'+(writeLock?' disabled':'')+'>'+ic('upload')+'Load sample data</button><button class="btn btn-danger" data-action="wipe"'+(canManage()?'':' disabled')+' title="'+(canManage()?'':'Admins only')+'">'+ic('trash')+'Delete all contracts</button></div></div></section></div>';
+html+='<section class="panel mt">'+panelHead('About deciti')+'<div class="panel-b"><p style="margin:0;font-size:12.5px;color:var(--ink-2)">deciti v2.3 — contract &amp; deadline management for corporate teams, backed by a Postgres workspace with per-account row level security. Roles: admins run the workspace, managers assign across it, contributors work their assigned contracts, viewers read along. Share a 6-digit invite code (expires in '+INVITE_TTL_HOURS+' hours) and switch between as many workspaces as you need.</p><p style="margin:10px 0 0;font-size:12px;color:var(--muted)">Dark interface by default — switch to light mode anytime from the top bar. Keyboard: press <strong>/</strong> to focus search, <strong>Esc</strong> to dismiss dialogs and panels.</p></div></section>';
 return html;}
 
 function viewNotFound(path){return '<div class="panel" style="max-width:560px;margin:60px auto">'+emptyState('inbox','404 — Page not found','The route “'+(path||'')+'” does not exist in this workspace. Check the address or return to the dashboard.','<a class="btn btn-primary" href="#/">Go to dashboard</a> <a class="btn" href="#/contracts">Open contracts</a>')+'</div>';}
@@ -1324,7 +1442,55 @@ var un=unreadAlerts().length;var bb=$('#bell-badge');if(bb){bb.hidden=!un;bb.tex
 function closePopovers(){var g=$('#gs-pop');if(g)g.classList.remove('open');var b=$('#bell-pop');if(b)b.classList.remove('open');
 var bb=$('#bell-btn');if(bb)bb.setAttribute('aria-expanded','false');
 var mb=$('.menu-btn');if(mb)mb.setAttribute('aria-expanded','false');
+var wsp=$('#ws-pop');if(wsp)wsp.classList.remove('open');
+var wsb=$('.ws-btn');if(wsb)wsb.setAttribute('aria-expanded','false');
 document.body.classList.remove('nav-open');}
+function buildWsPop(){var pop=$('#ws-pop');if(!pop)return;
+  var html='<div class="ws-head">Your workspaces</div>';
+  (ME.memberships||[]).forEach(function(m){
+    var on=m.orgId===ME.orgId;
+    html+='<button type="button" class="ws-item'+(on?' on':'')+'" role="menuitem" data-action="ws-pick" data-org="'+m.orgId+'">'
+      +'<span class="nm">'+esc(m.name)+'</span>'
+      +'<span class="chip t-'+(ROLE_TONE[m.role]||'grey')+'">'+esc(ROLE_LABEL[m.role]||m.role)+'</span>'
+      +(on?'<span class="ck">'+ic('check')+'</span>':'')
+      +'</button>';
+  });
+  html+='<div class="ws-sep"></div>'
+    +'<button type="button" class="ws-act" role="menuitem" data-action="ws-new">'+ic('plus')+'New workspace</button>'
+    +'<button type="button" class="ws-act" role="menuitem" data-action="ws-join">'+ic('external')+'Join with invite code…</button>';
+  pop.innerHTML=html;}
+function copyText(t){
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){toast('Copied to clipboard.');},function(){toast('Copy blocked — please select it manually.','warn');});
+    }else{toast('Copy is not available here.','warn');}
+  }catch(e){toast('Copy is not available here.','warn');}
+}
+function fmtRemaining(iso){
+  var ms=Date.parse(iso)-Date.now();
+  if(!isFinite(ms))return '';
+  if(ms<=0)return 'expired';
+  var m=Math.floor(ms/60000),h=Math.floor(m/60);
+  if(h>=1)return 'expires in '+h+' h '+(m%60)+' m';
+  return 'expires in '+m+' min';
+}
+function codeCardHTML(inv){
+  return '<div class="code-card"><div><div class="code-num">'+esc(inv.code)+'</div>'
+    +'<div class="hint" style="margin-top:6px">Share this code — it '+(fmtRemaining(inv.expires_at)||'has expired')+'. Role granted: <strong>'+esc(ROLE_LABEL[inv.role]||inv.role)+'</strong>.</div></div>'
+    +'<button class="btn btn-sm" type="button" data-action="copy-code" data-code="'+esc(inv.code)+'">Copy code</button></div>';
+}
+function openWsCreateDialog(){
+  openDialog('<div class="dlg-h"><h2 id="dlg-title">New workspace</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'
+    +'<form id="ws-create-form" novalidate><div class="dlg-b">'
+    +'<div class="field"><label for="wc-name">Workspace name</label><input class="input" id="wc-name" required maxlength="120" placeholder="e.g. Acme Legal Ops"><div class="hint">You will be the admin of this workspace. You can switch between workspaces anytime.</div></div>'
+    +'</div><div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button class="btn btn-primary" type="submit">Create workspace</button></div></form>',true);
+}
+function openWsJoinDialog(){
+  openDialog('<div class="dlg-h"><h2 id="dlg-title">Join a workspace</h2><button type="button" class="icon-btn" data-action="close-modal" aria-label="Close dialog">'+ic('x')+'</button></div>'
+    +'<form id="ws-join-form" novalidate><div class="dlg-b">'
+    +'<div class="field"><label for="wj-code">Invite code</label><input class="input" id="wj-code" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="000000" required style="letter-spacing:.45em;font-family:var(--mono);font-size:16px;text-align:center"><div class="hint">Ask a workspace admin for their 6-digit code. Codes expire after '+INVITE_TTL_HOURS+' hours.</div></div>'
+    +'</div><div class="dlg-f"><button type="button" class="btn" data-action="close-modal">Cancel</button><button class="btn btn-primary" type="submit">Join workspace</button></div></form>',true);
+}
 function buildBell(){var alerts=computeAlerts();
 var html='<div class="bell-h"><h2>Notifications</h2><button class="btn btn-sm" data-action="mark-all-read">Mark all read</button></div><div class="bell-list">';
 if(!alerts.length)html+='<div class="empty" style="padding:24px"><p style="margin:0">No active alerts.</p></div>';
@@ -1352,13 +1518,39 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
   if(a==='alert-open'){var aid=el.dataset.id;var n=(db.notifications||[]).filter(function(x){return x.id===aid;})[0];
     if(n&&!n.read){n.read=true;updateCounts();silence(API.markNotificationRead(aid));}
     /* fall through to anchor navigation */}
-  else if(a==='new-contract'){if(!canWrite()){toast('Your role does not allow creating contracts.','err');return;}openDialog(contractFormHTML(null));return;}
-  else if(a==='edit-contract'){var c1=byId(id);if(c1)openDialog(contractFormHTML(c1));return;}
+  else if(a==='new-contract'){if(!canWrite()){toast(isViewer()?'Viewers have read-only access.':'Your role does not allow creating contracts.','err');return;}openDialog(contractFormHTML(null));return;}
+  else if(a==='edit-contract'){var c1=byId(id);
+    if(!c1)return;
+    if(!canEditContract(c1)){toast(ME.role==='contributor'?'You can only edit contracts assigned to you.':'You do not have permission to edit contracts.','err');return;}
+    openDialog(contractFormHTML(c1));return;}
   else if(a==='close-modal'){closeDialog();return;}
   else if(a==='sign-out'){signOut();return;}
   else if(a==='change-password'){openPasswordDialog();return;}
+  else if(a==='ws-switcher'){e.stopPropagation();var wp=$('#ws-pop');var wasOpen=wp.classList.contains('open');closePopovers();if(!wasOpen){buildWsPop();wp.classList.add('open');el.setAttribute('aria-expanded','true');}return;}
+  else if(a==='ws-pick'){switchToOrg(el.dataset.org);return;}
+  else if(a==='ws-switch'){switchToOrg(el.dataset.org);return;}
+  else if(a==='ws-new'){closePopovers();openWsCreateDialog();return;}
+  else if(a==='ws-join'){closePopovers();openWsJoinDialog();return;}
+  else if(a==='copy-code'){copyText(el.dataset.code||'');return;}
+  else if(a==='invite-revoke'){var iv=db.invites.filter(function(x){return x.id===id;})[0];if(!iv)return;
+    confirmDialog({title:'Revoke invite code',message:'Code '+iv.code+' will stop working immediately. Any codes already shared cannot be used after this.',ok:'Revoke',danger:true}).then(function(ok){if(!ok)return;
+      commit(API.revokeInvite(iv.id)).then(function(){
+        if(db.lastInvite&&db.lastInvite.code===iv.code)db.lastInvite=null;
+        log('invite.revoked','Invite code revoked',null);
+        toast('Invite code revoked.','warn');
+        return loadInvites().then(renderRoute);
+      });
+    }).catch(function(){});return;}
+  else if(a==='member-remove'){var mm=db.members.filter(function(x){return x.id===id;})[0];if(!mm)return;
+    confirmDialog({title:'Remove from workspace',message:'Remove '+mm.username+' from this workspace? They will keep access to any other workspaces they belong to.',ok:'Remove',danger:true}).then(function(ok){if(!ok)return;
+      commit(API.removeMember(mm.id)).then(function(){
+        log('member.removed','Removed '+mm.username+' from workspace',null);
+        toast(mm.username+' removed.','warn');
+        return Promise.all([loadOrgDirectory(),silence(refreshMemberships()),loadInvites()]).then(renderRoute);
+      });
+    }).catch(function(){});return;}
   else if(a==='delete-contract'){var c2=byId(id);if(!c2)return;
-    if(!canDelete()){toast('Your role does not allow deleting contracts.','err');return;}
+    if(!canDeleteContract()){toast('Only workspace admins can delete contracts.','err');return;}
     confirmDialog({title:'Delete contract',message:'Permanently delete “'+c2.title+'”? This cannot be undone. Consider archiving instead if you need a record.',ok:'Delete',danger:true}).then(function(ok){if(!ok)return;
       return commit(API.deleteContract(id)).then(function(){
         db.contracts=db.contracts.filter(function(x){return x.id!==id;});
@@ -1369,7 +1561,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
       });
     }).catch(function(){});return;}
   else if(a==='archive-contract'){var c3=byId(id);if(!c3)return;
-    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    if(!canEditContract(c3)){toast(ME.role==='contributor'?'You can only change contracts assigned to you.':'You do not have permission to make this change.','err');return;}
     var next=!c3.archived;
     commit(API.updateContract(id,{archived:next})).then(function(row){
       var saved=absorbContract(row);
@@ -1378,7 +1570,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
       return silence(reloadNotifications()).then(renderRoute);
     }).catch(function(){});return;}
   else if(a==='renew-log'){var c4=byId(id);if(!c4)return;
-    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    if(!canEditContract(c4)){toast(ME.role==='contributor'?'You can only renew contracts assigned to you.':'You do not have permission to make this change.','err');return;}
     confirmDialog({title:'Log renewal',message:'Extend “'+c4.title+'” by 12 months and set its status to Renewed? Expiration and renewal dates will both move forward.',ok:'Log renewal'}).then(function(ok){if(!ok)return;
       var base=c4.expiryDate||todayISO();var rb=c4.renewalDate||base;
       var patch={expiry_date:addMonthsISO(base,12),renewal_date:addMonthsISO(rb,12),status:'Renewed'};
@@ -1400,7 +1592,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
   else if(a==='dl-kind'){dls.kinds[el.dataset.kind]=!dls.kinds[el.dataset.kind];el.setAttribute('aria-pressed',dls.kinds[el.dataset.kind]);refreshDeadlines();return;}
   else if(a==='cal-day'){if(e.target.closest('a.evt')){/* let anchor navigation handle it below */}else{cal.selected=el.dataset.date;refreshCalendar();}return;}
   else if(a==='obligation-delete'){var c5=byId(el.dataset.cid);if(!c5)return;var oid=el.dataset.oid;
-    if(!canDelete()){toast('Your role does not allow deleting obligations.','err');return;}
+    if(!canEditContract(c5)){toast('You can only change obligations on contracts you can edit.','err');return;}
     commit(API.deleteObligation(oid)).then(function(){
       c5.obligations=(c5.obligations||[]).filter(function(o){return o.id!==oid;});
       log('obligation.deleted','Obligation removed from '+c5.title,c5.id);
@@ -1408,7 +1600,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
       return silence(reloadNotifications());
     }).catch(function(){});return;}
   else if(a==='attachment-delete'){var c6=byId(el.dataset.cid);if(!c6)return;var did=el.dataset.aid;
-    if(!canWrite()){toast('Your role does not allow this change.','err');return;}
+    if(!canEditContract(c6)){toast('You can only change documents on contracts you can edit.','err');return;}
     commit(API.deleteDocument(did)).then(function(){
       c6.attachments=(c6.attachments||[]).filter(function(x){return x.id!==did;});
       var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c6);
@@ -1424,7 +1616,7 @@ if(el){var a=el.dataset.action,id=el.dataset.id;
     confirmDialog({title:'Load sample data',message:'Add the sample contract set to this workspace? Existing contracts are kept.',ok:'Load sample'}).then(function(ok){if(!ok)return;
       return importContracts(sampleContracts(),'Sample data loaded.');}).catch(function(){});return;}
   else if(a==='wipe'){
-    if(!canDelete()){toast('Your role does not allow this.','err');return;}
+    if(!canManage()){toast('Only workspace admins can delete all contracts.','err');return;}
     confirmDialog({title:'Delete all contracts',message:'Delete every contract in this workspace, including obligations and document references? This cannot be undone.',ok:'Delete everything',danger:true}).then(function(ok){if(!ok)return;
       var ids=db.contracts.map(function(c){return c.id;});
       if(!ids.length){toast('Nothing to delete.');return;}
@@ -1451,14 +1643,14 @@ if(t.id==='ct-to'){cs.to=t.value;refreshContractsTable();return;}
 if(t.id==='ct-archived'){cs.showArchived=t.checked;cs.page=1;refreshContractsTable();return;}
 if(t.matches('[data-dlf]')){dls.time=t.value;refreshDeadlines();return;}
 if(t.dataset.action==='quick-status'){var c=byId(t.dataset.id);if(!c)return;var prev=c.status;var next=t.value;
-  if(!canWrite()){t.value=prev;toast('Your role does not allow this change.','err');return;}
+  if(!canEditContract(c)){t.value=prev;toast(ME.role==='contributor'?'You can only change contracts assigned to you.':'You do not have permission to make this change.','err');return;}
   commit(API.updateContract(c.id,{status:next})).then(function(row){var saved=absorbContract(row);
     log('contract.status','Status changed to '+saved.status+' on '+saved.title,saved.id);
     var hb=$('#detail-badges');if(hb)hb.innerHTML=statusBadge(saved.status)+prioBadge(saved.priority)+(saved.archived?badge('grey','Archived'):'');
     toast('Status set to '+saved.status+'.');return silence(reloadNotifications());
   }).catch(function(){t.value=prev;});return;}
 if(t.dataset.action==='quick-priority'){var c7=byId(t.dataset.id);if(!c7)return;var prevP=c7.priority;var nextP=t.value;
-  if(!canWrite()){t.value=prevP;toast('Your role does not allow this change.','err');return;}
+  if(!canEditContract(c7)){t.value=prevP;toast(ME.role==='contributor'?'You can only change contracts assigned to you.':'You do not have permission to make this change.','err');return;}
   commit(API.updateContract(c7.id,{priority:nextP})).then(function(row){var saved=absorbContract(row);
     log('contract.priority','Priority changed to '+saved.priority+' on '+saved.title,saved.id);
     var hb2=$('#detail-badges');if(hb2)hb2.innerHTML=statusBadge(saved.status)+prioBadge(saved.priority)+(saved.archived?badge('grey','Archived'):'');
@@ -1467,7 +1659,7 @@ if(t.dataset.action==='quick-priority'){var c7=byId(t.dataset.id);if(!c7)return;
 if(t.dataset.action==='obligation-toggle'){var c8=byId(t.dataset.cid);if(!c8)return;
   var ob=(c8.obligations||[]).filter(function(o){return o.id===t.dataset.oid;})[0];if(!ob)return;
   var want=t.checked;
-  if(!canWrite()){t.checked=!want;toast('Your role does not allow this change.','err');return;}
+  if(!canEditContract(c8)){t.checked=!want;toast('You can only change obligations on contracts you can edit.','err');return;}
   commit(API.updateObligation(ob.id,{done:want})).then(function(row){
     ob.done=!!row.done;
     log('obligation.toggled',(ob.done?'Obligation completed: ':'Obligation reopened: ')+ob.title+' ('+c8.title+')',c8.id);
@@ -1475,6 +1667,14 @@ if(t.dataset.action==='obligation-toggle'){var c8=byId(t.dataset.cid);if(!c8)ret
     if($('#dl-list'))refreshDeadlines();
     return silence(reloadNotifications());
   }).catch(function(){t.checked=!want;});return;}
+if(t.dataset.action==='member-role'){var mid=t.dataset.id;var mm=(db.members||[]).filter(function(x){return x.id===mid;})[0];if(!mm)return;
+  var prevRole=mm.role;var newRole=t.value;
+  commit(API.updateMemberRole(mid,newRole)).then(function(){
+    mm.role=newRole;
+    log('member.role','Role set to '+ROLE_LABEL[newRole]+' for '+mm.username,null);
+    toast(mm.username+' is now a '+ROLE_LABEL[newRole]+'.');
+    return silence(refreshMemberships());
+  }).catch(function(){t.value=prevRole;});return;}
 if(t.id==='import-file'){var f=t.files&&t.files[0];if(!f)return;
   if(!canWrite()){t.value='';toast('Your role does not allow importing data.','err');return;}
   readFileText(f).then(function(txt){
@@ -1551,6 +1751,37 @@ if(f.id==='attachment-form'){e.preventDefault();var c9=byId(f.dataset.id);if(!c9
     var al=$('#att-list');if(al)al.innerHTML=attachmentsHTML(c9);
     f.reset();toast('Reference added.');
   }).catch(function(){});return;}
+if(f.id==='ws-create-form'){e.preventDefault();
+  var wcn=$('#wc-name').value.trim();
+  if(!wcn){toast('Workspace name is required.','err');return;}
+  var wcBtn=f.querySelector('button[type="submit"]');if(wcBtn)wcBtn.disabled=true;
+  commit(API.createWorkspace(wcn)).then(function(orgId){
+    log('workspace.created','Workspace created: '+wcn,null);
+    return refreshMemberships().then(function(){return orgId;});
+  }).then(function(orgId){
+    closeDialog();toast('Workspace created.');
+    switchToOrg(orgId);
+  }).catch(function(){if(wcBtn)wcBtn.disabled=false;});return;}
+if(f.id==='ws-join-form'){e.preventDefault();
+  var code=String($('#wj-code').value||'').trim();
+  if(!/^\d{6}$/.test(code)){toast('Enter the 6-digit invite code.','err');return;}
+  var wjBtn=f.querySelector('button[type="submit"]');if(wjBtn)wjBtn.disabled=true;
+  commit(API.redeemInvite(code)).then(function(orgId){
+    log('workspace.joined','Joined a workspace with an invite code',null);
+    return refreshMemberships().then(function(){return orgId;});
+  }).then(function(orgId){
+    closeDialog();toast('Joined workspace.');
+    switchToOrg(orgId);
+  }).catch(function(err){if(wjBtn)wjBtn.disabled=false;fail(err);});return;}
+if(f.id==='invite-form'){e.preventDefault();
+  var invRole=$('#inv-role').value;
+  var igBtn=f.querySelector('button[type="submit"]');if(igBtn)igBtn.disabled=true;
+  commit(API.createInvite(invRole)).then(function(rows){
+    var inv=rows&&rows[0];
+    if(inv){db.lastInvite={code:inv.code,role:inv.role,expires_at:inv.expires_at};toast('Invite code generated.');}
+    if(igBtn)igBtn.disabled=false;
+    return loadInvites().then(renderRoute);
+  }).catch(function(){if(igBtn)igBtn.disabled=false;});return;}
 if(f.id==='settings-org'){e.preventDefault();
   var name=$('#st-org').value.trim();var cur=$('#st-cur').value;
   if(!name){toast('Workspace name is required.','err');return;}
@@ -1689,14 +1920,15 @@ function submitPasswordChange(f){
 function signOut(){
   API.signOut().catch(function(){}).then(function(){
     /* clear every trace of the previous account from memory before re-render */
-    db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
-    ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+    db={contracts:[],activity:[],members:[],invites:[],lastInvite:null,notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:3};
+    ME={userId:null,username:'',fullName:'',orgId:null,role:'',memberships:[],ready:false};
     document.body.classList.remove('authed');
     $('#main').innerHTML='';
     closeDialog();closePopovers();
     setAuthMode('signin');
     $('#auth-form').reset();
     authMsg('You have been signed out.','ok');
+    try{safeStorage.removeItem('deciti.org');}catch(e){}
     try{history.replaceState({p:'/'},'','#/');}catch(e){}
     currentPath='/';
   });
@@ -1707,19 +1939,57 @@ function applyIdentityToChrome(){
   var av=$('#user-avatar'),nm=$('#user-name'),rl=$('#user-role'),chip=$('#user-chip');
   if(av)av.textContent=initials(ME.username);
   if(nm)nm.textContent=ME.username;
-  if(rl)rl.textContent=ME.role?ME.role.charAt(0).toUpperCase()+ME.role.slice(1):'';
-  if(chip)chip.title='Signed in as '+ME.username;
+  if(rl)rl.textContent=ROLE_LABEL[ME.role]||(ME.role?ME.role.charAt(0).toUpperCase()+ME.role.slice(1):'');
+  if(chip)chip.title='Signed in as '+ME.username+(ME.role?' · '+ROLE_LABEL[ME.role]:'');
   var org=$('#org-name');if(org)org.textContent=S().org;
+  var wr=$('#ws-role');if(wr)wr.textContent=ROLE_LABEL[ME.role]||'—';
 }
 function loadWorkspaceData(){
-  return Promise.all([API.contracts(),API.activity(),API.notifications()]).then(function(res){
+  return Promise.all([API.contracts(),API.activity(),API.notifications(),loadOrgDirectory(),loadInvites()]).then(function(res){
     db.contracts=(res[0]||[]).map(mapContract);
     db.activity=(res[1]||[]).map(mapActivity);
     db.notifications=(res[2]||[]).map(mapNotification);
   });
 }
+/* Team directory for the active workspace: member rows merged with profile
+   usernames. Readable by every member; failures degrade to an empty list. */
+function loadOrgDirectory(){
+  return Promise.all([
+    API.orgMembers().catch(function(){return [];}),
+    API.profilesList().catch(function(){return [];})
+  ]).then(function(r){
+    var pm={};(r[1]||[]).forEach(function(p){pm[p.id]=p.username;});
+    db.members=(r[0]||[]).map(function(m){return{id:m.id,user_id:m.user_id,role:normRole(m.role),username:pm[m.user_id]||(m.user_id===ME.userId?ME.username:'(unknown)')};});
+  });
+}
+/* Active invite codes are visible to admins only. */
+function loadInvites(){
+  if(!canManage()){db.invites=[];return Promise.resolve();}
+  return API.invites().then(function(rows){db.invites=rows||[];}).catch(function(){db.invites=[];});
+}
 /* Establishes identity from the verified session, then loads only the rows the
    server is willing to return for that session. */
+function mapMembership(m){return{orgId:m.organization_id,role:normRole(m.role),name:(m.organizations&&m.organizations.name)||'Workspace',org:m.organizations||null};}
+function refreshMemberships(){return API.memberships().then(function(list){ME.memberships=(list||[]).map(mapMembership);});}
+function setActiveMembership(m,persist){
+  ME.orgId=m.orgId;ME.role=m.role;
+  db.settings=m.org?mapSettings(m.org):Object.assign({},DEFAULT_SETTINGS);
+  if(persist!==false){try{safeStorage.setItem('deciti.org',m.orgId);}catch(e){}}
+  var wr=$('#ws-role');if(wr)wr.textContent=ROLE_LABEL[ME.role]||'—';
+  updateCounts();
+}
+function switchToOrg(orgId){
+  var m=(ME.memberships||[]).filter(function(x){return x.orgId===orgId;})[0];
+  if(!m)return;
+  if(m.orgId===ME.orgId){closePopovers();closeDialog();return;}
+  setActiveMembership(m,true);
+  closeDialog();closePopovers();
+  cs.page=1;db.lastInvite=null;db.invites=[];db.members=[];
+  syncMark('saving');
+  toast('Switched to '+m.name+'.');
+  loadWorkspaceData().then(function(){syncMark('loaded');renderRoute();}).catch(function(err){fail(err);});
+  silence(API.refreshNotifications().then(reloadNotifications));
+}
 function bootstrapSession(session){
   if(!session||!session.user){document.body.classList.remove('authed');return Promise.resolve(false);}
   /* Read the subject from the signed token rather than the editable user object. */
@@ -1731,17 +2001,19 @@ function bootstrapSession(session){
   return API.profile(ME.userId).then(function(p){
     ME.username=(p&&p.username)||'';
     ME.fullName=(p&&p.full_name)||ME.username;
-    return API.membership();
-  }).then(function(m){
-    if(!m){
+    return refreshMemberships();
+  }).then(function(){
+    var ms=ME.memberships||[];
+    if(!ms.length){
       /* No workspace yet (e.g. an invitation was revoked) — create one. */
-      return API.createWorkspace(ME.username+"'s workspace").then(API.membership);
+      return API.createWorkspace(ME.username+"'s workspace").then(refreshMemberships);
     }
-    return m;
-  }).then(function(m){
-    if(!m)throw new Error('No workspace is available for this account.');
-    ME.orgId=m.organization_id;ME.role=m.role;
-    db.settings=m.organizations?mapSettings(m.organizations):Object.assign({},DEFAULT_SETTINGS);
+  }).then(function(){
+    var ms=ME.memberships||[];
+    if(!ms.length)throw new Error('No workspace is available for this account.');
+    var stored=null;try{stored=safeStorage.getItem('deciti.org');}catch(e){}
+    var active=ms.filter(function(x){return x.orgId===stored;})[0]||ms[0];
+    setActiveMembership(active,false);
     return loadWorkspaceData();
   }).then(function(){
     ME.ready=true;
@@ -1771,8 +2043,8 @@ document.addEventListener('click',function(e){
 sb.auth.onAuthStateChange(function(event,session){
   if(event==='SIGNED_OUT'||!session){
     if(ME.ready||document.body.classList.contains('authed')){
-      db={contracts:[],activity:[],notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:2};
-      ME={userId:null,username:'',fullName:'',orgId:null,role:'',ready:false};
+      db={contracts:[],activity:[],members:[],invites:[],lastInvite:null,notifications:[],settings:Object.assign({},DEFAULT_SETTINGS),version:3};
+      ME={userId:null,username:'',fullName:'',orgId:null,role:'',memberships:[],ready:false};
       document.body.classList.remove('authed');
       $('#main').innerHTML='';
     }
