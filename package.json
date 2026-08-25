@@ -1,6 +1,6 @@
 {
   "name": "decitii",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "deciti — contract & deadline management for corporate teams. Single-file SPA backed by Supabase.",
   "scripts": {
