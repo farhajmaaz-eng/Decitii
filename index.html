@@ -543,6 +543,41 @@ body.authed #auth-screen .auth-wrap{transform:scale(.985) translateY(8px);transi
 .auth-body .btn-primary{width:100%;justify-content:center;padding:9px 12px}
 .pw-row{display:flex;gap:8px;align-items:flex-end}
 #auth-screen .brand-name,#auth-screen .brand-sub{display:block}
+/* ---------- public landing page ---------- */
+.landing{min-height:100vh;overflow:hidden;background:#0d1014;color:#f2f5f3;position:relative}
+.landing *{box-sizing:border-box}
+.landing::before{content:'';position:absolute;inset:0;background:radial-gradient(850px 420px at 50% -100px,rgba(67,171,115,.25),transparent 70%),linear-gradient(115deg,transparent 48%,rgba(143,210,172,.035));pointer-events:none}
+.landing-nav{height:78px;max-width:1216px;margin:auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
+.landing-brand{display:flex;align-items:center;gap:10px;color:#f3f6f4;font-weight:650;text-decoration:none;font-size:18px;letter-spacing:-.03em}
+.landing-brand .brand-mark{width:34px;height:34px;background:#171d1c;border-color:#2b4035}
+.landing-links{display:flex;align-items:center;gap:28px}
+.landing-links a{color:#aeb9b3;text-decoration:none;font-size:13px;font-weight:500;transition:color .18s ease}
+.landing-links a:hover{color:#edf5ef}
+.landing-actions{display:flex;align-items:center;gap:10px}
+.land-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 16px;border-radius:8px;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;border:1px solid transparent;text-decoration:none;transition:transform .2s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease}
+.land-btn:hover{transform:translateY(-2px)}
+.land-btn:active{transform:translateY(0)}
+.land-btn.ghost{background:transparent;border-color:#303b35;color:#dce5df}.land-btn.ghost:hover{background:#1a211d;border-color:#47574d}
+.land-btn.primary{color:#07110b;background:#a4e2bd;border-color:#a4e2bd;box-shadow:0 8px 22px rgba(50,158,99,.18)}.land-btn.primary:hover{background:#c0f1d2;border-color:#c0f1d2;box-shadow:0 12px 30px rgba(50,158,99,.3)}
+.land-hero{position:relative;z-index:1;max-width:1216px;margin:0 auto;padding:92px 28px 0;min-height:713px;text-align:center}
+.land-kicker{display:inline-flex;align-items:center;gap:8px;border:1px solid #2b4336;background:rgba(31,61,44,.48);padding:6px 10px 6px 9px;border-radius:999px;color:#b8ddc4;font-size:11px;letter-spacing:.04em;font-weight:600;animation:land-up .7s cubic-bezier(.16,.84,.3,1) both}
+.land-kicker i{width:7px;height:7px;border-radius:50%;background:#8fdaad;box-shadow:0 0 0 4px rgba(143,218,173,.12)}
+.land-hero h1{font-size:clamp(43px,6.1vw,80px);line-height:.98;letter-spacing:-.062em;max-width:900px;margin:23px auto 20px;font-weight:600;animation:land-up .7s .08s cubic-bezier(.16,.84,.3,1) both}
+.land-hero h1 span{color:#a8e6c0}.land-hero p{max-width:620px;margin:0 auto;color:#aab6ae;font-size:17px;line-height:1.65;animation:land-up .7s .16s cubic-bezier(.16,.84,.3,1) both}
+.hero-ctas{display:flex;gap:11px;justify-content:center;margin:28px 0 52px;animation:land-up .7s .24s cubic-bezier(.16,.84,.3,1) both}.hero-ctas .land-btn{min-height:47px;padding:0 20px}
+.hero-note{color:#79857d;font-size:11.5px;margin-top:-39px;margin-bottom:36px;animation:land-up .7s .3s cubic-bezier(.16,.84,.3,1) both}
+.product-frame{margin:0 auto;width:min(996px,100%);border-radius:15px 15px 0 0;border:1px solid #304139;background:#151a18;box-shadow:0 -1px 0 rgba(255,255,255,.03) inset,0 28px 90px rgba(0,0,0,.55),0 0 90px rgba(58,173,105,.1);overflow:hidden;text-align:left;animation:product-in .9s .32s cubic-bezier(.16,.84,.3,1) both}
+.frame-bar{height:38px;background:#1b211e;border-bottom:1px solid #2b332e;display:flex;align-items:center;padding:0 14px;gap:6px}.frame-dot{width:7px;height:7px;border-radius:50%;background:#465047}.frame-dot:nth-child(1){background:#d8796d}.frame-dot:nth-child(2){background:#d3aa5d}.frame-dot:nth-child(3){background:#78b980}.frame-title{margin-left:8px;color:#88948c;font:10px var(--mono);letter-spacing:.03em}
+.demo-shell{display:grid;grid-template-columns:170px 1fr;min-height:374px}.demo-side{padding:17px 10px;background:#141916;border-right:1px solid #28312b}.demo-word{font-size:14px;font-weight:600;padding:0 8px 18px;color:#e7eee9}.demo-nav{display:grid;gap:3px}.demo-nav div{padding:7px 8px;border-radius:5px;color:#78837c;font-size:10px}.demo-nav div.on{background:#23352a;color:#d5efdd}.demo-nav b{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.12em;color:#546057;margin:14px 8px 5px}
+.demo-main{padding:25px 26px;background:linear-gradient(135deg,#1b211e,#171c19)}.demo-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:23px}.demo-top h3{font-size:19px;letter-spacing:-.04em}.demo-top p{color:#7f8b83;font-size:10px;margin:4px 0}.demo-add{font-size:10px;padding:7px 9px;background:#a4e2bd;color:#102319;border-radius:5px;font-weight:700}.demo-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:17px}.demo-card{border:1px solid #303b34;background:#202723;border-radius:7px;padding:12px}.demo-label{font-size:9px;color:#829087}.demo-num{font-size:21px;margin-top:4px;font-weight:600;letter-spacing:-.05em}.demo-change{font-size:9px;color:#9cdbb5;margin-top:3px}.demo-table{border:1px solid #303b34;border-radius:7px;overflow:hidden}.demo-row{display:grid;grid-template-columns:1.4fr 1fr .8fr .55fr;padding:9px 11px;border-bottom:1px solid #2b342e;color:#b4bfb7;font-size:9px;align-items:center}.demo-row:last-child{border-bottom:0}.demo-row.head{color:#708078;background:#202723;font-size:8px;text-transform:uppercase;letter-spacing:.08em}.demo-pill{display:inline-flex;width:max-content;border-radius:999px;padding:3px 6px;background:#253c2e;color:#a9ddbc;font-size:8px}.demo-pill.amber{background:#433b25;color:#e8d291}.demo-pill.red{background:#44292b;color:#efaaa8}
+.land-section{position:relative;z-index:1;max-width:1216px;padding:132px 28px;margin:auto}.section-intro{max-width:570px}.eyebrow{font-size:11px;color:#9ad8b2;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.section-intro h2{font-size:clamp(32px,4.2vw,52px);line-height:1.03;letter-spacing:-.055em;margin:14px 0}.section-intro p{color:#97a49c;line-height:1.65;font-size:15px}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:48px}.feature-card{border:1px solid #29352e;border-radius:12px;background:linear-gradient(145deg,#171d19,#121713);padding:25px;min-height:250px;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}.feature-card:hover{transform:translateY(-5px);border-color:#476252;box-shadow:0 20px 40px rgba(0,0,0,.22)}.feature-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:9px;background:#203628;border:1px solid #34513e;color:#a3e1bb;margin-bottom:34px}.feature-card h3{font-size:17px;letter-spacing:-.03em;margin-bottom:8px}.feature-card p{font-size:13px;color:#94a199;line-height:1.6;margin:0}
+.workflow{display:grid;grid-template-columns:.9fr 1.1fr;gap:75px;align-items:center;padding-top:20px}.workflow-copy h2{font-size:clamp(33px,4vw,48px);letter-spacing:-.055em;line-height:1.05;margin:12px 0 16px}.workflow-copy p{font-size:15px;color:#9aa79f;line-height:1.65}.workflow-list{display:grid;gap:18px;margin-top:29px}.workflow-list div{display:grid;grid-template-columns:28px 1fr;gap:11px}.workflow-list b{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#213329;border:1px solid #3b5847;color:#a9dfbd;font:600 10px var(--mono)}.workflow-list strong{display:block;font-size:13px;margin:2px 0 3px}.workflow-list span{color:#859188;font-size:12px;line-height:1.5}
+.signal-board{border:1px solid #304039;background:#151b17;border-radius:14px;padding:17px;box-shadow:0 22px 70px rgba(0,0,0,.3)}.signal-top{display:flex;justify-content:space-between;align-items:center;padding:0 3px 15px}.signal-top b{font-size:12px}.signal-top span{font:10px var(--mono);color:#76c994}.signal-alert{padding:13px;border:1px solid #56462b;background:linear-gradient(100deg,#2c281c,#1c211b);border-radius:8px;margin-bottom:9px;display:flex;gap:11px}.signal-alert i{width:8px;height:8px;border-radius:50%;background:#e0b45c;margin-top:5px;box-shadow:0 0 0 4px rgba(224,180,92,.1)}.signal-alert strong{display:block;font-size:11px;color:#e5e8e4}.signal-alert p{margin:3px 0 0;color:#a4aa9e;font-size:10px;line-height:1.4}.signal-row{padding:12px 13px;border-radius:8px;background:#1d241f;margin-top:7px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#d7dfd9}.signal-row span{font-size:9px;color:#8f9b92}.signal-row em{font-style:normal;color:#8bd5a6;font-size:9px}
+.land-cta{position:relative;z-index:1;max-width:1160px;margin:0 auto 30px;padding:56px 38px;border:1px solid #35503f;border-radius:17px;background:radial-gradient(600px 280px at 80% 0,rgba(92,202,135,.18),transparent 68%),linear-gradient(120deg,#192d20,#111b14);display:flex;justify-content:space-between;align-items:center;gap:30px}.land-cta h2{font-size:clamp(30px,4vw,48px);letter-spacing:-.055em;line-height:1.03;margin:0}.land-cta p{color:#a7b6ac;font-size:14px;margin:10px 0 0}.land-footer{max-width:1216px;margin:auto;padding:32px 28px 42px;display:flex;justify-content:space-between;color:#647168;font-size:11px}.land-footer b{color:#b9c5bd;font-weight:600}
+body.authed .landing{display:none}body:not(.auth-open):not(.authed) #auth-screen{display:none}body.auth-open #auth-screen{display:grid}.auth-close{position:absolute;right:16px;top:16px;z-index:2;width:32px;height:32px;border:1px solid var(--border);border-radius:7px;background:var(--panel-2);color:var(--muted);cursor:pointer;font-size:20px;line-height:1}.auth-close:hover{color:var(--ink);background:var(--btn-bg)}
+@keyframes land-up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}@keyframes product-in{from{opacity:0;transform:perspective(900px) rotateX(7deg) translateY(24px)}to{opacity:1;transform:none}}
+@media (max-width:760px){.landing-nav{height:68px;padding:0 18px}.landing-links{display:none}.landing-actions .ghost{display:none}.land-hero{padding:66px 18px 0;min-height:590px}.land-hero h1{font-size:46px}.land-hero p{font-size:15px}.product-frame{width:118%;margin-left:-9%}.demo-shell{grid-template-columns:1fr}.demo-side{display:none}.demo-main{padding:18px}.demo-cards{gap:6px}.demo-card{padding:9px}.demo-row{grid-template-columns:1.25fr .75fr .55fr;padding:8px}.demo-row>*:nth-child(3){display:none}.feature-grid{grid-template-columns:1fr}.land-section{padding:90px 20px}.workflow{grid-template-columns:1fr;gap:42px}.land-cta{margin:0 18px 20px;padding:37px 26px;display:block}.land-cta .land-btn{margin-top:22px}.land-footer{padding:25px 20px 35px}.hero-note{display:none}.hero-ctas{margin-bottom:42px}}
 /* ---------- responsive ---------- */
 @media (max-width:1060px){
   .app{grid-template-columns:1fr}
@@ -570,7 +605,32 @@ body.authed #auth-screen .auth-wrap{transform:scale(.985) translateY(8px);transi
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
+<div class="landing" id="landing">
+  <header class="landing-nav">
+    <a class="landing-brand" href="#top" aria-label="deciti home"><span class="brand-mark" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 64 64" fill="none"><rect x="13" y="15" width="38" height="5" rx="2.5" fill="#9aa69e"/><rect x="13" y="28" width="25" height="5" rx="2.5" fill="#9aa69e"/><circle cx="45" cy="45" r="10" fill="#65bd89"/><circle cx="45" cy="45" r="4" fill="#dff5e6"/></svg></span>deciti</a>
+    <nav class="landing-links" aria-label="Landing page navigation"><a href="#how-it-works">How it works</a><a href="#features">Features</a><a href="#security">Security</a></nav>
+    <div class="landing-actions"><button class="land-btn ghost" type="button" data-auth-open="signin">Sign in</button><button class="land-btn primary" type="button" data-auth-open="signup">Start for free <span aria-hidden="true">→</span></button></div>
+  </header>
+  <main id="top">
+    <section class="land-hero" aria-labelledby="hero-title">
+      <div class="land-kicker"><i aria-hidden="true"></i> CONTRACT INTELLIGENCE, SIMPLIFIED</div>
+      <h1 id="hero-title">Never let a contract<br>deadline <span>surprise you.</span></h1>
+      <p>deciti gives corporate teams one calm, precise view of every agreement, notice period, renewal and obligation that matters.</p>
+      <div class="hero-ctas"><button class="land-btn primary" type="button" data-auth-open="signup">Create your workspace <span aria-hidden="true">→</span></button><a class="land-btn ghost" href="#features">Explore the system</a></div>
+      <p class="hero-note">No credit card required · Private workspace by default</p>
+      <div class="product-frame" aria-label="A preview of the Deciti contracts dashboard">
+        <div class="frame-bar"><i class="frame-dot"></i><i class="frame-dot"></i><i class="frame-dot"></i><span class="frame-title">deciti / contracts</span></div>
+        <div class="demo-shell"><aside class="demo-side"><div class="demo-word">deciti</div><div class="demo-nav"><div class="on">▦ &nbsp; Dashboard</div><div>▤ &nbsp; Contracts</div><div>◷ &nbsp; Deadlines</div><div>□ &nbsp; Calendar</div><div>↻ &nbsp; Renewals</div><b>Directory</b><div>▥ &nbsp; Companies</div><div>▥ &nbsp; Reports</div></div></aside><div class="demo-main"><div class="demo-top"><div><h3>Contract portfolio</h3><p>Everything in one place, prioritized by risk.</p></div><span class="demo-add">+ New contract</span></div><div class="demo-cards"><div class="demo-card"><div class="demo-label">ACTIVE CONTRACTS</div><div class="demo-num">48</div><div class="demo-change">↑ 4 this quarter</div></div><div class="demo-card"><div class="demo-label">ACTION NEEDED</div><div class="demo-num">06</div><div class="demo-change">Next 30 days</div></div><div class="demo-card"><div class="demo-label">UPCOMING VALUE</div><div class="demo-num">$1.84m</div><div class="demo-change">Renewal pipeline</div></div></div><div class="demo-table"><div class="demo-row head"><span>Contract</span><span>Next event</span><span>Owner</span><span>Status</span></div><div class="demo-row"><span>Atlas Software MSA</span><span>Notice in 12 days</span><span>J. Morgan</span><span class="demo-pill amber">Action needed</span></div><div class="demo-row"><span>Northwind SOW</span><span>Renewal in 43 days</span><span>A. Singh</span><span class="demo-pill">On track</span></div><div class="demo-row"><span>Vertex Data DPA</span><span>Expiry in 6 days</span><span>J. Morgan</span><span class="demo-pill red">Critical</span></div></div></div></div>
+      </div>
+    </section>
+    <section class="land-section" id="features"><div class="section-intro"><div class="eyebrow">ONE SYSTEM, EVERY SIGNAL</div><h2>Contract work without the blind spots.</h2><p>Bring the important dates and terms out of scattered spreadsheets and into a workspace built for decisions.</p></div><div class="feature-grid"><article class="feature-card"><div class="feature-icon">◷</div><h3>Notice intelligence</h3><p>deciti calculates the real action date — renewal minus notice period — and makes it impossible to miss.</p></article><article class="feature-card"><div class="feature-icon">↻</div><h3>Renewals, in context</h3><p>See what is approaching, who owns it and the value at stake before the next renewal conversation starts.</p></article><article class="feature-card" id="security"><div class="feature-icon">⌁</div><h3>Private by design</h3><p>Each workspace is scoped to its members, with data access enforced at the database layer.</p></article></div></section>
+    <section class="land-section" id="how-it-works"><div class="workflow"><div class="workflow-copy"><div class="eyebrow">FROM AGREEMENT TO ACTION</div><h2>Keep the whole portfolio ahead of the clock.</h2><p>Set up the facts once. deciti turns them into a clear operational picture for your legal and business teams.</p><div class="workflow-list"><div><b>01</b><p><strong>Add the agreement</strong><span>Capture dates, terms, parties, values and notice periods.</span></p></div><div><b>02</b><p><strong>Let deciti calculate</strong><span>Deadline logic surfaces the dates that need an actual decision.</span></p></div><div><b>03</b><p><strong>Act with confidence</strong><span>Share a focused queue, assign owners and preserve the context.</span></p></div></div></div><div class="signal-board"><div class="signal-top"><b>Priority queue</b><span>● LIVE</span></div><div class="signal-alert"><i></i><div><strong>Atlas Software MSA · Notice window opens soon</strong><p>12 days remaining · $420,000 annual value · Assigned to J. Morgan</p></div></div><div class="signal-row"><div>Northwind SOW <span>· Renewal</span></div><em>43 days</em></div><div class="signal-row"><div>Vertex Data DPA <span>· Expiration</span></div><em>6 days</em></div><div class="signal-row"><div>Obligation review <span>· Quarterly</span></div><em>18 days</em></div></div></div></section>
+    <section class="land-cta"><div><h2>Give every deadline<br>the attention it deserves.</h2><p>Start your private contract workspace in minutes.</p></div><button class="land-btn primary" type="button" data-auth-open="signup">Create account <span aria-hidden="true">→</span></button></section>
+  </main>
+  <footer class="land-footer"><b>deciti</b><span>Contract intelligence for corporate teams</span><span>© 2026</span></footer>
+</div>
 <div id="auth-screen" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+  <button class="auth-close" type="button" data-auth-close aria-label="Close sign in">×</button>
   <div class="auth-wrap">
     <aside class="auth-side" aria-hidden="true">
       <h1>Every contract deadline,<br><em>handled.</em></h1>
@@ -1874,6 +1934,18 @@ function setAuthMode(mode){authMode=mode==='signup'?'signup':'signin';
     : 'Your workspace data is stored on the deciti backend and is private to your account.';
   authMsg('');
 }
+/* Landing CTAs open the existing auth form; the app never duplicates credentials
+   or introduces a second account path. */
+function openAuth(mode){
+  document.body.classList.add('auth-open');
+  setAuthMode(mode||'signin');
+  window.setTimeout(function(){var field=$('#auth-username');if(field)field.focus();},80);
+}
+function closeAuth(){
+  if(document.body.classList.contains('authed'))return;
+  document.body.classList.remove('auth-open');
+  authMsg('');
+}
 function submitAuth(f){
   if(authBusy)return;
   var username=String($('#auth-username').value||'').trim().toLowerCase();
@@ -2049,9 +2121,13 @@ function bootstrapSession(session){
 }
 
 document.addEventListener('click',function(e){
+  var open=e.target.closest('[data-auth-open]');
+  if(open){openAuth(open.dataset.authOpen);return;}
+  if(e.target.closest('[data-auth-close]')){closeAuth();return;}
   var tab=e.target.closest('[data-auth-tab]');
   if(tab){setAuthMode(tab.dataset.authTab);$('#auth-username').focus();}
 });
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&document.body.classList.contains('auth-open'))closeAuth();});
 
 /* Any session change — including a token forged or edited in storage being
    rejected by the server — re-runs the bootstrap from scratch. */
@@ -2087,7 +2163,7 @@ sb.auth.onAuthStateChange(function(event,session){
     }
   }catch(e){}
   API.session().then(function(session){
-    if(!session){var u=$('#auth-username');if(u)u.focus();return false;}
+    if(!session){return false;}
     $('#main').innerHTML=skeleton();
     return bootstrapSession(session);
   }).catch(function(){
